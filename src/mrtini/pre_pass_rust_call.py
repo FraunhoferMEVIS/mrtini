@@ -3,7 +3,7 @@
 #
 # This file is part of MRtini Simulator.
 #
-# <Snawar Hussain/ Fraunhofer MEVIS>.
+# Copyright (C) 2026 Fraunhofer MEVIS, Germany
 #
 # This derived work is distributed under the terms of the GNU Affero
 # General Public License v3.0 or later. See LICENSE and NOTICE files

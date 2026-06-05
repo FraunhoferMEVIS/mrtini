@@ -1,0 +1,74 @@
+Package: pyvista
+Version: 0.45.2
+License metadata: UNKNOWN
+
+
+--- pyvista-0.45.2.dist-info/licenses/AUTHORS.rst ---
+.. _authors:
+
+Authors
+-------
+
+.. image:: https://img.shields.io/github/contributors/pyvista/pyvista.svg?logo=github&logoColor=white
+   :target: https://github.com/pyvista/pyvista/graphs/contributors/
+
+
+The following is a list of authors who have made substantial contributions to
+the conception or design of this software; or the creation of new code used in
+this software; or have drafted the work or substantively revised it and are
+considered "The PyVista Developers":
+
+- Alex Kaszynski, (`@akaszynski <https://github.com/akaszynski/>`_)
+- Bane Sullivan, (`@banesullivan <https://github.com/banesullivan/>`_)
+- Henrik Ã…hl, (`@supersubscript <https://github.com/supersubscript/>`_)
+- Guillaume Favelier, (`@GuillaumeFavelier <https://github.com/GuillaumeFavelier/>`_)
+- Jevin Jones, (`@JevinJ <https://github.com/JevinJ/>`_)
+- AndrÃ¡s DeÃ¡k, (`@adeak <https://github.com/adeak>`_)
+- Tetsuo Koyama, (`@tkoyama010 <https://github.com/tkoyama010>`_)
+- Rodrigo Mologni, (`@rodrigomologni <https://github.com/rodrigomologni>`_)
+- Phil Chiu, (`@whophil <https://github.com/whophil>`_)
+- Thomas G., (`@thomgrand <https://github.com/thomgrand>`_)
+- Eric Larson, (`@larsoner <https://github.com/larsoner>`_)
+- Matthew Flamm, (`@MatthewFlamm <https://github.com/MatthewFlamm>`_)
+- Darik Gamble, (`@darikg <https://github.com/darikg>`_)
+- Bram De Cooman, (`@dcbr <https://github.com/dcbr>`_)
+- `@user27182 <https://github.com/user27182>`_
+
+
+.. |contrib.rocks| image:: https://contrib.rocks/image?repo=pyvista/pyvista
+   :target: https://github.com/pyvista/pyvista/graphs/contributors
+   :alt: contrib.rocks
+
+Please take a look at the `contributors page`_ and the active `list of authors`_
+to learn more about the developers of PyVista.
+
+|contrib.rocks|
+
+Made with `contrib rocks`_.
+
+.. _contributors page: https://github.com/pyvista/pyvista/graphs/contributors/
+.. _list of authors: https://docs.pyvista.org/getting-started/authors.html#authors
+.. _contrib rocks: https://contrib.rocks
+
+--- pyvista-0.45.2.dist-info/licenses/LICENSE ---
+The MIT License
+
+Copyright (c) 2017-2025 The PyVista Developers
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

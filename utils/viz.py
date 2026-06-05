@@ -1,4 +1,8 @@
-import pyvista as pv
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# Copyright (C) 2026 Fraunhofer MEVIS, Germany
+#
+# This file is part of MRtini.
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import numpy as np
 import math
@@ -117,101 +121,6 @@ def plot_slice_profiles(M_bins, z_m, *, bins=None, n_max=20,
     if save_path:
         fig.savefig(save_path, dpi=150, bbox_inches="tight")
     plt.show()
-
-# ------------------------------------------------------------------
-# Visualisation helpers
-# ------------------------------------------------------------------
-def pv_bloch_plotter_3D_pos(Mxyz, pos_xyz, name="epg_anim.gif", disk=False,factor=0.001,
-                            bin_lbl=None, export_html=False, scalars:str="bins",title:str="3D Bloch",
-                            cmap:str="tab20", show_grid:bool=False):
-    """
-    Mxyz   : (N_tot, 3)     magnetisation vectors
-    pos_xyz : (N_tot, 3)     positions [metres]
-    """
-    N_tot, _ = Mxyz.shape 
-    # ---------- initial mesh ----------------------------------------------
-    if disk:
-        pos = pos_xyz.copy()
-        mxyz = np.zeros_like(Mxyz)
-        mxyz[:, :2] = Mxyz[:, :2].copy()
-    else:
-        pos = pos_xyz
-        mxyz = Mxyz.copy()
-    scalars = scalars.lower()
-    avail_scale = ['magnitude', 'phase', 'bins']                
-    mesh = pv.PolyData(pos)
-    mesh["vectors"] = mxyz
-    phases = np.arctan2(mxyz[ :, 1], mxyz[:, 0]).reshape(N_tot, 1)   # phase for color mapping
-    mesh["phase"] = phases  # initial phase
-    magnitudes = np.linalg.norm(mxyz, axis=1)
-    mesh["bins"] = bin_lbl if bin_lbl is not None else np.zeros_like(magnitudes)  # bins for color mapping
-    # Normalize magnitudes to [0, 1]
-    min_val = magnitudes.min()
-    max_val = magnitudes.max()
-    norm_magnitudes = (magnitudes - min_val) / (max_val - min_val + 1e-12)  # add epsilon to avoid division by zero
-    mesh["magnitude"] = norm_magnitudes  # add normalized magnitudes for color mapping
-    glyphs = mesh.glyph(orient="vectors", scale=True, factor=factor,color_mode="scalar" )
-    pl = pv.Plotter(off_screen=False, notebook=False)
-    pl.title= title
-    ## add title to the plotter 
-    pl.add_title(title, font_size=14)
-    pl.set_background("#edf2f4")
-    pl.add_mesh(glyphs, cmap=cmap, scalars=scalars)
-    # pl.show_axes()
-    ## plot grid along z axis 
-    if show_grid:
-        pl.show_grid(xtitle='X (m)', ytitle='Y (m)', ztitle='Z (m)', grid='front', location='outer')
-    ## save as html
-
-    if export_html:
-        pl.export_gltf(f"{name.split('.')[0]}.glb")
-    pl.show(auto_close=False)
-    
-def pv_bloch_slider_viewer(M_hist, pos_hist, disk=False, factor=0.005):
-    """
-    M_hist   : (Nt, N_tot, 3)     magnetisation vectors
-    pos_hist : (Nt, N_tot, 3)     positions [metres]
-    """
-
-    Nt, N_tot, _ = M_hist.shape
-    M_hist_copy = M_hist.copy()
-    phases = np.degrees(np.arctan2(M_hist_copy[:, :, 1], M_hist_copy[:, :, 0])).reshape(Nt, N_tot, 1)
-    magnitudes = np.linalg.norm(M_hist_copy, axis=-1)
-    # Normalize magnitudes to [0, 1]
-    pos_hist = np.zeros_like(pos_hist) if disk else pos_hist
-    min_val = magnitudes.min()
-    max_val = magnitudes.max()
-    norm_magnitudes = (magnitudes - min_val) / (max_val - min_val + 1e-12)  # add epsilon to avoid division by zero
-
-    # Initial mesh setup
-    mesh = pv.PolyData(pos_hist)   # only initial positions
-    mesh["vectors"] = M_hist_copy[0]
-    mesh["phase"] = phases[0]
-    mesh["magnitude"] = norm_magnitudes[0]  # add normalized magnitudes for color mapping
-    glyphs = mesh.glyph(orient="vectors", scale=True, factor=factor, color_mode="scalar")
-    # Create the plotter
-    pl = pv.Plotter(off_screen=False, notebook=False)
-    pl.set_background("#f4f2ef")
-    actor = pl.add_mesh(glyphs, cmap="coolwarm", scalars="phase")
-
-    # Update function for slider
-    def update_scene(frame):
-        frame = int(frame)
-        # mesh.points = pos_hist[frame]          # update positions
-        mesh["vectors"] = M_hist_copy[frame]   # update vectors
-        mesh["phase"] = phases[frame]          # update coloring scalar
-        glyphs.deep_copy(mesh.glyph(orient="vectors", scale=True, factor=factor, color_mode="scalar"))
-
-    # Add slider widget
-    pl.add_slider_widget(
-        callback=update_scene,
-        rng=[0, Nt - 1],
-        title="Time Step",
-        value=0,
-        interaction_event="always"
-    )
-
-    pl.show()
 
 
 ##============== plot slice profiles for prepass debugging ================

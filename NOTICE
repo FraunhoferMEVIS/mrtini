@@ -1,0 +1,45 @@
+NOTICE
+
+MRtini is licensed under the GNU Affero General Public License Version 3.
+
+Copyright (c) 2026 Fraunhofer MEVIS, Germany
+
+This software makes use of third-party components, each of which is provided
+under its own open-source license. Full license texts for these components can
+be found in:
+
+    third_party_licenses/
+
+This directory contains license files and, where applicable, additional notices
+from the respective copyright holders.
+
+Included third-party components include:
+
+- FastAPI (MIT License)
+- ISMRMRD (ISMRMRD Software License, July 2013)
+- Matplotlib (Matplotlib License / PSF-based BSD-compatible License)
+- MRzeroCore (GNU Affero General Public License Version 3)
+- NumPy (BSD-3-Clause-style NumPy License)
+- pyvis (BSD-3-Clause License)
+- PyTorch (BSD-style License)
+- SciPy (BSD-3-Clause License)
+- torchkbnufft (MIT License)
+- gammaSTAR reconstruction server (GNU Affero General Public License Version 3)
+- mrpy_recon_tools, distributed as part of the gammaSTAR reconstruction server
+  source tree, subject to the upstream gammaSTAR licensing terms unless stated
+  otherwise in the upstream source files.
+
+Please note: use of this software and the included third-party components is
+subject to the terms and conditions of the respective licenses. By using,
+modifying, or distributing this software, you are responsible for complying with
+those terms.
+
+For the main license of MRtini, see:
+
+    LICENSE
+
+For the upstream gammaSTAR reconstruction source vendored in this repository,
+see also:
+
+    gammastar_recon/UPSTREAM_COMMIT.txt
+    gammastar_recon/LICENSE

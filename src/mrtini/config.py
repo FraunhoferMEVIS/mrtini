@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# Copyright (C) 2026 Fraunhofer MEVIS, Germany
+#
+# This file is part of MRtini.
 import torch
 
 GAMMA_HZ = 42.577478e6  # Hz/T ~ 267.5e6 rad/s/T

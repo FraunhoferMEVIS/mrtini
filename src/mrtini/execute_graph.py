@@ -9,7 +9,7 @@
 #
 # Original MRzero-Core copyright belongs to its respective authors.
 # Modifications and extensions in this file are Copyright (C) 2026
-# <Fraunhofer MEVIS>.
+# Copyright (C) 2026 Fraunhofer MEVIS, Germany
 # Contact <Snawar Hussain / Fraunhofer MEVIS> for details.
 # This derived work is distributed under the terms of the GNU Affero
 # General Public License v3.0 or later. See LICENSE and NOTICE files

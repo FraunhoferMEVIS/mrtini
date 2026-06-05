@@ -1,7 +1,7 @@
 '''
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
-# Copyright (C) 2026 <Fraunhofer MEVIS/ Snawar Hussain>.
+# Copyright (C) 2026 Fraunhofer MEVIS, Germany
 #
 # This file is part of MRtini Simulator.
 # It contains original code written for MRtini Simulator.

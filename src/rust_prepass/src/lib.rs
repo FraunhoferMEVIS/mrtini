@@ -1,3 +1,21 @@
+
+// '''
+// # SPDX-License-Identifier: AGPL-3.0-or-later
+// #
+// # This file is part of MRtini Simulator.
+// #
+// # Portions of this file are derived from MRzero-Core:
+// #   https://github.com/MRsources/MRzero-Core
+// #
+// # Original MRzero-Core copyright belongs to its respective authors.
+// # Modifications and extensions in this file are Copyright (C) 2026
+// # Copyright (C) 2026 Fraunhofer MEVIS, Germany
+// # Contact <Snawar Hussain / Fraunhofer MEVIS> for details.
+// # This derived work is distributed under the terms of the GNU Affero
+// # General Public License v3.0 or later. See LICENSE and NOTICE files
+// # for details.
+// '''
+
 use pyo3::gc::PyVisit;
 use pyo3::prelude::*;
 use pyo3::types::*;

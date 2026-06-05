@@ -6,3 +6,5 @@ src/rust_prepass/target
 scripts/figs
 *.pyc
 *.ipynb
+license.py
+data_export

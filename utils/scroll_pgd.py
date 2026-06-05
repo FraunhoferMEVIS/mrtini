@@ -1,4 +1,9 @@
 # utils/pdg_pyvis.py
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# Copyright (C) 2026 Fraunhofer MEVIS, Germany
+#
+# This file is part of MRtini.
 from __future__ import annotations
 import math
 from typing import Any, Dict, List, Sequence, Tuple, Optional

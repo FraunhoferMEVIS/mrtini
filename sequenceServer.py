@@ -131,16 +131,11 @@ print_info_parser()
 time.sleep(0.1)
 Nx = Ny = 128
 # phantom generation
-phantom2d = VoxelGridPhantom.load('data/subject04_3T-highres-fat_custom_dense.npz')
-# phantom2d = phantom2d.interpolate(Nx, Ny, 64).slices(list(np.linspace(0, 63, 64)))  # select slices
-# phantom2d = phantom2d.interpolate(Nx, Ny, 32).slices([16])  # select slices
-phantom2d = phantom2d.interpolate(Nx, Ny, 30).slices([14])  # select slices
-# phantom2d = phantom2d.interpolate(Nx, Ny, 512).slices(list(map(int, np.arange(236,272,1))))  # select slices
-FOV = [0.256, 0.256, SLICE_THICKNESS]  # in meters
+phantom3d = VoxelGridPhantom.load('data/subject04_3T-highres-fat_custom_dense.npz')
+phantom2d = phantom3d.interpolate(Nx, Ny, 64).slices(list(np.linspace(0, 63, 64)))  # select slices
+FOV = [0.256, 0.256, SLICE_THICKNESS*64]  #  64 slices in meters
 
-# phantom2d.size = torch.tensor([0.256, 0.256, SLICE_THICKNESS])  # we need correct size for slice profile calculation
 phantom2d.size[-1] = torch.tensor([FOV[-1]])  # we need correct size for slice profile calculation
-# phantom2d.plot_mask()
 
 phantom2d = phantom2d.build(voxel_shape="sinc")
 logging.basicConfig(level=logging.INFO)
@@ -287,9 +282,7 @@ def reconstruct_image(sequenceData: dict[str, Any], signal: list[float], imgBuff
     return JSONResponse(content=response)
 
 def simulate_mr0(sequenceData, state_count=200, min_state_mag=1e-4,
-                 tap_threshold=1e-5, plot_sp=False):
-    if torch.cuda.is_available():
-        torch.cuda.synchronize()
+                 tap_threshold=1e-6):
     global phantom2d
     output = []
     raw_adc_representations = []
@@ -308,10 +301,11 @@ def simulate_mr0(sequenceData, state_count=200, min_state_mag=1e-4,
         phantom_data=phantom2d,
         z_span_m=FOV[-1],
         global_RF=False, ##  Change to True to use global RF ~ hard pulse approximation for Faster sim
+        tap_threshold=tap_threshold
     )
     
-    (rep_keys, uniq_keys,
-     key_to_pid, pulse_id_per_rep, 
+    (rep_keys, _,
+     _, pulse_id_per_rep, 
      taps_bank, supp_bank) = build_prepass_inputs_from_hybrid(seq, art)
     
     graph = compute_graph_rust(
@@ -369,8 +363,7 @@ def simulate_mr0(sequenceData, state_count=200, min_state_mag=1e-4,
     if os.path.exists(sequenceFile):
         os.remove(sequenceFile)
     
-    if torch.cuda.is_available():
-        torch.cuda.synchronize()
+
     return signal, imgBufferTrajectory
 
 # # Endpoint for running simulation
@@ -384,29 +377,17 @@ def run_sim(sequenceData_path:str):
     return reconstruct_image(sequenceData, signal, imgBufferTrajectory)
 def main():
     sequenceData_path = (
-        f"src/sequence/gstar_seqs/EPI_sequence_sequenceData.json"
+        f"src/sequence/gstar_seqs/FLASH_sequence_3D_sequenceData.json"
     )
-
-    if torch.cuda.is_available():
-        torch.cuda.synchronize()
 
     response = run_sim(sequenceData_path=sequenceData_path)
 
-    if torch.cuda.is_available():
-        torch.cuda.synchronize()
 
     print(response)
     return response
 
 
 if __name__ == "__main__":
-    profiler = cProfile.Profile()
 
-    profiler.enable()
     main()
-    profiler.disable()
 
-    profiler.dump_stats("prof_run_sim.out")
-
-    p = pstats.Stats("prof_run_sim.out")
-    p.strip_dirs().sort_stats("cumtime").print_stats(40)

@@ -1,3 +1,12 @@
+'''# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# Copyright (C) 2026 Fraunhofer MEVIS, Germany
+#
+# This file is part of MRtini.
+#
+#  The software is not qualified for use as a medical product or as part
+#  thereof. No bugs or restrictions are known.
+'''
 import matplotlib
 matplotlib.use("QtAgg")
 from matplotlib import pyplot as plt

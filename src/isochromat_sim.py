@@ -1,19 +1,20 @@
-"""
-This Bloch simulation is meant as a ground truth to compare PDG against.
 
-Note that this still uses box shaped voxels, which is generally discouraged.
-
-.. code-block:: python
-
-    data = SimData.load(...)
-    seq = Sequence()  # Some definition as used by PDG
-
-    spin_count = 123  # R2 - distributed spins, doesn't need to be a square nr.
-    signal = simulate(seq, data, spin_count)
-
-    # Signal has same format as returned by execute_graph(...),
-    # no further code changes are needed
-"""
+'''
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This file is part of MRtini Simulator.
+#
+# Portions of this file are derived from MRzero-Core:
+#   https://github.com/MRsources/MRzero-Core
+#
+# Original MRzero-Core copyright belongs to its respective authors.
+# Modifications and extensions in this file are Copyright (C) 2026
+# Copyright (C) 2026 Fraunhofer MEVIS, Germany
+# Contact <Snawar Hussain / Fraunhofer MEVIS> for details.
+# This derived work is distributed under the terms of the GNU Affero
+# General Public License v3.0 or later. See LICENSE and NOTICE files
+# for details.
+'''
 
 from __future__ import annotations
 
