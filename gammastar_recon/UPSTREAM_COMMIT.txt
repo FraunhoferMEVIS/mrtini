@@ -1,0 +1,21 @@
+﻿gammaSTAR reconstruction server vendored source
+==============================================
+
+Source repository: https://github.com/FraunhoferMEVIS/gammaSTAR.git
+Source subdirectory: sequenceServer/gammastar_recon
+Source branch/ref: main
+Source commit: 84cdc88bfc5237ab58923992782a6a4be47a70d4
+Source commit date: 2026-05-05T09:31:59+02:00
+Vendored date: 2026-06-04T18:17:02+02:00
+
+Local destination: external/gammastar_recon
+Local modifications: none at vendoring time
+
+Notes:
+- This directory is copied from the upstream gammaSTAR repository.
+- Git history from the upstream repository is not included.
+- Preserve upstream LICENSE, NOTICE, and copyright headers.
+- If local modifications are made, document them below.
+
+Local modifications:
+- none

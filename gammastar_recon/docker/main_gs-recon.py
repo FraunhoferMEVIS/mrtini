@@ -1,0 +1,127 @@
+"""!
+@brief Main file for gammaSTAR Reconstructions
+@details Copyright (c) Fraunhofer MEVIS, Germany. All rights reserved.
+         AGPLv3-clause License
+
+         The software is not qualified for use as a medical product or as part
+         thereof. No bugs or restrictions are known.
+"""
+import sys
+import os
+import logging
+import time
+import mrpy_ismrmrd_tools as ismrmrd_tools
+from book_keeper import BookKeeper
+
+# Reconstruction Modules
+from acquisition_conversion_module import AcquisitionConversionModule
+from average_combination_module import AverageCombinationModule
+from segment_combination_module import SegmentCombinationModule
+from parallel_imaging_module import ParallelImagingModule
+from partial_fourier_module import PartialFourierModule
+from phase_correction_module import PhaseCorModule
+from channel_combination_module import ChannelCombinationModule
+from prop_module import PropellerModule
+from ksp_to_image_module import KspaceToImageModule
+from ifft_module import IFFTModule
+from image_scaling_module import ImageScaleModule
+from finalize_out_image_module import FinalizeOutImageModule
+
+
+def print_info():
+
+    build_date_time = "N/A"
+    if os.path.exists('build_date_time.txt'):
+        with open('build_date_time.txt', 'r') as f:
+            build_date_time = f.read().strip()
+
+    print("########################################################\n\n"
+          "gammaSTAR Reconstructions v1.1.1 Sim. Only Version")
+    print("Build Time: " + build_date_time + "\n")
+
+    print("The software is not qualified for use as a medical product or as part\n"
+          "thereof. No bugs or restrictions are known. Delivered ‘as is’ without\n"
+          "specific verification or validation.\n"
+          "(C) Fraunhofer MEVIS 2026\n"
+          "Contact: Joern Huber (joern.huber@mevis.fraunhofer.de)\n")
+
+    print("List of included third-party software\n"
+          "-\n"
+          "MRI Nufft v1.4.0 (BSD-3-Clause License)\n"
+          "Python ISMRMRD Server (MIT License)\n"   
+          "pydicom v2.4.5 (MIT-based License)\n"
+          "ismrmrd v1.14.2 (ISMRMRD SOFTWARE LICENSE JULY 2013)\n"
+          "sigpy v0.1.27 (BSD-2-Clause License)\n"
+          "xmltodict v0.14.2 (MIT License)\n"
+          "numpy v2.2.6 (NumPy License)\n"
+          "scikit-learn v1.7.2 (MIT License)\n"
+          "-\n"
+          "Detailed information about third-party licence conditions can\n"
+          "be found in the 'third_party_licenses' folder.\n\n"
+          "########################################################\n")
+
+
+if __name__ == "__main__":
+
+    print_info()
+    time.sleep(0.1)
+
+    book_keeper = BookKeeper()
+
+    # Reconstruction Modules
+    acquisition_conversion_module = AcquisitionConversionModule()
+    average_combination_module = AverageCombinationModule()
+    segment_combination_module = SegmentCombinationModule()
+    parallel_imaging_module = ParallelImagingModule()
+    partial_fourier_module = PartialFourierModule()
+    phase_correction_module = PhaseCorModule()
+    channel_combination_module = ChannelCombinationModule()
+    prop_module = PropellerModule()
+    ksp_to_image_module = KspaceToImageModule()
+    ifft_module = IFFTModule()
+    image_scaling_module = ImageScaleModule()
+    finalize_out_image_module = FinalizeOutImageModule()
+
+    while True:
+
+        try:
+
+            con_buffer, server_socket = ismrmrd_tools.gstar_recon_server(host='0.0.0.0', port=9002)
+            book_keeper.register_patient(con_buffer)
+
+            ########################
+            # Image Reconstruction #
+            ########################
+            con_buffer, book_keeper = acquisition_conversion_module(con_buffer, book_keeper)
+            con_buffer, book_keeper = average_combination_module(con_buffer, book_keeper)
+            con_buffer, book_keeper = segment_combination_module(con_buffer, book_keeper)
+            con_buffer, book_keeper = parallel_imaging_module(con_buffer, book_keeper)
+            con_buffer, book_keeper = partial_fourier_module(con_buffer, book_keeper)
+            con_buffer, book_keeper = ifft_module(con_buffer, book_keeper, 'PE2')
+            con_buffer, book_keeper = phase_correction_module(con_buffer, book_keeper)
+            con_buffer, book_keeper = channel_combination_module(con_buffer, book_keeper)
+            con_buffer, book_keeper = prop_module(con_buffer, book_keeper)
+            con_buffer, book_keeper = ksp_to_image_module(con_buffer, book_keeper)
+
+            ##################################################
+            #     Scaling and Appending to Output Buffer     #
+            ##################################################
+            book_keeper = image_scaling_module(con_buffer, book_keeper)
+            book_keeper = finalize_out_image_module(con_buffer, book_keeper)
+
+            logging.info("GSTAR Recon: Sending reconstructed image series")
+            for i_out_image in range(0, len(book_keeper.outgoing_image_buffer)):
+                con_buffer.send_image(book_keeper.outgoing_image_buffer[i_out_image])
+
+            con_buffer.send_close()
+            con_buffer.shutdown_close()
+            server_socket.close()
+            time.sleep(0.1)
+            print("\n")
+
+        except KeyboardInterrupt:
+            logging.info("Keyboard interruption, now exiting")
+            try:
+                sys.exit(130)
+            except SystemExit:
+                os._exit(130)

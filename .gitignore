@@ -1,0 +1,8 @@
+*.npz
+*.npy
+## exclude the following files from git tracking
+!subject04_3T-highres-fat_custom_dense.npz
+src/rust_prepass/target
+scripts/figs
+*.pyc
+*.ipynb

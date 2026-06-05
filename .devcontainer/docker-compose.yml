@@ -1,0 +1,39 @@
+services:
+  mrtini-dev:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    container_name: mrtini-dev
+    working_dir: /workspaces/mrtini
+    command: sleep infinity
+    volumes:
+      - ..:/workspaces/mrtini:cached
+      - pip-cache:/root/.cache/pip
+      - cargo-registry:/root/.cargo/registry
+      - cargo-git:/root/.cargo/git
+    environment:
+      PYTHONPATH: /workspaces/mrtini/src:/workspaces/mrtini
+      GAMMASTAR_RECON_HOST: gammastar-recon
+      GAMMASTAR_RECON_PORT: "9002"
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+    shm_size: "16gb"
+    gpus: all
+    depends_on:
+      - gammastar-recon
+
+  gammastar-recon:
+    build:
+      context: ../gammastar_recon
+      dockerfile: docker/Dockerfile
+      target: gs-recon
+    image: gs-recon:local
+    container_name: gammastar-recon
+    ports:
+      - "9002:9002"
+    restart: unless-stopped
+
+volumes:
+  pip-cache:
+  cargo-registry:
+  cargo-git:

@@ -1,0 +1,3 @@
+[tool.black]
+line-length = 110      # or 110/120 if you like wider lines
+target-version = ["py311"]  # or whatever you're using

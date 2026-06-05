@@ -1,0 +1,11 @@
+services:
+  gammastar-recon:
+    build:
+      context: ../gammastar_recon
+      dockerfile: docker/Dockerfile
+      target: gs-recon
+    image: gs-recon:local
+    container_name: gammastar-recon
+    ports:
+      - "9002:9002"
+    restart: unless-stopped

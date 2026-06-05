@@ -1,0 +1,16 @@
+[package]
+name = "mrtini_prepass_rs"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "mrtini_prepass_rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.21", features = ["extension-module", "abi3-py39"] }
+numpy = "0.21"
+num-complex = "0.4"
+hashbrown = "0.14"
+rayon = "1.10"
+rustc-hash = "1"
