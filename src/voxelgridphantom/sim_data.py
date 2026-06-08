@@ -1,9 +1,5 @@
-from __future__ import annotations
-from typing import Callable, Any
-import torch
-from numpy import pi
 '''
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: AGPL-3.0-only
 #
 # This file is part of MRtini Simulator.
 #
@@ -13,9 +9,13 @@ from numpy import pi
 # Original MRzero-Core copyright belongs to its respective authors.
 #
 # This derived work is distributed under the terms of the GNU Affero
-# General Public License v3.0 or later. See LICENSE and NOTICE files
+# GNU Affero General Public License v3.0 only. See LICENSE and NOTICE files
 # for details.
 '''
+from __future__ import annotations
+from typing import Callable, Any
+import torch
+from numpy import pi
 
 class SimData:
     """This class contains the physical data for simulating a MRI sequence.

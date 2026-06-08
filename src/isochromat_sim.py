@@ -1,6 +1,6 @@
 
 '''
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: AGPL-3.0-only
 #
 # This file is part of MRtini Simulator.
 #
@@ -12,7 +12,7 @@
 # Copyright (C) 2026 Fraunhofer MEVIS, Germany
 # Contact <Snawar Hussain / Fraunhofer MEVIS> for details.
 # This derived work is distributed under the terms of the GNU Affero
-# General Public License v3.0 or later. See LICENSE and NOTICE files
+# GNU Affero General Public License v3.0 only. See LICENSE and NOTICE files
 # for details.
 '''
 
@@ -534,34 +534,6 @@ def apply_bloch_pulse_rep(
             + spin_offset_m[:, 2].to(device=dev, dtype=dtype).reshape(1, S)
     Rtot = torch.eye(3, device=spins.device, dtype=spins.dtype)
     Rtot = Rtot.view(1, 1, 3, 3).expand(V, S, 3, 3).clone()
-    # for n in range(t.numel() - 1):
-    #     dt = float((t[n + 1] - t[n]).item())
-    #     if dt <= 0:
-    #         continue
-
-    #     b1 = rf_complex[n]
-    #     B1eff = B1map * b1
-
-    #     Bx = B1eff.real
-    #     By = B1eff.imag
-
-    #     omega_x = gamma_rad * Bx.expand(V, S)
-    #     omega_y = gamma_rad * By.expand(V, S)
-
-    #     if gz_units == "cycles_per_m_per_s":
-    #         omega_z = 2 * torch.pi * (B0_hz + rf_freq[n] + gz[n] * z_abs)
-    #         omega_x = gamma_rad * Bx.expand(V, S)
-    #         omega_y = gamma_rad * By.expand(V, S)
-    #     elif gz_units == "T_per_m":
-    #         omega_x = gamma_rad * Bx.expand(V, S)
-    #         omega_y = gamma_rad * By.expand(V, S)
-    #         omega_z = 2 * torch.pi * (B0_hz.expand(V, S) + rf_freq[n]) + gamma_rad * gz[n] * z_abs
-    #     else:
-    #         raise ValueError(f"unknown gz_units={gz_units}")
-
-    #     omega = torch.stack([omega_x, omega_y, omega_z], dim=-1)  # (V,S,3)
-    #     Rstep = so3_exp(omega, dt)
-    #     Rtot = Rstep @ Rtot
     
     for n in range(t.numel() - 1):
         dt = float((t[n + 1] - t[n]).item())

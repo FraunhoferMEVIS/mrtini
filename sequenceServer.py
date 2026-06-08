@@ -131,13 +131,14 @@ print_info_parser()
 time.sleep(0.1)
 Nx = Ny = 128
 # phantom generation
-phantom3d = VoxelGridPhantom.load('data/subject04_3T-highres-fat_custom_dense.npz')
-phantom2d = phantom3d.interpolate(Nx, Ny, 64).slices(list(np.linspace(0, 63, 64)))  # select slices
-FOV = [0.256, 0.256, SLICE_THICKNESS*64]  #  64 slices in meters
+Npart = 32 ## number of partitions/slices in the z direction, which determines the z resolution and FOVz. For simplicity we just set it to the same as the number of slices we are using, but ideally it should be set to cover the whole phantom with sufficient resolution to capture through-plane effects.
+FOVz = Npart * SLICE_THICKNESS  # 320 mm
 
-phantom2d.size[-1] = torch.tensor([FOV[-1]])  # we need correct size for slice profile calculation
+phantom3d = VoxelGridPhantom.load("data/subject04_3T-highres-fat_custom_dense.npz")
+phantom3d = phantom3d.interpolate(Nx, Ny, Npart).slices(list(range(Npart)))
+phantom3d.size[-1] = torch.tensor([FOVz])
 
-phantom2d = phantom2d.build(voxel_shape="sinc")
+phantom3d = phantom3d.build(voxel_shape="sinc")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -281,9 +282,9 @@ def reconstruct_image(sequenceData: dict[str, Any], signal: list[float], imgBuff
 
     return JSONResponse(content=response)
 
-def simulate_mr0(sequenceData, state_count=200, min_state_mag=1e-4,
+def simulate_mr0(sequenceData, state_count=100, min_state_mag=1e-4,
                  tap_threshold=1e-6):
-    global phantom2d
+    global phantom3d
     output = []
     raw_adc_representations = []
     for rawRepr in sequenceData['raw_reps']:
@@ -298,9 +299,9 @@ def simulate_mr0(sequenceData, state_count=200, min_state_mag=1e-4,
 
     seq = Sequence.import_file_for_mrtini_sim(sequenceFile)
     art = MRtiniSim(device="cuda", seq=seq).bake_bloch_kernels(
-        phantom_data=phantom2d,
+        phantom_data=phantom3d,
         z_span_m=FOV[-1],
-        global_RF=False, ##  Change to True to use global RF ~ hard pulse approximation for Faster sim
+        global_RF=True, ##  Change to True to use global RF ~ hard pulse approximation for Faster sim
         tap_threshold=tap_threshold
     )
     
@@ -309,7 +310,7 @@ def simulate_mr0(sequenceData, state_count=200, min_state_mag=1e-4,
      taps_bank, supp_bank) = build_prepass_inputs_from_hybrid(seq, art)
     
     graph = compute_graph_rust(
-        seq, phantom2d,
+        seq, phantom3d,
         pulse_id_per_rep,
         taps_bank,
         supp_bank,
@@ -321,11 +322,11 @@ def simulate_mr0(sequenceData, state_count=200, min_state_mag=1e-4,
     # render_pdg_pyvis(graph[:3])
     
     seq = seq.cuda()
-    phantom2d = phantom2d.cuda()
+    phantom3d = phantom3d.cuda()
 
     signal = execute_graph(graph,
                            seq,
-                           phantom2d,
+                           phantom3d,
                            rep_keys,
                             art,
                            SLICE_THICKNESS=SLICE_THICKNESS,
@@ -377,7 +378,7 @@ def run_sim(sequenceData_path:str):
     return reconstruct_image(sequenceData, signal, imgBufferTrajectory)
 def main():
     sequenceData_path = (
-        f"src/sequence/gstar_seqs/FLASH_sequence_3D_sequenceData.json"
+        f"src/sequence/gstar_seqs/FLASH_3D_32_sequence_sequenceData.json"
     )
 
     response = run_sim(sequenceData_path=sequenceData_path)
