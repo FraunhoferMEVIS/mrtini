@@ -2,7 +2,7 @@
 // '''
 // # SPDX-License-Identifier: AGPL-3.0-only
 // #
-// # This file is part of MRtini Simulator.
+// # This file is part of MRTini Simulator.
 // #
 // # Portions of this file are derived from MRzero-Core:
 // #   https://github.com/MRsources/MRzero-Core

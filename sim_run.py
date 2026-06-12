@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2026 Fraunhofer MEVIS, Germany
 #
-# This file is part of MRtini.
+# This file is part of MRTini.
 #
 #  The software is not qualified for use as a medical product or as part
 #  thereof. No bugs or restrictions are known.

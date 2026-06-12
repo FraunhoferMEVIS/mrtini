@@ -1,7 +1,7 @@
 '''
 # SPDX-License-Identifier: AGPL-3.0-only
 #
-# This file is part of MRtini Simulator.
+# This file is part of MRTini Simulator.
 #
 # Portions of this file are derived from MRzero-Core:
 #   https://github.com/MRsources/MRzero-Core
@@ -163,7 +163,7 @@ class VoxelGridPhantom:
         
         """
         # ---------------------------------------------------------------------
-        # MRtini extension: Separate Water and Fat based tissue handling with chemical shift
+        # MRTini extension: Separate Water and Fat based tissue handling with chemical shift
         # Replaces/extends the original MRzero RF event handling by resolving
         # shaped RF pulses on a slice grid and converting them to PDG tap sets.
         # ---------------------------------------------------------------------
@@ -266,7 +266,7 @@ class VoxelGridPhantom:
         )
     '''
     # ---------------------------------------------------------------------
-    # End MRtini extension: Separate Water and Fat based tissue handling with chemical shift
+    # End MRTini extension: Separate Water and Fat based tissue handling with chemical shift
     # ---------------------------------------------------------------------
     '''
             

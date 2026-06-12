@@ -8,3 +8,4 @@ scripts/figs
 *.ipynb
 license.py
 data_export
+external/*

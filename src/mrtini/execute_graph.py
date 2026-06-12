@@ -2,7 +2,7 @@
 '''
 # SPDX-License-Identifier: AGPL-3.0-only
 #
-# This file is part of MRtini Simulator.
+# This file is part of MRTini Simulator.
 #
 # Portions of this file are derived from MRzero-Core:
 #   https://github.com/MRsources/MRzero-Core
@@ -88,7 +88,7 @@ def execute_graph(graph,
                     
         
         # ---------------------------------------------------------------------
-        # MRtini extension: water fat handling, slice profiles, newer faster graph execution
+        # MRTini extension: water fat handling, slice profiles, newer faster graph execution
         # Replaces/extends the original MRzero Execution to inlude Bloch Taps, 
         # signal equation modification to handle slice profiles, newer graph execution
         # and trajectory handling and more
@@ -406,7 +406,7 @@ def execute_graph(graph,
                     dist.mag = dist.mag + 1 - r1
         '''
         # ---------------------------------------------------------------------
-        # End MRtini extension: Newer graph execution with slice profile handling
+        # End MRTini extension: Newer graph execution with slice profile handling
         # ---------------------------------------------------------------------
         '''
         rep_sig *= adc_rot_adc

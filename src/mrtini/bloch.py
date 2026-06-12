@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2026 Fraunhofer MEVIS, Germany
 #
-# This file is part of MRtini.
+# This file is part of MRTini.
 import math
 from typing import List, Tuple
 from dataclasses import dataclass, field

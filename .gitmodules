@@ -1,4 +1,0 @@
-[submodule "external/gammastar_recon"]
-	path = external/gammastar_recon
-	url = git@gitlab.fme.lan:gammastar/gammastar_recon.git
-	branch = gammastar_release

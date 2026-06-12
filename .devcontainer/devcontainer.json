@@ -1,9 +1,10 @@
 {
-  "name": "MRtini Python 3.10",
+  "name": "MRTini Python 3.10",
   "dockerComposeFile": "docker-compose.yml",
   "service": "mrtini-dev",
   "workspaceFolder": "/workspaces/mrtini",
   "shutdownAction": "stopCompose",
+    "initializeCommand": "bash scripts/fetch_gammastar_recon.sh",
   "postCreateCommand": "bash .devcontainer/post_create.sh",
   "customizations": {
     "vscode": {

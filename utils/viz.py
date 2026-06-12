@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2026 Fraunhofer MEVIS, Germany
 #
-# This file is part of MRtini.
+# This file is part of MRTini.
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import numpy as np
 import math
@@ -267,7 +267,7 @@ def plot_slice_profile_compare(
     # Mz
     if sim_z is not None and bloch_z is not None:
         ax0.plot(z_mm, bloch_z, lw=linewidth, label="Bloch")
-        ax0.plot(z_mm, sim_z, lw=linewidth, ls="--", label="MRtini / PDG")
+        ax0.plot(z_mm, sim_z, lw=linewidth, ls="--", label="MRTini / PDG")
         ax0.set_ylabel(r"$M_z$")
         ax0.axhline(0, lw=1, color="0.82")
         ax0.legend(frameon=False, ncol=2, loc="best")
@@ -276,14 +276,14 @@ def plot_slice_profile_compare(
 
     # |Mxy|
     ax1.plot(z_mm, bloch_xy, lw=linewidth, label="Bloch")
-    ax1.plot(z_mm, sim_xy, lw=linewidth, ls="--", label="MRtini / PDG")
+    ax1.plot(z_mm, sim_xy, lw=linewidth, ls="--", label="MRTini / PDG")
     ax1.fill_between(z_mm, 0, bloch_xy, alpha=0.12)
     ax1.set_ylabel(r"$|M_{xy}|$")
     ax1.axhline(0, lw=1, color="0.82")
 
     # phase
     ax2.plot(z_mm, bloch_ph, lw=linewidth, label="Bloch")
-    ax2.plot(z_mm, sim_ph, lw=linewidth, ls="--", label="MRtini / PDG")
+    ax2.plot(z_mm, sim_ph, lw=linewidth, ls="--", label="MRTini / PDG")
     ax2.set_ylabel(r"$\angle M_+$ [rad]")
     ax2.axhline(0, lw=1, color="0.82")
     ax2.set_ylim(-np.pi*1.08, np.pi*1.08)
@@ -429,7 +429,7 @@ def plot_slice_profile_comparison_2(
     # Mz panel
     green = "#f7567c"
     green2 = "#ffc15e" 
-    axz.plot(z, mz_a, color=green, lw=2.0, label=r"MRtini $M_z$")
+    axz.plot(z, mz_a, color=green, lw=2.0, label=r"MRTini $M_z$")
     axz.plot(z, mz_b, color=green2, lw=2.0, ls=(0,(4,2)), alpha=0.85, label=r"Bloch $M_z$")
     axz.axhline(0, color="0.60", lw=0.8, ls="--")
     axz.set_ylabel(r"$M_z$")
@@ -448,7 +448,7 @@ def plot_slice_profile_comparison_2(
     orange = "#f7567c"
 
     axxy.fill_between(z, 0, abs_a, color="0.78", alpha=0.22, zorder=1)
-    axxy.plot(z, abs_a, color=blue, lw=2.7, label=r"MRtini $|M_{xy}|$", zorder=4)
+    axxy.plot(z, abs_a, color=blue, lw=2.7, label=r"MRTini $|M_{xy}|$", zorder=4)
     axxy.plot(z, abs_b, color=orange, lw=2.5, ls=(0, (4, 2)),
             label=r"Bloch $|M_{xy}|$", zorder=5)
 

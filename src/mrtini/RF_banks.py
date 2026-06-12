@@ -3,8 +3,8 @@
 #
 # Copyright (C) 2026 Fraunhofer MEVIS, Germany
 #
-# This file is part of MRtini Simulator.
-# It contains original code written for MRtini Simulator.
+# This file is part of MRTini Simulator.
+# It contains original code written for MRTini Simulator.
 '''
 # rf_kernel_bank_so3.py
 from __future__ import annotations

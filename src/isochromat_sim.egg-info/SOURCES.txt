@@ -1,3 +1,5 @@
+LICENSE
+NOTICE
 README.md
 pyproject.toml
 src/isochromat_sim.py
@@ -13,7 +15,6 @@ src/mrtini/execute_graph.py
 src/mrtini/mrtini_main.py
 src/mrtini/pre_pass_rust_call.py
 src/recon/nufft_recon.py
-src/recon/sequenceServer.py
 src/sequence/__iniy__.py
 src/sequence/sequence.py
 src/sequence/slice_select.py

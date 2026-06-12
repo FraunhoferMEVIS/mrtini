@@ -3,8 +3,8 @@
 #
 # Copyright (C) 2026 Fraunhofer MEVIS, Germany
 #
-# This file is part of MRtini Simulator.
-# It contains original code written for MRtini Simulator.
+# This file is part of MRTini Simulator.
+# It contains original code written for MRTini Simulator.
 '''
 
 
@@ -43,7 +43,7 @@ from src.sequence.slice_select import (
     build_joint_binning,
 )
 
-# ============================ MRtini main class ============================
+# ============================ MRTini main class ============================
 # ---- gyromagnetic constants (proton) ----
 GAMMA_RAD = 2.0 * np.pi * GAMMA_HZ
 from src.mrtini.config import DEVICE, PAD, DTYPE

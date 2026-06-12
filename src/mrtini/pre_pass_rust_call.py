@@ -1,7 +1,7 @@
 '''
 # SPDX-License-Identifier: AGPL-3.0-only
 #
-# This file is part of MRtini Simulator.
+# This file is part of MRTini Simulator.
 #
 # Copyright (C) 2026 Fraunhofer MEVIS, Germany
 #

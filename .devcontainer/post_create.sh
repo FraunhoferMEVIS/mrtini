@@ -3,10 +3,10 @@ set -euo pipefail
 
 cd /workspaces/mrtini
 
-echo "[MRtini] Python:"
+echo "[MRTini] Python:"
 python --version
 
-echo "[MRtini] Installing requirements, excluding torch and mrpy_recon_tools..."
+echo "[MRTini] Installing requirements, excluding torch and mrpy_recon_tools..."
 awk '
   /^torch==/ { next }
   /^mrpy_recon_tools==/ { next }
@@ -15,7 +15,7 @@ awk '
 
 python -m pip install -r /tmp/requirements.mrtini.txt
 
-echo "[MRtini] Installing mrstar sequence-interpreter Linux wheel..."
+echo "[MRTini] Installing mrstar sequence-interpreter Linux wheel..."
 MRSTAR_WHEEL="$(find wheels -name 'mrstar-*-cp310-*-manylinux*_x86_64.whl' | head -n 1 || true)"
 
 if [ -z "$MRSTAR_WHEEL" ]; then
@@ -26,40 +26,22 @@ if [ -z "$MRSTAR_WHEEL" ]; then
 fi
 
 python -m pip install --force-reinstall "$MRSTAR_WHEEL"
+GAMMASTAR_RECON_DIR="/workspaces/mrtini/external/gammastar_recon"
+MRPY_PROCESSING_TOOLS_DIR="$GAMMASTAR_RECON_DIR/mrpy_tools/reconstruction/mrpy_recon_tools"
 
-echo "[MRtini] Fetching gammaSTAR source inside container for mrpy_recon_tools..."
-GAMMASTAR_DIR="/opt/gammaSTAR"
-
-if [ ! -d "$GAMMASTAR_DIR/.git" ]; then
-  git clone --filter=blob:none --sparse https://github.com/FraunhoferMEVIS/gammaSTAR.git "$GAMMASTAR_DIR"
+if [ -d "$MRPY_PROCESSING_TOOLS_DIR" ]; then
+  echo "[MRTini] Installing mrpy_processing_tools..."
+  python -m pip install -e "$MRPY_PROCESSING_TOOLS_DIR"
 fi
 
-git -C "$GAMMASTAR_DIR" sparse-checkout set sequenceServer/gammastar_recon/mrpy_tools/reconstruction/mrpy_recon_tools
-git -C "$GAMMASTAR_DIR" checkout main
-
-MRPY_RECON_TOOLS_DIR="$GAMMASTAR_DIR/sequenceServer/gammastar_recon/mrpy_tools/reconstruction/mrpy_recon_tools"
-
-if [ ! -d "$MRPY_RECON_TOOLS_DIR" ]; then
-  echo "ERROR: mrpy_recon_tools source directory not found:"
-  echo "$MRPY_RECON_TOOLS_DIR"
-  find "$GAMMASTAR_DIR/sequenceServer/gammastar_recon" -maxdepth 5 -type d || true
-  exit 1
-fi
-
-echo "[MRtini] Installing mrpy_recon_tools from gammaSTAR source..."
-python -m pip install "$MRPY_RECON_TOOLS_DIR"
-
-echo "[MRtini] Building and installing Rust prepass..."
+echo "[MRTini] Building and installing Rust prepass..."
 cd /workspaces/mrtini/src/rust_prepass
 maturin build --release
 python -m pip install --force-reinstall target/wheels/*.whl
 
 cd /workspaces/mrtini
 
-echo "[MRtini] Installing MRtini editable package..."
-python -m pip install -e .
-
-echo "[MRtini] Sanity check..."
+echo "[MRTini] Sanity check..."
 python - <<'PY'
 import sys
 import torch
@@ -81,4 +63,4 @@ print("mrpy_recon_tools: OK")
 print("Matplotlib backend:", matplotlib.get_backend())
 PY
 
-echo "[MRtini] Setup complete."
+echo "[MRTini] Setup complete."

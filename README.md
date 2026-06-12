@@ -1,18 +1,18 @@
 
-# MRtini : A cocktail of Bloch and EPG for fast and accurate MRI simulation
-<img src="data/Mrtini.png" alt="Logo" width="400">
+# MRTini : A cocktail of Bloch and EPG for fast and accurate MRI simulation
+<img src="data/MRTini_logo.png" alt="Logo" width="800">
 
-This repository contains the simulation workflow for MRtini.  
+This repository contains the simulation workflow for MRTini.  
 
 
 ## Setup
 
-MRtini can be run in two ways:
+MRTini can be run in two ways:
 
 1. **Recommended:** VS Code Dev Container with Docker Compose.
 2. **Manual/local:** Python 3.10 environment with local dependencies installed manually.
 
-The devcontainer route is the most reproducible setup. It builds the MRtini development environment, installs the Python/Rust dependencies, installs the `mrstar` sequence-interpreter wheel, builds the Rust prepass module, and starts the gammaSTAR reconstruction server as a sibling Docker service.
+The devcontainer route is the most reproducible setup. It builds the MRTini development environment, installs the Python/Rust dependencies, installs the `mrstar` sequence-interpreter wheel, builds the Rust prepass module, and starts the gammaSTAR reconstruction server as a sibling Docker service.
 
 ---
 
@@ -38,14 +38,15 @@ The devcontainer uses:
 Expected repository layout:
 
 ```text
-MRtini/
+MRTini/
 ├── .devcontainer/
 │   ├── devcontainer.json
 │   ├── docker-compose.yml
 │   ├── Dockerfile
 │   └── post_create.sh
-├── gammastar_recon/
-│   └── docker/Dockerfile
+├── external/
+│   └── gammastar_recon
+|       └──docker/Dockerfile
 ├── src/
 ├── wheels/
 │   └── mrstar-...-cp310-cp310-manylinux_2_34_x86_64.whl
@@ -66,7 +67,7 @@ Ctrl+Shift+P → Dev Containers: Reopen in Container
 VS Code will build and start two Docker services:
 
 ```text
-mrtini-dev        # MRtini development container
+mrtini-dev        # MRTini development container
 gammastar-recon   # gammaSTAR reconstruction server
 ```
 
@@ -78,7 +79,7 @@ the output in the `recons/` directory
 everything should work out at this point, if you encounter any issues, please refer to the some extra infor and trouble shooting section below.
 
 ### Devcontainer Information
-The MRtini container is configured with:
+The MRTini container is configured with:
 
 ```text
 PYTHONPATH=/workspaces/mrtini/src:/workspaces/mrtini
@@ -86,7 +87,7 @@ GAMMASTAR_RECON_HOST=gammastar-recon
 GAMMASTAR_RECON_PORT=9002
 ```
 
-So, inside the devcontainer, MRtini talks to the reconstruction server at:
+So, inside the devcontainer, MRTini talks to the reconstruction server at:
 
 ```text
 gammastar-recon:9002
@@ -134,9 +135,9 @@ PY
 
 ---
 
-## 2. Local setup without devcontainer
+## 2. Local setup without devcontainer ( skip this if using devcontainer )
 
-The local setup is useful if you do not want to use the VS Code devcontainer but still want to run MRtini directly on your machine.
+The local setup is useful if you do not want to use the VS Code devcontainer but still want to run MRTini directly on your machine.
 
 ### Requirements
 
@@ -146,6 +147,7 @@ Install locally:
 * Rust/Cargo
 * Docker Desktop, only if using gammaSTAR reconstruction
 * NVIDIA driver, if using CUDA/GPU execution
+* [gammaSTAR reconstruction server](https://github.com/FraunhoferMEVIS/gammaSTAR/tree/main/sequenceServer/gammastar_recon), if using gammaSTAR reconstruction
 
 Create and activate a Python 3.10 environment using your preferred method.
 
@@ -185,20 +187,6 @@ Windows:
 python -m pip install --force-reinstall (Get-ChildItem wheels\mrstar-*-cp310-*-win_amd64.whl | Select-Object -First 1).FullName
 ```
 
-### Install gammaSTAR `mrpy_recon_tools`
-
- `gammastar_recon/` is present in the repository, install the reconstruction tools from the vendored source:
-
-```bash
-python -m pip install gammastar_recon/mrpy_tools/reconstruction/mrpy_recon_tools
-```
-
-On Windows PowerShell:
-
-```powershell
-python -m pip install .\gammastar_recon\mrpy_tools\reconstruction\mrpy_recon_tools
-```
-
 ### Build and install the Rust prepass
 
 ```bash
@@ -211,77 +199,12 @@ This should build the Rust prepass module and install it into the current Python
 
 ---
 
-## 3. Running the gammaSTAR reconstruction server for 3D sequence reconstruction
-
-MRtini can optionally send simulated acquisitions to a gammaSTAR reconstruction server. The server listens on port `9002`.
-
-### Devcontainer mode
-
-When using the devcontainer, the reconstruction server is started as a sibling service through `.devcontainer/docker-compose.yml`.
-
-Inside the devcontainer, use:
-
-```text
-GAMMASTAR_RECON_HOST=gammastar-recon
-GAMMASTAR_RECON_PORT=9002
-```
-
-This is already set by the devcontainer Compose file.
-
-### Local mode
-
-For local Python runs, start the reconstruction server with Docker Compose:
-
-```bash
-docker compose -f docker/compose.gammastar-recon.yaml up --build
-```
-
-The local Python process should connect to:
-
-```text
-localhost:9002
-```
-
----
-
-## 4. Reconstruction host selection
-
-The reconstruction host depends on where the Python process is running:
-
-| Python process location                             |    Reconstruction host |   Port |
-| --------------------------------------------------- | ---------------------: | -----: |
-| Host machine, local Python                          |            `localhost` | `9002` |
-| Devcontainer, recon service in same Compose network |      `gammastar-recon` | `9002` |
-| Devcontainer, recon server manually started on host | `host.docker.internal` | `9002` |
-
-MRtini should read these values from environment variables:
-
-```text
-GAMMASTAR_RECON_HOST
-GAMMASTAR_RECON_PORT
-```
-
-Default local behavior should be:
-
-```text
-GAMMASTAR_RECON_HOST=localhost
-GAMMASTAR_RECON_PORT=9002
-```
-
----
-
-## 5. Running a simulation
+## 3. Running a simulation
 
 Example:
 
 ```bash
 python sim_run.py
-```
-
-Or run a specific sequence-server script:
-
-```bash
-python src/recon/sequenceServer.py
 ```
 
 When using paths inside the devcontainer, prefer Linux-style paths or `pathlib`:
@@ -306,6 +229,84 @@ r"src\sequence\gstar_seqs\RARE_default_sequence_sequenceData.json"
 ```
 
 inside Linux containers.
+
+---
+
+
+## 4. Running the gammaSTAR reconstruction server for 3D/2D sequence reconstruction
+
+MRTini can optionally send simulated acquisitions to a gammaSTAR reconstruction server. The server listens on port `9002`.
+
+### Devcontainer mode
+
+When using the devcontainer, the reconstruction server is started as a sibling service through `.devcontainer/docker-compose.yml`.
+
+Inside the devcontainer, use:
+
+```text
+GAMMASTAR_RECON_HOST=gammastar-recon
+GAMMASTAR_RECON_PORT=9002
+```
+
+This is already set by the devcontainer Compose file.
+
+### Local mode
+
+### pull in the gammaSTAR-recon source
+
+run the `scripts/fetch_gammastar_recon.sh` script if on Linux/macOS and `scripts\fetch_gammastar_recon.ps1` if on Windows to pull in the gammaSTAR reconstruction server source into the `external/gammastar_recon/` directory.
+
+### Install gammaSTAR `mrpy_recon_tools`
+
+ `external/gammastar_recon/` is present in the repository, install the reconstruction tools from the vendored source:
+
+```bash
+python -m pip install external/gammastar_recon/mrpy_tools/reconstruction/mrpy_recon_tools
+```
+
+On Windows PowerShell:
+
+```powershell
+python -m pip install .\external\gammastar_recon\mrpy_tools\reconstruction\mrpy_recon_tools
+```
+
+For local Python runs, start the reconstruction server with Docker Compose:
+
+```bash
+docker compose -f docker/compose.gammastar-recon.yaml up --build
+```
+
+The local Python process should connect to:
+
+```text
+localhost:9002
+```
+
+---
+
+## 4. Reconstruction host
+
+The reconstruction host depends on where the Python process is running:
+
+| Python process location                             |    Reconstruction host |   Port |
+| --------------------------------------------------- | ---------------------: | -----: |
+| Host machine, local Python                          |            `localhost` | `9002` |
+| Devcontainer, recon service in same Compose network |      `gammastar-recon` | `9002` |
+| Devcontainer, recon server manually started on host | `host.docker.internal` | `9002` |
+
+MRTini should read these values from environment variables:
+
+```text
+GAMMASTAR_RECON_HOST
+GAMMASTAR_RECON_PORT
+```
+
+Default local behavior should be:
+
+```text
+GAMMASTAR_RECON_HOST=localhost
+GAMMASTAR_RECON_PORT=9002
+```
 
 ---
 
@@ -351,7 +352,7 @@ Check that Docker has GPU access:
 docker run --rm --gpus all nvidia/cuda:12.9.1-base-ubuntu22.04 nvidia-smi
 ```
 
-If this fails, the issue is host-side NVIDIA/Docker configuration, not MRtini.
+If this fails, the issue is host-side NVIDIA/Docker configuration, not MRTini.
 
 ### Devcontainer cannot connect to gammaSTAR recon
 
