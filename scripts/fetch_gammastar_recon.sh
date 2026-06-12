@@ -5,11 +5,11 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 EXTERNAL="$ROOT/external"
 
 REPO="https://github.com/FraunhoferMEVIS/gammaSTAR.git"
-GAMMASTAR_REF="${GAMMASTAR_REF:-main}"   # set to tested tag/commit/branch for release
+GAMMASTAR_REF="${GAMMASTAR_REF:-main}"
 
-SOURCE="$EXTERNAL/.gammaSTAR_source"
+SOURCE="$EXTERNAL/gammaSTAR"
 SUBDIR="sequenceServer/gammastar_recon"
-DEST="$EXTERNAL/gammastar_recon"
+RECON_DIR="$SOURCE/$SUBDIR"
 
 mkdir -p "$EXTERNAL"
 
@@ -21,11 +21,13 @@ git -C "$SOURCE" fetch origin "$GAMMASTAR_REF"
 git -C "$SOURCE" checkout FETCH_HEAD
 git -C "$SOURCE" sparse-checkout set "$SUBDIR"
 
-rm -rf "$DEST"
-mkdir -p "$DEST"
-cp -a "$SOURCE/$SUBDIR/." "$DEST/"
+if [ ! -d "$RECON_DIR" ]; then
+  echo "ERROR: gammaSTAR recon directory not found:"
+  echo "$RECON_DIR"
+  exit 1
+fi
 
 echo "gammaSTAR recon ref:"
 git -C "$SOURCE" rev-parse --short HEAD
 echo "gammaSTAR recon available at:"
-echo "$DEST"
+echo "$RECON_DIR"

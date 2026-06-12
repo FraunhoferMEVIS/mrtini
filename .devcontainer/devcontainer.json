@@ -4,7 +4,7 @@
   "service": "mrtini-dev",
   "workspaceFolder": "/workspaces/mrtini",
   "shutdownAction": "stopCompose",
-    "initializeCommand": "bash scripts/fetch_gammastar_recon.sh",
+  "initializeCommand": "bash scripts/fetch_gammastar_recon.sh",
   "postCreateCommand": "bash .devcontainer/post_create.sh",
   "customizations": {
     "vscode": {

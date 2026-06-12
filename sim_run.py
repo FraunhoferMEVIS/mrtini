@@ -90,5 +90,5 @@ for seq_name in seq_names:
     axes[1].set_title("Adjoint Reco")
 
     plt.tight_layout()
-    plt.savefig(f"recons/{seq_name}_reco.png")
+    plt.savefig(f"recon_output/{seq_name}_reco.png")
     plt.show()

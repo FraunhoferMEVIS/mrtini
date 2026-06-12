@@ -24,7 +24,7 @@ services:
 
   gammastar-recon:
     build:
-      context: ../external/gammastar_recon
+      context: ../external/gammaSTAR/sequenceServer/gammastar_recon
       dockerfile: docker/Dockerfile
       target: gs-recon
     image:  mrtini-gammastar-recon-devcon:local

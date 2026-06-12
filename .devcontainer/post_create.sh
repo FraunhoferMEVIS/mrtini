@@ -26,7 +26,7 @@ if [ -z "$MRSTAR_WHEEL" ]; then
 fi
 
 python -m pip install --force-reinstall "$MRSTAR_WHEEL"
-GAMMASTAR_RECON_DIR="/workspaces/mrtini/external/gammastar_recon"
+GAMMASTAR_RECON_DIR="/workspaces/mrtini/external/gammaSTAR/sequenceServer/gammastar_recon"
 MRPY_PROCESSING_TOOLS_DIR="$GAMMASTAR_RECON_DIR/mrpy_tools/reconstruction/mrpy_recon_tools"
 
 if [ -d "$MRPY_PROCESSING_TOOLS_DIR" ]; then
