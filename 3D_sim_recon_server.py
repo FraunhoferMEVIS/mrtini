@@ -129,7 +129,7 @@ print_info_server()
 time.sleep(0.1)
 print_info_parser()
 time.sleep(0.1)
-Nx = Ny = 128
+Nx = Ny = 96
 # phantom generation
 Npart = 32 ## number of partitions/slices in the z direction, which determines the z resolution and FOVz. For simplicity we just set it to the same as the number of slices we are using, but ideally it should be set to cover the whole phantom with sufficient resolution to capture through-plane effects.
 FOVz = Npart * SLICE_THICKNESS  # 320 mm
@@ -300,7 +300,7 @@ def simulate_mr0(sequenceData, state_count=100, min_state_mag=1e-4,
     seq = Sequence.import_file_for_mrtini_sim(sequenceFile)
     art = MRtiniSim(device="cuda", seq=seq).bake_bloch_kernels(
         phantom_data=phantom3d,
-        z_span_m=FOV[-1],
+        z_span_m=FOVz,
         global_RF=True, ##  Change to True to use global RF ~ hard pulse approximation for Faster sim
         tap_threshold=tap_threshold
     )
