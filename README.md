@@ -399,3 +399,44 @@ Or rebuild from VS Code:
 ```text
 Ctrl+Shift+P → Dev Containers: Rebuild Container
 ```
+## License
+
+MRTini is licensed under the GNU Affero General Public License v3.0 only
+(`AGPL-3.0-only`). See [LICENSE](LICENSE).
+
+Copyright (C) 2026 Fraunhofer Institute for Digital Medicine MEVIS
+
+Contributors:
+- Snawar Hussain
+- Daniel C. Hoinkiss
+- J$\"o$rn Huber
+- Vincent Kuhlen
+- Matthias G$\"u$nther
+
+Contact:
+- Daniel C. Hoinkiss: daniel.hoinkiss@mevis.fraunhofer.de
+- Snawar Hussain: snawar.hussain@mevis.fraunhofer.de
+
+## Citation
+
+If you use MRTini in your research, please cite our paper:
+
+**[Slice-Profile-Enabled Phase Distribution Graphs for MRI Simulation](https://arxiv.org/abs/2606.09233)**
+
+<details>
+<summary>Show BibTeX</summary>
+
+```bibtex
+@article{hussain2026sliceprofile,
+  title   = {Slice-Profile-Enabled Phase Distribution Graphs for MRI Simulation},
+  author  = {Snawar Hussain, Daniel C. Hoinkiss, J{\"o}rn Huber, Vincent Kuhlen, Matthias G{\"u}nther},
+  journal = {arXiv preprint arXiv:2606.09233},
+  year    = {2026},
+  doi     = {10.48550/arXiv.2606.09233},
+  url     = {https://arxiv.org/abs/2606.09233}
+}
+```
+
+</details>
+
+
