@@ -409,9 +409,9 @@ Copyright (C) 2026 Fraunhofer Institute for Digital Medicine MEVIS
 Contributors:
 - Snawar Hussain
 - Daniel C. Hoinkiss
-- J$\"o$rn Huber
+- Jörn Huber
 - Vincent Kuhlen
-- Matthias G$\"u$nther
+- Matthias Günther
 
 Contact:
 - Daniel C. Hoinkiss: daniel.hoinkiss@mevis.fraunhofer.de
