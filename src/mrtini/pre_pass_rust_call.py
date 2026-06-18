@@ -1,14 +1,10 @@
-'''
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2026 Fraunhofer Institute for Digital Medicine MEVIS
+# SPDX-License-Identifier: AGPL-3.0-or-later
 #
-# This file is part of MRTini Simulator.
+# This file is part of MRTini.
 #
-# Copyright (C) 2026 Fraunhofer MEVIS, Germany
-#
-# This derived work is distributed under the terms of the GNU Affero
-# GNU Affero General Public License v3.0 only. See LICENSE and NOTICE files
-# for details.
-'''
+# MRTini is research software and is not qualified for use as a medical
+# device or as part of a medical device.
 
 
 

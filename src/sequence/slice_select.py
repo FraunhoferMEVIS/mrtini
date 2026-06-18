@@ -1,3 +1,11 @@
+# SPDX-FileCopyrightText: 2026 Fraunhofer Institute for Digital Medicine MEVIS
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This file is part of MRTini.
+#
+# MRTini is research software and is not qualified for use as a medical
+# device or as part of a medical device.
+
 # mrtini/slice_selective.py
 from dataclasses import dataclass
 from typing import Optional, Tuple, Dict,List, Literal

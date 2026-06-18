@@ -1,10 +1,10 @@
-"""!
-@details Copyright (c) Fraunhofer MEVIS, Germany. All rights reserved.
-         AGPLv3-clause License
-
-         The software is not qualified for use as a medical product or as part
-         thereof. No bugs or restrictions are known.
-"""
+# SPDX-FileCopyrightText: 2026 Fraunhofer Institute for Digital Medicine MEVIS
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This file is part of MRTini.
+#
+# MRTini is research software and is not qualified for use as a medical
+# device or as part of a medical device.
 
 import cProfile
 import cProfile
@@ -318,8 +318,7 @@ def simulate_mr0(sequenceData, state_count=100, min_state_mag=1e-4,
         slice_thickness=SLICE_THICKNESS, pad=PAD,
         max_state_count=state_count, min_state_mag=min_state_mag
     )
-    ## uncomment to plot first two reps of the graph for debugging
-    # render_pdg_pyvis(graph[:3])
+
     
     seq = seq.cuda()
     phantom3d = phantom3d.cuda()

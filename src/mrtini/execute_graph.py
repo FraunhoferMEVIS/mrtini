@@ -1,20 +1,18 @@
-
-'''
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2023 MRzero
+# SPDX-FileCopyrightText: 2026 Fraunhofer Institute for Digital Medicine MEVIS
+# SPDX-License-Identifier: AGPL-3.0-or-later
 #
-# This file is part of MRTini Simulator.
+# This file is part of MRTini.
 #
 # Portions of this file are derived from MRzero-Core:
-#   https://github.com/MRsources/MRzero-Core
+# https://github.com/MRsources/MRzero-Core
 #
-# Original MRzero-Core copyright belongs to its respective authors.
-# Modifications and extensions in this file are Copyright (C) 2026
-# Copyright (C) 2026 Fraunhofer MEVIS, Germany
-# Contact <Snawar Hussain / Fraunhofer MEVIS> for details.
-# This derived work is distributed under the terms of the GNU Affero
-# GNU Affero General Public License v3.0 only. See LICENSE and NOTICE files
-# for details.
-'''
+# This file contains modifications and extensions made for MRTini.
+# The original MRzero-Core copyright and attribution notices are retained.
+#
+# MRTini is research software and is not qualified for use as a medical
+# device or as part of a medical device.
+
 from __future__ import annotations
 import torch
 import sys

@@ -1,12 +1,11 @@
-'''
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2026 Fraunhofer Institute for Digital Medicine MEVIS
+# SPDX-License-Identifier: AGPL-3.0-or-later
 #
-# Copyright (C) 2026 Fraunhofer MEVIS, Germany
+# This file is part of MRTini.
 #
-# This file is part of MRTini Simulator.
-# It contains original code written for MRTini Simulator.
-'''
-# rf_kernel_bank_so3.py
+# MRTini is research software and is not qualified for use as a medical
+# device or as part of a medical device.
+
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional, Dict, Tuple, Literal

@@ -1,12 +1,10 @@
-'''# SPDX-License-Identifier: AGPL-3.0-only
-#
-# Copyright (C) 2026 Fraunhofer MEVIS, Germany
+# SPDX-FileCopyrightText: 2026 Fraunhofer Institute for Digital Medicine MEVIS
+# SPDX-License-Identifier: AGPL-3.0-or-later
 #
 # This file is part of MRTini.
 #
-#  The software is not qualified for use as a medical product or as part
-#  thereof. No bugs or restrictions are known.
-'''
+# MRTini is research software and is not qualified for use as a medical
+# device or as part of a medical device.
 import matplotlib
 matplotlib.use("QtAgg")
 from matplotlib import pyplot as plt
@@ -57,8 +55,6 @@ for seq_name in seq_names:
         max_state_count=200,
         min_state_mag=1e-4,
     )
-    ## uncomment to plot first two reps of the graph for debugging
-    # render_pdg_pyvis(graph[:3])
 
     seq = seq.cuda()
     data = data.cuda()

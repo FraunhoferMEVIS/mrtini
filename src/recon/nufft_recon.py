@@ -1,11 +1,10 @@
-'''
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2026 Fraunhofer Institute for Digital Medicine MEVIS
+# SPDX-License-Identifier: AGPL-3.0-or-later
 #
-# Copyright (C) 2026 Fraunhofer MEVIS, Germany
+# This file is part of MRTini.
 #
-# This file is part of MRTini Simulator.
-# It contains original code written for MRTini Simulator.
-'''
+# MRTini is research software and is not qualified for use as a medical
+# device or as part of a medical device.
 import torch
 import torchkbnufft as tkbn
 
