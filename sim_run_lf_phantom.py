@@ -1,0 +1,89 @@
+# SPDX-FileCopyrightText: 2026 Fraunhofer Institute for Digital Medicine MEVIS
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This file is part of MRTini.
+#
+# MRTini is research software and is not qualified for use as a medical
+# device or as part of a medical device.
+from matplotlib import pyplot as plt
+import torch
+import sys
+
+sys.path.append("./")
+from src.mrtini.execute_graph import execute_graph
+from src.mrtini.mrtini_main import MRtiniSim
+from src.voxelgridphantom import voxel_grid_phantom
+from src.mrtini.pre_pass_rust_call import compute_graph_rust
+from src.mrtini.config import SLICE_THICKNESS, PAD
+from src.sequence.sequence import Sequence
+from src.recon.nufft_recon import _reconstruct
+from src.mrtini.RF_banks import build_prepass_inputs_from_hybrid
+import numpy as np
+
+Nx = Ny = 128
+# seq_names = ["2D_spiral", "2D_radial", "SE_EPI","EPI", "FLASH", "RARE"]
+seq_names = [ "2D_spiral"]
+
+for seq_name in seq_names:
+    seq = Sequence.import_file_for_mrtini_sim(f"src/sequence/gstar_seqs/{seq_name}_sequence_raw.json")
+    lf_phantom_path = "data/sim_phantom.npz"
+    lf_phantom = np.load(lf_phantom_path)
+    print("Loaded phantom keys:", lf_phantom.keys())
+
+    phantom = voxel_grid_phantom.VoxelGridPhantom.brainweb(lf_phantom_path)
+    phantom = phantom.interpolate(Nx, Ny, 31).slices([15])  # select slices
+    # phantom = phantom.interpolate(Nx, Ny, 320).slices(list(np.linspace(160-16, 160+16, 32, dtype=int)))  # to use 3D slice
+    # data.multi_slice = True  # enable multi-slice mode, which relies on the z grid samples to capture through-plane effects for each slice independently.
+    phantom.plot()
+    # phantom.size[-1] = torch.tensor([SLICE_THICKNESS])  # we need correct size for slice profile calculation
+    data = phantom.build()
+
+    art = MRtiniSim(device="cuda", seq=seq).bake_bloch_kernels(
+        phantom_data=data,
+        z_span_m=SLICE_THICKNESS,  # we need to specify the z span for the pre-pass graph construction, which relies on the z grid samples to capture through-plane effects. This should ideally be set to cover the whole phantom, but for simplicity we just set it to cover the 31 slices we are using.
+        global_RF=False,  ##  Change to True to use global RF ~ hard pulse approximation for Faster sim
+    )
+
+    rep_keys, pulse_id_per_rep, taps_bank, supp_bank = build_prepass_inputs_from_hybrid(seq, art)
+
+    graph = compute_graph_rust(
+        seq,
+        data,
+        pulse_id_per_rep,
+        taps_bank,
+        supp_bank,
+        art.z_m,
+        slice_thickness=SLICE_THICKNESS,
+        pad=PAD,
+        max_state_count=700,
+        min_state_mag=1e-4,
+    )
+
+    seq = seq.cuda()
+    data = data.cuda()
+
+    signal = execute_graph(
+        graph,
+        seq,
+        data,
+        rep_keys,
+        art,
+        SLICE_THICKNESS=SLICE_THICKNESS,
+    )
+
+    reco = _reconstruct(
+        signal,
+        seq.get_kspace(),
+        im_size=[128, 128],
+    )
+    img = torch.abs(reco)
+    figure, axes = plt.subplots(1, 1, figsize=(15, 5))
+    img = img.cpu().numpy()
+    im = axes.imshow(img, cmap="gray", origin="lower")
+    ## show the colorbar values for axes1
+    plt.colorbar(im, ax=axes)
+    axes.set_title("Adjoint Reco")
+
+    plt.tight_layout()
+    plt.savefig(f"recon_output/{seq_name}_reco.png")
+    plt.show()

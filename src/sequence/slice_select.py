@@ -10,7 +10,6 @@
 from dataclasses import dataclass
 from typing import Optional, Tuple, Dict,List, Literal
 import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import numpy as np
 

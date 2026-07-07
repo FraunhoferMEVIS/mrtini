@@ -21,8 +21,6 @@ import torch
 import numpy as np
 from enum import Enum
 from typing import Iterable
-import matplotlib
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import mrstar
 
