@@ -14,16 +14,29 @@
 # device or as part of a medical device.
 
 from __future__ import annotations
-from ast import Dict
+from typing import Dict
 from time import time
-import mrstar.mrstar
 import torch
 import numpy as np
 from enum import Enum
 from typing import Iterable
 import matplotlib.pyplot as plt
 import mrstar
+import copy
 
+
+def _copy_sequence_metadata(value):
+    if isinstance(value, torch.Tensor):
+        return value.clone()
+    if isinstance(value, np.ndarray):
+        return value.copy()
+    if isinstance(value, dict):
+        return {key: _copy_sequence_metadata(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_copy_sequence_metadata(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_copy_sequence_metadata(item) for item in value)
+    return copy.deepcopy(value)
 class PulseUsage(Enum):
     """:class:`Enum` of all pulse usages, needed for reconstruction.
 
@@ -209,27 +222,23 @@ class Repetition:
         self.raw_waveform = raw_waveform
 
     def cuda(self, device: int | None = None) -> Repetition:
-        """Move this repetition to the specified CUDA device and return it."""
         return Repetition(
-            self.pulse.cuda(device),
-            self.event_time.cuda(device),
-            self.gradm.cuda(device),
-            self.adc_phase.cuda(device),
-            self.adc_usage.cuda(device),
-            self.gradm_z_eff.cuda(device)
-            
+            pulse=self.pulse.cuda(device), event_time=self.event_time.cuda(device),
+            gradm=self.gradm.cuda(device), adc_phase=self.adc_phase.cuda(device),
+            adc_usage=self.adc_usage.cuda(device),
+            raw_waveform=_copy_sequence_metadata(self.raw_waveform),
+            gradm_z_eff=self.gradm_z_eff.cuda(device),
         )
 
     def cpu(self) -> Repetition:
-        """Move this repetition to the CPU and return it."""
         return Repetition(
-            self.pulse.cpu(),
-            self.event_time.cpu(),
-            self.gradm.cpu(),
-            self.adc_phase.cpu(),
-            self.adc_usage.cpu(),
-            self.gradm_z_eff.cpu(),
+            pulse=self.pulse.cpu(), event_time=self.event_time.cpu(),
+            gradm=self.gradm.cpu(), adc_phase=self.adc_phase.cpu(),
+            adc_usage=self.adc_usage.cpu(),
+            raw_waveform=_copy_sequence_metadata(self.raw_waveform),
+            gradm_z_eff=self.gradm_z_eff.cpu(),
         )
+
 
     @property
     def device(self) -> torch.device:
@@ -261,15 +270,13 @@ class Repetition:
         )
 
     def clone(self) -> Repetition:
-        """Create a copy of self with cloned tensors."""
-        return Repetition(
-            self.pulse.clone(),
-            self.event_time.clone(),
-            self.gradm.clone(),
-            self.adc_phase.clone(),
-            self.adc_usage.clone(),
-            self.raw_waveform.copy(),
-        )
+            return Repetition(
+                pulse=self.pulse.clone(), event_time=self.event_time.clone(),
+                gradm=self.gradm.clone(), adc_phase=self.adc_phase.clone(),
+                adc_usage=self.adc_usage.clone(),
+                raw_waveform=_copy_sequence_metadata(self.raw_waveform),
+                gradm_z_eff=self.gradm_z_eff.clone(),
+            )
 
     def get_contrasts(self) -> list[int]:
         """Return a sorted list of contrasts used by this ``Repetition``."""
@@ -291,11 +298,11 @@ class Sequence(list):
     additionally implements MRI sequence specific methods.
     """
     
-    def __init__(self, repetitions: Iterable[Repetition] = [],
+    def __init__(self, repetitions: Iterable[Repetition] | None = None,
                  normalized_grads: bool = True,
-                 mrtini_hybrid: list[dict] = [],
-                 mrtini_rep_bounds: list[tuple] = [],
-                 mrtini_spans_by_rep: list[list[int]] = []):
+                 mrtini_hybrid: list[dict] | None = None,
+                 mrtini_rep_bounds: list[tuple] | None = None,
+                 mrtini_spans_by_rep: list[list[int]] | None = None):
         """Create a ``Sequence`` instance by passing repetitions.
 
         Parameters
@@ -310,23 +317,25 @@ class Sequence(list):
             gradients are then scaled to the phantom size on simulation.
             If false, no scaling happens and SI units are assumed.
         """
-        super().__init__(repetitions)
+        super().__init__([] if repetitions is None else repetitions)
         self.normalized_grads = normalized_grads
-        self.mrtini_hybrid: list[dict] = mrtini_hybrid
-        self.mrtini_rep_bounds:list[tuple] = mrtini_rep_bounds
-        self.mrtini_spans_by_rep: list[list[int]] = mrtini_spans_by_rep
+        self.mrtini_hybrid = [] if mrtini_hybrid is None else mrtini_hybrid
+        self.mrtini_rep_bounds = [] if mrtini_rep_bounds is None else mrtini_rep_bounds
+        self.mrtini_spans_by_rep = [] if mrtini_spans_by_rep is None else mrtini_spans_by_rep
+        
+    def _copy_with_repetitions(self, repetitions):
+        result = Sequence(repetitions, normalized_grads=self.normalized_grads)
+        # Preserve imported and dynamically attached MRtini metadata, not just
+        # the constructor's three hybrid fields.
+        for name, value in self.__dict__.items():
+            setattr(result, name, _copy_sequence_metadata(value))
+        return result
+    
     def cuda(self) -> Sequence:
-        """Move this sequence to the specified CUDA device and return it."""
-        return Sequence([rep.cuda() for rep in self],
-                        self.normalized_grads,
-                        mrtini_hybrid=self.mrtini_hybrid,
-                        mrtini_rep_bounds=self.mrtini_rep_bounds,
-                        mrtini_spans_by_rep=self.mrtini_spans_by_rep,
-                        )
+        return self._copy_with_repetitions([rep.cuda() for rep in self])
 
     def cpu(self) -> Sequence:
-        """Move this sequence to the CPU and return it."""
-        return Sequence([rep.cpu() for rep in self], self.normalized_grads)
+        return self._copy_with_repetitions([rep.cpu() for rep in self])
 
     @property
     def device(self) -> torch.device:
@@ -334,8 +343,7 @@ class Sequence(list):
         return self[0].device
 
     def clone(self) -> Sequence:
-        """Return a deepcopy of self."""
-        return Sequence([rep.clone() for rep in self], self.normalized_grads)
+        return self._copy_with_repetitions([rep.clone() for rep in self])
 
     def new_rep(self, event_count) -> Repetition:
         """Return a zeroed out repetition that is part of this ``Sequence``."""
@@ -817,10 +825,10 @@ class Sequence(list):
     @staticmethod
     def soa_collapse_keep_adcs(soa):
         """
-        Collapse SoA events to [pre?] + all ADC events + [post?], still SoA.
+        Collapse exterior non-ADC events; preserve every event between first/last ADC.
         Input  soa: dict with tensors:
             time:(E,), gradm:(3,E), adc_mask:(E,), adc_phase:(E,)
-        Output: same keys, but length E' = (#ADCs + up to 2).
+        Output: same keys. Interior non-ADC gaps remain non-ADC events.
         """
 
         t   = soa["time"]        # (E,)
@@ -856,7 +864,7 @@ class Sequence(list):
         # ADCs 1:1
         out_t.append(t[lo:hi+1])
         out_G.append(G[:, lo:hi+1])
-        out_m.append(torch.ones(hi - lo + 1, dtype=torch.bool, device=t.device))
+        out_m.append(m[lo:hi+1])
         out_ph.append(ph[lo:hi+1])
         # post lump
         if hi + 1 < E:
@@ -865,7 +873,7 @@ class Sequence(list):
             out_m.append(torch.zeros(1, dtype=torch.bool, device=t.device))
             out_ph.append(torch.zeros(1, dtype=t.dtype, device=t.device))
         return dict(
-            timing      = torch.cat(out_t, dim=0),
+            time      = torch.cat(out_t, dim=0),
             gradm     = torch.cat(out_G, dim=1),
             adc_mask  = torch.cat(out_m, dim=0),
             adc_phase = torch.cat(out_ph, dim=0),
@@ -953,95 +961,7 @@ class Sequence(list):
         def pulse_usage(angle: float):
             return PulseUsage.EXCIT if abs(angle) < 100 * np.pi / 180 else PulseUsage.REFOC
         
-        def refine_gz_support(parser, block0, block1, rf0, rf1,
-                      ratio_outer=1.25, eps=1e-12):
-            import numpy as np
-
-            rw = parser.raw_waveforms(block0, block1)
-            t = np.asarray(rw["t"], dtype=np.float64)
-            gz = np.asarray(rw["gz"], dtype=np.float64)
-            rf_amp = np.abs(np.asarray(rw.get("rf_amp", np.zeros_like(gz)), dtype=np.float64))
-
-            if t.size < 3 or gz.size != t.size:
-                return block0, block1
-
-            # RF-active samples inside this block
-            rf_mask = (t >= rf0 - eps) & (t <= rf1 + eps)
-            if rf_amp.size == t.size and rf_amp.max() > 0:
-                rf_mask = rf_mask | (rf_amp > 1e-3 * rf_amp.max())
-
-            if not np.any(rf_mask):
-                return block0, block1
-
-            i0 = np.flatnonzero(rf_mask)[0]
-            i1 = np.flatnonzero(rf_mask)[-1]
-
-            # Sign/level of the slice-select lobe under RF
-            w = rf_amp[rf_mask]
-            if np.all(w == 0):
-                w = np.ones_like(w)
-
-            g_rf_signed = np.average(gz[rf_mask], weights=w)
-            s = 1.0 if g_rf_signed >= 0 else -1.0
-            g = s * gz
-            g_rf = np.average(g[rf_mask], weights=w)
-
-            # If RF sees almost no Gz, do not try to crop
-            if abs(g_rf) < 1e-12:
-                return rf0, rf1
-
-            def cut_left():
-                side = g[:i0]
-                if side.size == 0:
-                    return t[0]
-
-                side_max = np.max(side)
-                # no clearly larger outer lobe on left -> keep whole left side
-                if side_max <= ratio_outer * g_rf:
-                    return t[0]
-
-                thr = 0.5 * (g_rf + side_max)
-
-                # closest left sample that belongs to the larger outer lobe
-                idx_hi = np.flatnonzero(side >= thr)
-                if idx_hi.size == 0:
-                    return t[0]
-                k_hi = idx_hi[-1]
-
-                # valley between outer lobe and RF region
-                seg = g[k_hi:i0+1]
-                k_valley = k_hi + int(np.argmin(seg))
-                return t[k_valley]
-
-            def cut_right():
-                side = g[i1+1:]
-                if side.size == 0:
-                    return t[-1]
-
-                side_max = np.max(side)
-                # no clearly larger outer lobe on right -> keep whole right side
-                if side_max <= ratio_outer * g_rf:
-                    return t[-1]
-
-                thr = 0.5 * (g_rf + side_max)
-
-                idx_hi = np.flatnonzero(side >= thr)
-                if idx_hi.size == 0:
-                    return t[-1]
-                k_hi = i1 + 1 + idx_hi[0]
-
-                seg = g[i1:k_hi+1]
-                k_valley = i1 + int(np.argmin(seg))
-                return t[k_valley]
-
-            support0 = cut_left()
-            support1 = cut_right()
-
-            # guarantee RF interval stays inside support
-            support0 = min(support0, rf0)
-            support1 = max(support1, rf1)
-
-            return float(support0), float(support1)
+        
         def collect_intervals(parser, name):
             out = []
             t = 0.0

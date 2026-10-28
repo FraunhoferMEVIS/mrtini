@@ -1,0 +1,489 @@
+.....................................................FF................. [ 33%]
+..FF...........................FFFFFFFF................................. [ 66%]
+...................F...F...F............F..F...........................  [100%]
+=================================== FAILURES ===================================
+______________ test_bloch_rhs_cross_product_and_relaxation[False] ______________
+
+bloch = <module 'src.mrtini.bloch' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/bloch.py'>
+relax = False
+
+    @pytest.mark.parametrize('relax',[False,True])
+    def test_bloch_rhs_cross_product_and_relaxation(bloch,relax):
+        def control(t): return (torch.tensor(.2),torch.tensor(-.1),torch.tensor(0.),torch.tensor(.3))
+        rhs = bloch.BlochRHS(control,[-.5,.5],[.1,-.2],[.8,1.2], gamma_rad=2.,
+                             T1=2. if relax else None,T2=.5 if relax else None,device='cpu')
+        M = torch.arange(36,dtype=torch.float32).reshape(2,3,2,3)/20
+        B = torch.tensor([[[.16,-.08,-.05],[.16,-.08,.25]],[[.24,-.12,-.35],[.24,-.12,-.05]]])[:,None]
+        expected = 2*torch.cross(B.expand_as(M),M,dim=-1)  # same active-rotation convention as solve_slice tests
+        if relax:
+            expected[...,:2] -= M[...,:2]/.5
+            expected[...,2] -= (M[...,2]-1)/2
+>       torch.testing.assert_close(rhs(torch.tensor(0.),M),expected,atol=2e-6,rtol=2e-6)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 36 / 36 (100.0%)
+E       Greatest absolute difference: 3.636000156402588 at index (1, 2, 0, 1) (up to 2e-06 allowed)
+E       Greatest relative difference: 2.0000014305114746 at index (0, 0, 1, 1) (up to 2e-06 allowed)
+
+tests/mrtini_pytest/test_bloch.py:56: AssertionError
+______________ test_bloch_rhs_cross_product_and_relaxation[True] _______________
+
+bloch = <module 'src.mrtini.bloch' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/bloch.py'>
+relax = True
+
+    @pytest.mark.parametrize('relax',[False,True])
+    def test_bloch_rhs_cross_product_and_relaxation(bloch,relax):
+        def control(t): return (torch.tensor(.2),torch.tensor(-.1),torch.tensor(0.),torch.tensor(.3))
+        rhs = bloch.BlochRHS(control,[-.5,.5],[.1,-.2],[.8,1.2], gamma_rad=2.,
+                             T1=2. if relax else None,T2=.5 if relax else None,device='cpu')
+        M = torch.arange(36,dtype=torch.float32).reshape(2,3,2,3)/20
+        B = torch.tensor([[[.16,-.08,-.05],[.16,-.08,.25]],[[.24,-.12,-.35],[.24,-.12,-.05]]])[:,None]
+        expected = 2*torch.cross(B.expand_as(M),M,dim=-1)  # same active-rotation convention as solve_slice tests
+        if relax:
+            expected[...,:2] -= M[...,:2]/.5
+            expected[...,2] -= (M[...,2]-1)/2
+>       torch.testing.assert_close(rhs(torch.tensor(0.),M),expected,atol=2e-6,rtol=2e-6)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 36 / 36 (100.0%)
+E       Greatest absolute difference: 3.635999917984009 at index (1, 2, 0, 1) (up to 2e-06 allowed)
+E       Greatest relative difference: 2.896057367324829 at index (1, 2, 1, 2) (up to 2e-06 allowed)
+
+tests/mrtini_pytest/test_bloch.py:56: AssertionError
+_ test_shaped_slice_solver_against_independent_adaptive_bloch_ode[0.00037-so3] _
+
+bloch = <module 'src.mrtini.bloch' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/bloch.py'>
+backend = 'so3', center = 0.00037
+
+    @pytest.mark.parametrize('backend',['so3','spinor'])
+    @pytest.mark.parametrize('center',[.00037,.0006])
+    def test_shaped_slice_solver_against_independent_adaptive_bloch_ode(bloch,backend,center):
+        t=np.linspace(0,.0012,7)
+        rf=np.array([0.,1.,2.,1.4,.6,.2,0.])*2e-6*np.exp(1j*np.array([0.,.1,.5,.8,.4,-.2,0.]))
+        gz=np.array([.003,.006,.004,-.002,.001,0.,.009])
+        z=np.array([-.0013,0.,.0011]);b0=np.array([0.,1.1e-7]);b1=np.array([.85,1.15]);species=[0.,-412.]
+        args=dict(rf_complex=rf,rf_freq=np.zeros_like(t),gz=gz,t_grid=t,z_m=z,
+                  b0_T=b0,b1_scale=b1,chem_shift_Hz=species,device='cpu',dtype_policy=torch.float64,
+                  backend=backend,rf_center_time=center)
+        out=bloch.solve_slice(**args)
+        for si,chemical in enumerate(species):
+            expected=np.empty((len(b0),len(z),3,3))
+            for bi in range(len(b0)):
+                for zi,position in enumerate(z):
+                    expected[bi,zi]=solve_zoh_ivp(t=t,rf=rf,gz=gz,z=position,
+                        b0=b0[bi],b1=b1[bi],chemical_hz=chemical)
+            expected=demod_reference(expected,z,t,gz,2*np.pi*42.577478e6,center)
+            got=out.Rz_solve[si].Rz_B33Nz.permute(0,3,1,2).detach().cpu().numpy()
+>           np.testing.assert_allclose(got,expected,atol=2e-5,rtol=2e-5)
+E           AssertionError: 
+E           Not equal to tolerance rtol=2e-05, atol=2e-05
+E           
+E           Mismatched elements: 32 / 54 (59.3%)
+E           Max absolute difference among violations: 0.16893472
+E           Max relative difference among violations: 1.19035146
+E            ACTUAL: array([[[[ 0.992003,  0.039072,  0.120013],
+E                    [ 0.012974,  0.914273, -0.40489 ],
+E                    [-0.125545,  0.40321 ,  0.906455]],...
+E            DESIRED: array([[[[ 0.966922,  0.057744,  0.24845 ],
+E                    [ 0.031647,  0.939354, -0.341485],
+E                    [-0.253102,  0.338052,  0.906455]],...
+
+tests/mrtini_pytest/test_bloch.py:142: AssertionError
+_ test_shaped_slice_solver_against_independent_adaptive_bloch_ode[0.00037-spinor] _
+
+bloch = <module 'src.mrtini.bloch' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/bloch.py'>
+backend = 'spinor', center = 0.00037
+
+    @pytest.mark.parametrize('backend',['so3','spinor'])
+    @pytest.mark.parametrize('center',[.00037,.0006])
+    def test_shaped_slice_solver_against_independent_adaptive_bloch_ode(bloch,backend,center):
+        t=np.linspace(0,.0012,7)
+        rf=np.array([0.,1.,2.,1.4,.6,.2,0.])*2e-6*np.exp(1j*np.array([0.,.1,.5,.8,.4,-.2,0.]))
+        gz=np.array([.003,.006,.004,-.002,.001,0.,.009])
+        z=np.array([-.0013,0.,.0011]);b0=np.array([0.,1.1e-7]);b1=np.array([.85,1.15]);species=[0.,-412.]
+        args=dict(rf_complex=rf,rf_freq=np.zeros_like(t),gz=gz,t_grid=t,z_m=z,
+                  b0_T=b0,b1_scale=b1,chem_shift_Hz=species,device='cpu',dtype_policy=torch.float64,
+                  backend=backend,rf_center_time=center)
+        out=bloch.solve_slice(**args)
+        for si,chemical in enumerate(species):
+            expected=np.empty((len(b0),len(z),3,3))
+            for bi in range(len(b0)):
+                for zi,position in enumerate(z):
+                    expected[bi,zi]=solve_zoh_ivp(t=t,rf=rf,gz=gz,z=position,
+                        b0=b0[bi],b1=b1[bi],chemical_hz=chemical)
+            expected=demod_reference(expected,z,t,gz,2*np.pi*42.577478e6,center)
+            got=out.Rz_solve[si].Rz_B33Nz.permute(0,3,1,2).detach().cpu().numpy()
+>           np.testing.assert_allclose(got,expected,atol=2e-5,rtol=2e-5)
+E           AssertionError: 
+E           Not equal to tolerance rtol=2e-05, atol=2e-05
+E           
+E           Mismatched elements: 32 / 54 (59.3%)
+E           Max absolute difference among violations: 0.16893472
+E           Max relative difference among violations: 1.19035146
+E            ACTUAL: array([[[[ 0.992003,  0.039072,  0.120013],
+E                    [ 0.012974,  0.914273, -0.40489 ],
+E                    [-0.125545,  0.40321 ,  0.906455]],...
+E            DESIRED: array([[[[ 0.966922,  0.057744,  0.24845 ],
+E                    [ 0.031647,  0.939354, -0.341485],
+E                    [-0.253102,  0.338052,  0.906455]],...
+
+tests/mrtini_pytest/test_bloch.py:142: AssertionError
+_________________ test_repetition_clone_preserves_effective_z __________________
+
+repetition = <src.sequence.sequence.Repetition object at 0x7f92f524dbb0>
+
+    @pytest.mark.regression
+    def test_repetition_clone_preserves_effective_z(repetition):
+        repetition.gradm_z_eff=torch.tensor([7.,8.,9.])
+>       torch.testing.assert_close(repetition.clone().gradm_z_eff,repetition.gradm_z_eff)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 3 / 3 (100.0%)
+E       Greatest absolute difference: 8.0 at index (1,) (up to 1e-05 allowed)
+E       Greatest relative difference: 1.0 at index (0,) (up to 1.3e-06 allowed)
+
+tests/mrtini_pytest/test_known_defects.py:15: AssertionError
+____________________ test_repetition_cpu_preserves_waveform ____________________
+
+repetition = <src.sequence.sequence.Repetition object at 0x7f92f524c320>
+
+    @pytest.mark.regression
+    def test_repetition_cpu_preserves_waveform(repetition):
+        repetition.raw_waveform={'sentinel':'waveform'}
+>       assert isinstance(repetition.cpu().raw_waveform,dict)
+E       assert False
+E        +  where False = isinstance(tensor([0., 0., 0.]), dict)
+E        +    where tensor([0., 0., 0.]) = <src.sequence.sequence.Repetition object at 0x7f92f524d670>.raw_waveform
+E        +      where <src.sequence.sequence.Repetition object at 0x7f92f524d670> = cpu()
+E        +        where cpu = <src.sequence.sequence.Repetition object at 0x7f92f524c320>.cpu
+
+tests/mrtini_pytest/test_known_defects.py:20: AssertionError
+________________ test_sequence_clone_preserves_hybrid_metadata _________________
+
+seqmod = <module 'src.sequence.sequence' from '/workspace/scratch/227ca08f2174/audit_runtime/src/sequence/sequence.py'>
+repetition = <src.sequence.sequence.Repetition object at 0x7f92f524f3e0>
+
+    @pytest.mark.regression
+    def test_sequence_clone_preserves_hybrid_metadata(seqmod,repetition):
+        s=seqmod.Sequence([repetition],mrtini_hybrid=[{'kind':'epg'}],mrtini_rep_bounds=[(0.,1.)],mrtini_spans_by_rep=[[0]])
+        c=s.clone()
+>       assert c.mrtini_hybrid==s.mrtini_hybrid
+E       AssertionError: assert [] == [{'kind': 'epg'}]
+E         
+E         Right contains one more item: {'kind': 'epg'}
+E         Use -v to get more diff
+
+tests/mrtini_pytest/test_known_defects.py:27: AssertionError
+________________ test_sequence_default_metadata_is_independent _________________
+
+seqmod = <module 'src.sequence.sequence' from '/workspace/scratch/227ca08f2174/audit_runtime/src/sequence/sequence.py'>
+
+    @pytest.mark.regression
+    def test_sequence_default_metadata_is_independent(seqmod):
+        a,b=seqmod.Sequence(),seqmod.Sequence()
+>       assert a.mrtini_hybrid is not b.mrtini_hybrid
+E       assert [] is not []
+E        +  where [] = [].mrtini_hybrid
+E        +  and   [] = [].mrtini_hybrid
+
+tests/mrtini_pytest/test_known_defects.py:33: AssertionError
+__________________________ test_collapse_keeps_schema __________________________
+
+seqmod = <module 'src.sequence.sequence' from '/workspace/scratch/227ca08f2174/audit_runtime/src/sequence/sequence.py'>
+
+    @pytest.mark.regression
+    def test_collapse_keeps_schema(seqmod):
+        s=dict(time=torch.ones(3),gradm=torch.ones(3,3),adc_mask=torch.tensor([False,True,False]),adc_phase=torch.zeros(3))
+>       assert set(seqmod.Sequence.soa_collapse_keep_adcs(s))==set(s)
+E       AssertionError: assert {'adc_mask', ...dm', 'timing'} == {'adc_mask', ...radm', 'time'}
+E         
+E         Extra items in the left set:
+E         'timing'
+E         Extra items in the right set:
+E         'time'
+E         Use -v to get more diff
+
+tests/mrtini_pytest/test_known_defects.py:40: AssertionError
+______________________ test_collapse_preserves_adc_count _______________________
+
+seqmod = <module 'src.sequence.sequence' from '/workspace/scratch/227ca08f2174/audit_runtime/src/sequence/sequence.py'>
+
+    @pytest.mark.regression
+    def test_collapse_preserves_adc_count(seqmod):
+        s=dict(time=torch.ones(3),gradm=torch.ones(3,3),adc_mask=torch.tensor([True,False,True]),adc_phase=torch.zeros(3))
+>       assert seqmod.Sequence.soa_collapse_keep_adcs(s)['adc_mask'].sum()==2
+E       assert tensor(3) == 2
+E        +  where tensor(3) = <built-in method sum of Tensor object at 0x7f92f50a1b30>()
+E        +    where <built-in method sum of Tensor object at 0x7f92f50a1b30> = tensor([True, True, True]).sum
+
+tests/mrtini_pytest/test_known_defects.py:45: AssertionError
+__________________ test_fm_waveforms_have_distinct_cache_keys __________________
+
+main = <module 'src.mrtini.mrtini_main' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/mrtini_main.py'>
+
+    @pytest.mark.regression
+    def test_fm_waveforms_have_distinct_cache_keys(main):
+        s=dict(kind='bloch',t=np.linspace(0,.001,5),rf_amp=np.ones(5)*100,rf_phase=np.zeros(5),gz=np.zeros(5),rf_freq=0.)
+>       assert main._bloch_kernel_signature(dict(s,rf_fm=0.))[0]!=main._bloch_kernel_signature(dict(s,rf_fm=100.))[0]
+E       AssertionError: assert 'dt=2.500000000e-04|rfR=4dbe1cd166e7f53e8dccb2d05ab1ed81f9ed80c9|rfI=b80de5d138758541c5f05265ad144ab9fa86d1db|gz=b80de5d138758541c5f05265ad144ab9fa86d1db|f=0.000000e+00' != 'dt=2.500000000e-04|rfR=4dbe1cd166e7f53e8dccb2d05ab1ed81f9ed80c9|rfI=b80de5d138758541c5f05265ad144ab9fa86d1db|gz=b80de5d138758541c5f05265ad144ab9fa86d1db|f=0.000000e+00'
+
+tests/mrtini_pytest/test_known_defects.py:51: AssertionError
+______________________ test_frequency_array_is_supported _______________________
+
+main = <module 'src.mrtini.mrtini_main' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/mrtini_main.py'>
+
+    @pytest.mark.regression
+    def test_frequency_array_is_supported(main):
+        s=dict(kind='bloch',t=np.linspace(0,.001,5),rf_amp=np.ones(5),rf_phase=np.zeros(5),gz=np.zeros(5),rf_freq=np.arange(5.))
+>       assert np.isfinite(main._bloch_kernel_signature(s)[1]).all()
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/mrtini_pytest/test_known_defects.py:56: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+span = {'kind': 'bloch', 't': array([0.     , 0.00025, 0.0005 , 0.00075, 0.001  ]), 'rf_amp': array([1., 1., 1., 1., 1.]), 'rf_phase': array([0., 0., 0., 0., 0.]), ...}
+
+    def _bloch_kernel_signature(
+        span: dict,
+    ) -> tuple[str, np.ndarray,np.ndarray, np.ndarray, np.ndarray, dict]:
+        """
+        span MUST be a 'bloch' item from seq.mrtini_hybrid with:
+          - 't' (list/np.ndarray, seconds)
+          - 'rf_amp' (same len)
+          - 'rf_phase' (same len; often constant)
+          - 'gz' (same len, Tesla/m)
+          - optional 'rf_freq' (Hz) — include if your slicer uses it (default 0)
+        Returns: (key, rf_for_solve (complex), gz, t, meta{phi0, const_phase, rf_freq})
+        """
+        assert span["kind"] == "bloch"
+        t = np.asarray(span["t"], dtype=np.float64)
+        amp = np.asarray(span["rf_amp"], dtype=np.float64) / GAMMA_HZ
+        phi = np.asarray(span["rf_phase"], dtype=np.float64)
+        gz = np.asarray(span["gz"], dtype=np.float64) / GAMMA_HZ
+>       rf_freq = np.asarray(span.get("rf_freq", 0.0) or 0.0)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+
+src/mrtini/mrtini_main.py:163: ValueError
+_______ test_fourier_projector_against_independent_complex_dft[K-True-9] _______
+
+rf = <module 'src.mrtini.RF_banks' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/RF_banks.py'>
+n = 9, bake = True, norm = 'K'
+
+    @pytest.mark.parametrize('n',[8,9])
+    @pytest.mark.parametrize('bake',[False,True])
+    @pytest.mark.parametrize('norm',['K','Lz','dz'])
+    def test_fourier_projector_against_independent_complex_dft(rf,n,bake,norm):
+        # Nonzero coordinate origin and asymmetric complex data expose phase errors.
+        z=(np.arange(n)-n//2)*.001+.00013
+        k=fourier_k(z)
+        x=(np.arange(n)+1j*np.arange(n)[::-1])/n
+        P=rf.make_projector_z_to_k(torch.tensor(z,dtype=rf.DTYPE),
+            torch.tensor(k,dtype=rf.DTYPE),norm=norm,bake_ifftshift=bake)
+        expected_matrix=dft_matrix(z,k,norm)
+>       np.testing.assert_allclose(P.detach().cpu(),expected_matrix,atol=3e-6,rtol=3e-6)
+E       AssertionError: 
+E       Not equal to tolerance rtol=3e-06, atol=3e-06
+E       
+E       Mismatched elements: 72 / 81 (88.9%)
+E       Max absolute difference among violations: 0.21884618
+E       Max relative difference among violations: 1.96961562
+E        ACTUAL: array([[ 0.056894-0.09544j , -0.079386+0.07774j ,  0.096611-0.054882j,
+E               -0.107425+0.028383j,  0.111111+0.j      , -0.107425-0.028383j,
+E                0.096611+0.054882j, -0.079386-0.07774j ,  0.056894+0.09544j ],...
+E        DESIRED: array([[-0.02082 +0.109143j, -0.027632-0.10762j ,  0.070825+0.085613j,
+E               -0.100536-0.047309j,  0.111111+0.j      , -0.100536+0.047309j,
+E                0.070825-0.085613j, -0.027632+0.10762j , -0.02082 -0.109143j],...
+
+tests/mrtini_pytest/test_rf_banks.py:86: AssertionError
+______ test_fourier_projector_against_independent_complex_dft[Lz-True-9] _______
+
+rf = <module 'src.mrtini.RF_banks' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/RF_banks.py'>
+n = 9, bake = True, norm = 'Lz'
+
+    @pytest.mark.parametrize('n',[8,9])
+    @pytest.mark.parametrize('bake',[False,True])
+    @pytest.mark.parametrize('norm',['K','Lz','dz'])
+    def test_fourier_projector_against_independent_complex_dft(rf,n,bake,norm):
+        # Nonzero coordinate origin and asymmetric complex data expose phase errors.
+        z=(np.arange(n)-n//2)*.001+.00013
+        k=fourier_k(z)
+        x=(np.arange(n)+1j*np.arange(n)[::-1])/n
+        P=rf.make_projector_z_to_k(torch.tensor(z,dtype=rf.DTYPE),
+            torch.tensor(k,dtype=rf.DTYPE),norm=norm,bake_ifftshift=bake)
+        expected_matrix=dft_matrix(z,k,norm)
+>       np.testing.assert_allclose(P.detach().cpu(),expected_matrix,atol=3e-6,rtol=3e-6)
+E       AssertionError: 
+E       Not equal to tolerance rtol=3e-06, atol=3e-06
+E       
+E       Mismatched elements: 72 / 81 (88.9%)
+E       Max absolute difference among violations: 0.21884618
+E       Max relative difference among violations: 1.96961562
+E        ACTUAL: array([[ 0.056894-0.09544j , -0.079386+0.07774j ,  0.096611-0.054882j,
+E               -0.107425+0.028383j,  0.111111+0.j      , -0.107425-0.028383j,
+E                0.096611+0.054882j, -0.079386-0.07774j ,  0.056894+0.09544j ],...
+E        DESIRED: array([[-0.02082 +0.109143j, -0.027632-0.10762j ,  0.070825+0.085613j,
+E               -0.100536-0.047309j,  0.111111+0.j      , -0.100536+0.047309j,
+E                0.070825-0.085613j, -0.027632+0.10762j , -0.02082 -0.109143j],...
+
+tests/mrtini_pytest/test_rf_banks.py:86: AssertionError
+______ test_fourier_projector_against_independent_complex_dft[dz-True-9] _______
+
+rf = <module 'src.mrtini.RF_banks' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/RF_banks.py'>
+n = 9, bake = True, norm = 'dz'
+
+    @pytest.mark.parametrize('n',[8,9])
+    @pytest.mark.parametrize('bake',[False,True])
+    @pytest.mark.parametrize('norm',['K','Lz','dz'])
+    def test_fourier_projector_against_independent_complex_dft(rf,n,bake,norm):
+        # Nonzero coordinate origin and asymmetric complex data expose phase errors.
+        z=(np.arange(n)-n//2)*.001+.00013
+        k=fourier_k(z)
+        x=(np.arange(n)+1j*np.arange(n)[::-1])/n
+        P=rf.make_projector_z_to_k(torch.tensor(z,dtype=rf.DTYPE),
+            torch.tensor(k,dtype=rf.DTYPE),norm=norm,bake_ifftshift=bake)
+        expected_matrix=dft_matrix(z,k,norm)
+>       np.testing.assert_allclose(P.detach().cpu(),expected_matrix,atol=3e-6,rtol=3e-6)
+E       AssertionError: 
+E       Not equal to tolerance rtol=3e-06, atol=3e-06
+E       
+E       Mismatched elements: 72 / 81 (88.9%)
+E       Max absolute difference among violations: 0.00196962
+E       Max relative difference among violations: 1.96961551
+E        ACTUAL: array([[ 5.120434e-04-8.589595e-04j, -7.144727e-04+6.996633e-04j,
+E                8.694950e-04-4.939415e-04j, -9.668234e-04+2.554456e-04j,
+E                9.999999e-04+0.000000e+00j, -9.668234e-04-2.554456e-04j,...
+E        DESIRED: array([[-1.873813e-04+9.822873e-04j, -2.486899e-04-9.685832e-04j,
+E                6.374240e-04+7.705132e-04j, -9.048271e-04-4.257793e-04j,
+E                1.000000e-03+0.000000e+00j, -9.048271e-04+4.257793e-04j,...
+
+tests/mrtini_pytest/test_rf_banks.py:86: AssertionError
+___________ test_kgrid_has_complete_nonduplicated_fourier_orders[8] ____________
+
+rf = <module 'src.mrtini.RF_banks' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/RF_banks.py'>
+n = 8
+
+    @pytest.mark.parametrize('n',[8,9])
+    def test_kgrid_has_complete_nonduplicated_fourier_orders(rf,n):
+        z=(np.arange(n)-n//2)*.001
+        grid=rf.build_kgrid_projection(z_m=torch.tensor(z,dtype=rf.DTYPE),device='cpu')
+        # This is a full-grid API contract. An intentionally oversampled tap grid
+        # needs a separately specified contract rather than this FFT-grid test.
+        k=grid.kz.detach().cpu().numpy();orders=grid.deltas.detach().cpu().numpy()
+>       assert len(k)==n, 'Full DFT grid must contain exactly N unique Fourier modes'
+E       AssertionError: Full DFT grid must contain exactly N unique Fourier modes
+E       assert 9 == 8
+E        +  where 9 = len(array([-499.9999 , -374.99994, -249.99995, -124.99998,    0.     ,\n        124.99998,  249.99995,  374.99994,  499.9999 ], dtype=float32))
+
+tests/mrtini_pytest/test_rf_banks.py:174: AssertionError
+________ test_spatially_varying_rf_taps_and_cross_order_convolution[9] _________
+
+rf = <module 'src.mrtini.RF_banks' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/RF_banks.py'>
+n = 9
+
+    @pytest.mark.parametrize('n',[8,9])
+    def test_spatially_varying_rf_taps_and_cross_order_convolution(rf,n):
+        z=(np.arange(n)-n//2)*.001;k=fourier_k(z);orders=fourier_orders(n)
+        # Rotate around x with a spatially varying angle: nonzero cross-order taps.
+        angle=.7+.25*np.cos(2*np.pi*k[-1]*z)
+        R=Rotation.from_rotvec(np.column_stack([angle,np.zeros((n,2))])).as_matrix()
+        ax=rf.make_axes([-10.,10.],[.8,1.2],device='cpu')
+        flat=np.broadcast_to(R,(4,n,3,3)).copy()
+        bank=rf.RFKernel6BankSO3.from_Rxyz_flat(torch.tensor(flat,dtype=rf.DTYPE),ax,
+            torch.tensor(z,dtype=rf.DTYPE),device='cpu')
+        grid=rf.KGrid(kz=torch.tensor(k,dtype=rf.DTYPE),deltas=torch.tensor(orders),
+            dk_tap=1/(n*.001),M=n//2)
+        bank.attach_kgrid(grid);bank.ensure_H6_bins()
+        channels=channel_six(R);P=dft_matrix(z,k)
+        reconstructed={}
+        for name in NAMES:
+            got=getattr(bank.H6_bank,name)[0,0].detach().cpu().numpy()
+            expected=channels[name]@P
+>           np.testing.assert_allclose(got,expected,atol=4e-6,rtol=4e-6)
+E           AssertionError: 
+E           Not equal to tolerance rtol=4e-06, atol=4e-06
+E           
+E           Mismatched elements: 8 / 9 (88.9%)
+E           Max absolute difference among violations: 0.07868626
+E           Max relative difference among violations: 1.96962523
+E            ACTUAL: array([ 3.754099e-02+1.366366e-02j, -5.236268e-05-9.044808e-05j,
+E                   7.338822e-07-3.740191e-06j, -2.276871e-03+1.910441e-03j,
+E                   8.764691e-01+0.000000e+00j, -2.276871e-03-1.910441e-03j,...
+E            DESIRED: array([-3.994986e-02+1.387779e-17j,  1.044422e-04+0.000000e+00j,
+E                   3.796344e-06-2.081668e-17j, -2.972134e-03+2.775558e-17j,
+E                   8.764691e-01+0.000000e+00j, -2.972134e-03-2.775558e-17j,...
+
+tests/mrtini_pytest/test_rf_banks.py:197: AssertionError
+=============================== warnings summary ===============================
+mrtini_pytest/test_binning.py::test_slice_waveform_scaling_bandwidth_and_rephaser[False]
+mrtini_pytest/test_binning.py::test_slice_waveform_scaling_bandwidth_and_rephaser[True]
+mrtini_pytest/test_binning.py::test_slice_waveform_scaling_bandwidth_and_rephaser[True]
+mrtini_pytest/test_binning.py::test_slice_default_designer_and_reject_invalid_rf
+mrtini_pytest/test_binning.py::test_slice_default_designer_and_reject_invalid_rf
+mrtini_pytest/test_binning.py::test_slice_default_designer_and_reject_invalid_rf
+  /workspace/scratch/227ca08f2174/audit_runtime/src/sequence/slice_select.py:475: DeprecationWarning: `trapz` is deprecated. Use `trapezoid` instead, or one of the numerical integration functions in `scipy.integrate`.
+    corr = area / np.trapz(gz, dx=dt_s)
+
+mrtini_pytest/test_binning.py::test_slice_waveform_scaling_bandwidth_and_rephaser[False]
+mrtini_pytest/test_binning.py::test_slice_waveform_scaling_bandwidth_and_rephaser[True]
+mrtini_pytest/test_binning.py::test_slice_default_designer_and_reject_invalid_rf
+mrtini_pytest/test_binning.py::test_slice_default_designer_and_reject_invalid_rf
+  /workspace/scratch/227ca08f2174/audit_runtime/src/sequence/slice_select.py:555: DeprecationWarning: `trapz` is deprecated. Use `trapezoid` instead, or one of the numerical integration functions in `scipy.integrate`.
+    B1_area = np.trapz(pulse0, dx=dt_s)  # complex area of unscaled baseband
+
+mrtini_pytest/test_binning.py::test_slice_waveform_scaling_bandwidth_and_rephaser[False]
+mrtini_pytest/test_binning.py::test_slice_waveform_scaling_bandwidth_and_rephaser[True]
+mrtini_pytest/test_binning.py::test_slice_default_designer_and_reject_invalid_rf
+  /workspace/scratch/227ca08f2174/audit_runtime/src/sequence/slice_select.py:583: DeprecationWarning: `trapz` is deprecated. Use `trapezoid` instead, or one of the numerical integration functions in `scipy.integrate`.
+    gz_area_Tm_s=float(np.trapz(gz_sel, dx=dt_s)),
+
+mrtini_pytest/test_binning.py::test_slice_waveform_scaling_bandwidth_and_rephaser[True]
+mrtini_pytest/test_binning.py::test_slice_default_designer_and_reject_invalid_rf
+  /workspace/scratch/227ca08f2174/audit_runtime/src/sequence/slice_select.py:537: DeprecationWarning: `trapz` is deprecated. Use `trapezoid` instead, or one of the numerical integration functions in `scipy.integrate`.
+    gz_reph = _trap_from_area(area_Tm_s=abs(np.trapz(gz_sel.squeeze(), dx=dt_grad_))*rephaser_fraction,
+
+mrtini_pytest/test_main.py::test_signature_modulation_and_single_sample
+  /workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/mrtini_main.py:85: DeprecationWarning: Conversion of an array with ndim > 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+    return f"{float(f):.6e}"
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.14-final-0 _______________
+
+Name                               Stmts   Miss Branch BrPart   Cover   Missing
+-------------------------------------------------------------------------------
+src/mrtini/RF_banks.py               415     82     42      0  81.62%   213-229, 254-257, 262-270, 496, 503-510, 518-534, 537-540, 546-550, 553-557, 561-566, 570-579, 584-598
+src/mrtini/__init__.py                 5      5      0      0   0.00%   2-7
+src/mrtini/bloch.py                  278     31     32      2  89.35%   79-87, 200-233, 244, 248
+src/mrtini/config.py                   7      0      0      0 100.00%
+src/mrtini/constants.py               26      0      0      0 100.00%
+src/mrtini/execute_graph.py          203     15     68     12  90.04%   116, 120, 161-163, 182, 202, 218, 226-228, 284, 291, 293->296, 304, 307
+src/mrtini/mrtini_main.py            254      2     46      3  98.33%   416, 493->495, 515
+src/mrtini/pre_pass_rust_call.py      29      0      8      0 100.00%
+src/sequence/__iniy__.py               0      0      0      0 100.00%
+src/sequence/sequence.py             630    121    184     18  77.76%   104, 213, 320, 329, 480, 487, 504, 539, 544-558, 565, 583->500, 589, 614-650, 655-660, 703, 771, 786, 947->951, 958-1044, 1057, 1060, 1063-1072, 1161->1165, 1168->1172, 1220->1226, 1234, 1267->1241
+src/sequence/slice_select.py         315     61     74      1  80.98%   19-20, 356-427, 447, 451, 511-512
+-------------------------------------------------------------------------------
+TOTAL                               2162    317    454     36  84.37%
+Coverage HTML written to dir tests/reports/mrtini/html
+Coverage XML written to file tests/reports/mrtini/coverage.xml
+Coverage JSON written to file tests/reports/mrtini/coverage.json
+=========================== short test summary info ============================
+FAILED tests/mrtini_pytest/test_bloch.py::test_bloch_rhs_cross_product_and_relaxation[False]
+FAILED tests/mrtini_pytest/test_bloch.py::test_bloch_rhs_cross_product_and_relaxation[True]
+FAILED tests/mrtini_pytest/test_bloch.py::test_shaped_slice_solver_against_independent_adaptive_bloch_ode[0.00037-so3]
+FAILED tests/mrtini_pytest/test_bloch.py::test_shaped_slice_solver_against_independent_adaptive_bloch_ode[0.00037-spinor]
+FAILED tests/mrtini_pytest/test_known_defects.py::test_repetition_clone_preserves_effective_z
+FAILED tests/mrtini_pytest/test_known_defects.py::test_repetition_cpu_preserves_waveform
+FAILED tests/mrtini_pytest/test_known_defects.py::test_sequence_clone_preserves_hybrid_metadata
+FAILED tests/mrtini_pytest/test_known_defects.py::test_sequence_default_metadata_is_independent
+FAILED tests/mrtini_pytest/test_known_defects.py::test_collapse_keeps_schema
+FAILED tests/mrtini_pytest/test_known_defects.py::test_collapse_preserves_adc_count
+FAILED tests/mrtini_pytest/test_known_defects.py::test_fm_waveforms_have_distinct_cache_keys
+FAILED tests/mrtini_pytest/test_known_defects.py::test_frequency_array_is_supported
+FAILED tests/mrtini_pytest/test_rf_banks.py::test_fourier_projector_against_independent_complex_dft[K-True-9]
+FAILED tests/mrtini_pytest/test_rf_banks.py::test_fourier_projector_against_independent_complex_dft[Lz-True-9]
+FAILED tests/mrtini_pytest/test_rf_banks.py::test_fourier_projector_against_independent_complex_dft[dz-True-9]
+FAILED tests/mrtini_pytest/test_rf_banks.py::test_kgrid_has_complete_nonduplicated_fourier_orders[8]
+FAILED tests/mrtini_pytest/test_rf_banks.py::test_spatially_varying_rf_taps_and_cross_order_convolution[9]
+17 failed, 198 passed, 16 warnings in 58.20s

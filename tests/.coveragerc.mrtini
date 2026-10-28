@@ -1,0 +1,20 @@
+[run]
+branch = true
+source = src/mrtini, src/sequence
+data_file = tests/reports/mrtini/.coverage
+
+[report]
+show_missing = true
+precision = 2
+# Exclude standalone demo programs, never simulation functions.
+exclude_also =
+    if __name__ == ['"]__main__['"]:
+
+[html]
+directory = tests/reports/mrtini/html
+
+[xml]
+output = tests/reports/mrtini/coverage.xml
+
+[json]
+output = tests/reports/mrtini/coverage.json

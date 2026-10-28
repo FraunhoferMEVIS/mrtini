@@ -81,9 +81,9 @@ def _hash_array(a: np.ndarray, quant: float = 1e-6) -> str:
 
 def _freq_tag(f):
     f = np.asarray(f)
-    if f.ndim == 0 or f.size == 1:
-        return f"{float(f):.6e}"
-    if np.allclose(f, f.flat[0], atol=1e-9, rtol=0):  # broadcasted-constant vector
+    if f.size == 1:
+        return f"{float(f.reshape(-1)[0]):.6e}"
+    if f.size and np.allclose(f, f.flat[0], atol=1e-9, rtol=0):
         return f"{float(f.flat[0]):.6e}"
     return "sha1:" + _hash_array(f, quant=1e-6)
 
@@ -143,67 +143,57 @@ def build_complex_rf(span):
     rf_complex = amp * np.exp(1j * phi_total)
     return rf_complex.astype(np.complex64)
 
-def _bloch_kernel_signature(
-    span: dict,
-) -> tuple[str, np.ndarray,np.ndarray, np.ndarray, np.ndarray, dict]:
-    """
-    span MUST be a 'bloch' item from seq.mrtini_hybrid with:
-      - 't' (list/np.ndarray, seconds)
-      - 'rf_amp' (same len)
-      - 'rf_phase' (same len; often constant)
-      - 'gz' (same len, Tesla/m)
-      - optional 'rf_freq' (Hz) — include if your slicer uses it (default 0)
-    Returns: (key, rf_for_solve (complex), gz, t, meta{phi0, const_phase, rf_freq})
-    """
-    assert span["kind"] == "bloch"
-    t = np.asarray(span["t"], dtype=np.float64)
-    amp = np.asarray(span["rf_amp"], dtype=np.float64) / GAMMA_HZ
-    phi = np.asarray(span["rf_phase"], dtype=np.float64)
-    gz = np.asarray(span["gz"], dtype=np.float64) / GAMMA_HZ
-    rf_freq = np.asarray(span.get("rf_freq", 0.0) or 0.0)
-    rf_freq = np.broadcast_to(rf_freq, amp.shape)
+def _bloch_kernel_signature(span: dict):
+    """Fingerprint the actual phase-factored RF operator and its reference frame.
 
-    rf_fm = span.get("rf_fm", None)
-    if rf_fm is None or (hasattr(rf_fm, "__len__") and len(rf_fm) == 0):
-        rf_fm = np.zeros_like(amp, dtype=np.float64)
-    else:
-        rf_fm = np.asarray(rf_fm, dtype=np.float64)
-        rf_fm = np.broadcast_to(rf_fm, amp.shape)
-    
+    Parser rf_amp and gz are in Hz and Hz/m; divide by GAMMA_HZ for tesla
+    and tesla/m, matching the existing import/baking pipeline. RF phase is
+    radians. The separate returned frequency array is not a second detuning
+    when the solver already receives its phase in the complex RF envelope.
+    """
+    if span["kind"] != "bloch":
+        raise ValueError("Expected a Bloch span")
+    t = np.asarray(span["t"], dtype=np.float64).reshape(-1)
+    amp = np.asarray(span["rf_amp"], dtype=np.float64).reshape(-1) / GAMMA_HZ
+    if t.size == 0 or amp.shape != t.shape:
+        raise ValueError("t and rf_amp must have the same nonempty shape")
+    if t.size > 1 and not np.all(np.diff(t) > 0):
+        raise ValueError("t must be strictly increasing")
+
+    def broadcast(value, *, missing=0.0):
+        if value is None:
+            value = missing
+        arr = np.asarray(value, dtype=np.float64)
+        if arr.size == 0:
+            arr = np.asarray(missing, dtype=np.float64)
+        return np.broadcast_to(arr, amp.shape).copy()
+
+    phi = broadcast(span.get("rf_phase", 0.0))
+    gz = broadcast(span["gz"]) / GAMMA_HZ
+    rf_freq = broadcast(span.get("rf_freq", 0.0))
+    rf_fm = broadcast(span.get("rf_fm", 0.0))
+    f_inst = rf_freq + rf_fm
     const_phase, phi0 = is_constant_phase(phi, amp)
+    envelope = amp.astype(np.complex128) if const_phase else amp * np.exp(1j * phi)
+    phi_f = np.zeros_like(amp)
+    if t.size > 1:
+        phi_f[1:] = 2*np.pi*np.cumsum(f_inst[:-1] * np.diff(t))
+    rf_complex = (envelope * np.exp(1j*phi_f)).astype(np.complex64)
+    gz_out = gz.astype(np.float32)
 
-    if const_phase:
-        # strip the global phase; solve with a real envelope
-        rf = amp.astype(np.float64)
-        rf_im = np.zeros_like(rf)
-    else:
-        rf_c = amp * np.exp(1j * phi)  # truly complex envelope
-        rf = rf_c.real.astype(np.float64)
-        rf_im = rf_c.imag.astype(np.float64)
-
-    f_inst = rf_freq + rf_fm   # Hz
-    phi_f = np.zeros_like(amp, dtype=np.float64)
-    if len(t) > 1:
-        dt = np.diff(t)
-        phi_f[1:] = 2*np.pi * np.cumsum(f_inst[:-1] * dt)   # ZOH-consistent
-
-
-    
-    f_tag = _freq_tag(rf_freq)  # handles scalar/broadcast/hash
-    key = (
-        float(np.mean(np.diff(t))) if len(t) > 1 else 0.0,  # dt (assume uniform)
-        _qhash(rf.view(np.float64)),
-        _qhash(rf_im.view(np.float64)),
-        _qhash(gz.view(np.float64)),
-        f_tag,
-    )
-    key_str = "dt={:.9e}|rfR={}|rfI={}|gz={}|f={}".format(*key)
-
+    # Include waveform values, the complete relative time grid, FM/carrier,
+    # and the actual demodulation center. No coarse RF-amplitude quantization.
+    center = span.get("rf_center", None)
+    center = 0.5*(t[0]+t[-1]) if center is None else float(center)
+    digest = hashlib.sha1()
+    for values in (t-t[0], rf_complex.real, rf_complex.imag, gz_out, f_inst,
+                   np.asarray([center-t[0]], dtype=np.float64)):
+        arr = np.ascontiguousarray(values, dtype="<f8")
+        digest.update(np.asarray(arr.shape, dtype="<i8").tobytes())
+        digest.update(arr.tobytes())
+    key = "bloch-v2:" + digest.hexdigest()
     meta = dict(phi0=phi0, const_phase=const_phase, rf_freq=rf_freq)
-    # rf_for_solve: pack back as complex (imag=0 if const_phase)
-    rf_for_solve = rf + 1j * rf_im
-    rf_complex = rf_for_solve * np.exp(1j * phi_f)
-    return key_str, rf_complex.astype(np.complex64),f_inst, gz.astype(np.float32), t, meta
+    return key, rf_complex, f_inst, gz_out, t, meta
 
 def k_grid_from_seq(seq):
     # Collect all gradient moments and event times from the sequence
