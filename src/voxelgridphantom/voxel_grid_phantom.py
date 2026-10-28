@@ -21,7 +21,6 @@ from scipy import io
 import numpy as np
 import torch
 import matplotlib
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from .sim_data import SimData
 from matplotlib.pyplot import imshow 

@@ -164,7 +164,7 @@ class BlochRHS(torch.nn.Module):
         z = self.get_buffer("z")  # (Nz,)
         b0_T = self.get_buffer("b0_T")  # (B,)
         B = b0_T.numel(); Nz = z.numel()
-        
+
         b1 = self.get_buffer("b1") if hasattr(self, "b1") else torch.zeros_like(b0_T)  # (B,)
         # (B,1,1) scaling
         s = b1.view(B, 1, 1)
@@ -173,14 +173,14 @@ class BlochRHS(torch.nn.Module):
         # RF detuning as extra Bz term in rotating frame
 
         dBz = (2.0 * math.pi * B1_freq) / self.gamma  # scalar broadcast
-        
+
         # Bz(t,z) = Gz*z + ΔB0
         Bz = (Gz * z.view(1,1,Nz)) + b0_T.view(B,1,1) + dBz  # (B,1,Nz)
 
         Mx, My, Mz = M[...,0], M[...,1], M[...,2]  # (B,3,Nz)
-        dMx = self.gamma * (My*Bz - Mz*By)
-        dMy = self.gamma * (Mz*Bx - Mx*Bz)
-        dMz = self.gamma * (Mx*By - My*Bx)
+        dMx = self.gamma * (By*Mz - Bz*My)
+        dMy = self.gamma * (Bz*Mx - Bx*Mz)
+        dMz = self.gamma * (Bx*My - By*Mx)
 
         if self.T2 is not None:
             dMx -= Mx/self.T2; dMy -= My/self.T2
@@ -192,249 +192,38 @@ class BlochRHS(torch.nn.Module):
         return dM
 
 
-def check_unitarity_Rch(R_ch: torch.Tensor, name: str = "R_ch"):
-    """
-    R_ch: (B, 3_out, 3_in, Nz), complex
-    Checks unitarity of each 3x3 slice over (B, Nz).
-    """
-    B, C_out, C_in, Nz = R_ch.shape
-    assert C_out == 3 and C_in == 3, f"{name} must be (B,3,3,Nz), got {R_ch.shape}"
-
-    # (B, 3_out, 3_in, Nz) -> (B, Nz, 3, 3) -> (B * Nz, 3, 3)
-    mats = R_ch.permute(0, 3, 1, 2).reshape(-1, 3, 3)
-
-    I = torch.eye(3, dtype=mats.dtype, device=mats.device)
-
-    # Right-unitary: Rᴴ R ≈ I
-    Rt = mats.mH                      # (BNz, 3, 3)
-    RtR = Rt @ mats                   # (BNz, 3, 3)
-
-    err = RtR - I
-    err_frob = torch.linalg.norm(err, dim=(-2, -1))  # (BNz,)
-
-    print(f"{name}: max ||RᴴR - I||_F = {err_frob.max().item():.6e}")
-    print(f"{name}: mean||RᴴR - I||_F = {err_frob.mean().item():.6e}")
-
-    # Optionally also check RRᴴ (left-unitary)
-    RRt = mats @ Rt
-    err2 = RRt - I
-    err2_frob = torch.linalg.norm(err2, dim=(-2, -1))
-    print(f"{name}: max ||RRᴴ - I||_F = {err2_frob.max().item():.6e}")
-    print(f"{name}: mean||RRᴴ - I||_F = {err2_frob.mean().item():.6e}")
-
-    # Determinant magnitude (should be ~1 for pure rotations)
-    detR = torch.linalg.det(mats)
-    print(f"{name} det|·|: min = {detR.abs().min().item():.6e}, "
-          f"max = {detR.abs().max().item():.6e}")
-
-    # If you want to inspect the worst offender:
-    worst_idx = torch.argmax(err_frob)
-    print(f"{name}: worst index (flattened B×Nz) = {worst_idx.item()}")
-    print(f"{name}: RtR at worst index:\n{RtR[worst_idx]}")
-
-
 @torch.no_grad()
 def demod_Rxyz_to_Rmix_center(*, Rz_SB33Nz, z_m, t, gz, gamma_rad, rf_center_time=None):
     dtype, device = Rz_SB33Nz.dtype, Rz_SB33Nz.device
-    t=t.to(device=device,dtype=dtype); gz=gz.to(device=device,dtype=dtype); z=z_m.to(device=device,dtype=dtype)
+    t = torch.as_tensor(t, device=device, dtype=dtype).reshape(-1)
+    gz = torch.as_tensor(gz, device=device, dtype=dtype).reshape(-1)
+    z = torch.as_tensor(z_m, device=device, dtype=dtype).reshape(-1)
+    dt = t[1:] - t[:-1]
+    if t.numel() < 2 or gz.numel() != t.numel() or not bool((dt > 0).all()):
+        raise ValueError('Expected increasing boundary timestamps and one held sample per timestamp.')
+    tref = torch.as_tensor(.5 * (t[0] + t[-1]) if rf_center_time is None else rf_center_time,
+                           device=device, dtype=dtype)
+    if not bool((tref >= t[0]) & (tref <= t[-1])):
+        raise ValueError('rf_center_time must lie within the RF span.')
+    # Split a raster interval if the reference falls inside it; do not snap it.
+    pre_dt = torch.minimum((tref - t[:-1]).clamp_min(0), dt)
+    area_pre = (gz[:-1] * pre_dt).sum()
+    area_post = (gz[:-1] * dt).sum() - area_pre
 
-    gamma_hz = gamma_rad / (2*torch.pi)
-    t_ref = rf_center_time if rf_center_time is not None else 0.5*(t[0]+t[-1])
-    mid = torch.searchsorted(t, t_ref).clamp(1, t.numel()-1).item()
-
-    area_pre  = torch.trapz(gz[:mid+1], t[:mid+1])
-    area_post = torch.trapz(gz[mid:],  t[mid:])
-
-    k_pre  = gamma_hz * area_pre
-    k_post = gamma_hz * area_post
-
-    phi_pre  = 2*torch.pi * k_pre  * z
-    phi_post = 2*torch.pi * k_post * z
-
-    def Qz(phi):
-        c=torch.cos(phi); s=torch.sin(phi)
-        Q=torch.zeros((phi.numel(),3,3), device=device, dtype=dtype)
-        Q[:,0,0]=c;  Q[:,0,1]=-s
-        Q[:,1,0]=s;  Q[:,1,1]= c
-        Q[:,2,2]=1
+    def inverse_gradient(area):
+        # solve_slice uses exp(+[gamma B]x dt): its inverse is Qz(-phi).
+        phi = -gamma_rad * area * z
+        c, s = torch.cos(phi), torch.sin(phi)
+        Q = torch.zeros((z.numel(), 3, 3), device=device, dtype=dtype)
+        Q[:, 0, 0], Q[:, 0, 1] = c, -s
+        Q[:, 1, 0], Q[:, 1, 1], Q[:, 2, 2] = s, c, 1.
         return Q
 
-    # Inverses of physical precession (Q_phys = Qz(-phi)) are Qz(+phi)
-    Qpre_inv  = Qz(-phi_pre)
-    Qpost_inv = Qz(-phi_post)
+    R = Rz_SB33Nz.permute(0, 1, 4, 2, 3).contiguous()
+    R = inverse_gradient(area_post)[None, None] @ R @ inverse_gradient(area_pre)[None, None]
+    return R.permute(0, 1, 3, 4, 2).contiguous()
 
-    R = Rz_SB33Nz.permute(0,1,4,2,3).contiguous()      # (S, B,Nz,3,3)
-    R = Qpost_inv[None, None] @ R @ Qpre_inv[None,None]  # (S,B,Nz,3,3)
-    # check_demod(Rfull_BNz33=Rz_B33Nz.permute(0,3,1,2).contiguous(), Rmix_BNz33=R, phi_pre=phi_pre, phi_post=phi_post)
-    return R.permute(0,1,3,4,2).contiguous()
 
-import torch
-
-@torch.no_grad()
-def demod_Rxyz_center_epg(*, Rz_B33Nz, z_m, t, gz, gamma_rad, rf_center_time=None, to_pmz=False):
-    """
-    Rz_B33Nz: (B,3,3,Nz) real Cartesian rotation matrices from full finite-pulse Bloch
-    z_m:      (Nz,)
-    t:        (Nt,)
-    gz:       (Nt,)
-    gamma_rad: rad/s/T
-    rf_center_time: scalar time at which the instantaneous RF event lives
-    to_pmz:   if True, also convert demodulated operator to (+,-,z) basis
-
-    Returns:
-      if to_pmz=False: Rdemod_B33Nz  (real, Cartesian)
-      if to_pmz=True : (Rdemod_B33Nz, Rpmz_B33Nz) with Rpmz complex
-    """
-    dtype  = Rz_B33Nz.dtype
-    device = Rz_B33Nz.device
-
-    t  = t.to(device=device, dtype=dtype).flatten()
-    gz = gz.to(device=device, dtype=dtype).flatten()
-    z  = z_m.to(device=device, dtype=dtype).flatten()
-
-    t_ref = torch.as_tensor(
-        rf_center_time if rf_center_time is not None else 0.5*(t[0] + t[-1]),
-        device=device, dtype=dtype
-    )
-
-    def split_trapz_exact(t, y, t_ref):
-        if t_ref <= t[0]:
-            return t.new_zeros(()), torch.trapz(y, t)
-        if t_ref >= t[-1]:
-            return torch.trapz(y, t), t.new_zeros(())
-
-        i = int(torch.searchsorted(t, t_ref).item())
-
-        # exact grid hit
-        if torch.isclose(t[i], t_ref):
-            area_pre  = torch.trapz(y[:i+1], t[:i+1])
-            area_post = torch.trapz(y[i:],   t[i:])
-            return area_pre, area_post
-
-        # interpolate y at t_ref
-        t0, t1 = t[i-1], t[i]
-        y0, y1 = y[i-1], y[i]
-        w = (t_ref - t0) / (t1 - t0)
-        y_ref = y0 + w*(y1 - y0)
-
-        t_pre = torch.cat([t[:i], t_ref[None]])
-        y_pre = torch.cat([y[:i], y_ref[None]])
-
-        t_post = torch.cat([t_ref[None], t[i:]])
-        y_post = torch.cat([y_ref[None], y[i:]])
-
-        area_pre  = torch.trapz(y_pre,  t_pre)
-        area_post = torch.trapz(y_post, t_post)
-        return area_pre, area_post
-
-    area_pre, area_post = split_trapz_exact(t, gz, t_ref)
-
-    # phi = gamma * area * z
-    phi_pre  = gamma_rad * area_pre  * z
-    phi_post = gamma_rad * area_post * z
-
-    def Qz(phi):
-        c = torch.cos(phi)
-        s = torch.sin(phi)
-        Q = torch.zeros((phi.numel(), 3, 3), device=device, dtype=dtype)
-        Q[:,0,0] = c;  Q[:,0,1] = -s
-        Q[:,1,0] = s;  Q[:,1,1] =  c
-        Q[:,2,2] = 1
-        return Q
-
-    # Physical gradient precession is Qz(-phi), so to REMOVE it we need Qz(+phi)
-    Qpre_inv  = Qz(-phi_pre)
-    Qpost_inv = Qz(-phi_post)
-
-    R = Rz_B33Nz.permute(0,3,1,2).contiguous()   # (B,Nz,3,3)
-    Rdemod = Qpost_inv[None] @ R @ Qpre_inv[None]
-    Rdemod_B33Nz = Rdemod.permute(0,2,3,1).contiguous()
-
-    if not to_pmz:
-        return Rdemod_B33Nz
-
-    # Standard MRI (+,-,z) basis: M+ = Mx + i My, M- = Mx - i My
-    cdtype = torch.complex64 if dtype == torch.float32 else torch.complex128
-
-    U = torch.tensor([[1,  1j, 0],
-                      [1, -1j, 0],
-                      [0,   0, 1]], device=device, dtype=cdtype)
-
-    Uinv = torch.tensor([[0.5,  0.5, 0],
-                         [-0.5j, 0.5j, 0],
-                         [0,     0,   1]], device=device, dtype=cdtype)
-
-    Rc = Rdemod.to(cdtype)
-    Rpmz = U.view(1,1,3,3) @ Rc @ Uinv.view(1,1,3,3)   # (B,Nz,3,3)
-    Rpmz_B33Nz = Rpmz.permute(0,2,3,1).contiguous()
-
-    return Rdemod_B33Nz, Rpmz_B33Nz
-
-@torch.no_grad()
-def check_demod(Rfull_BNz33, Rmix_BNz33, phi_pre, phi_post):
-    def Qz(phi):
-        c=torch.cos(phi); s=torch.sin(phi)
-        Q=torch.zeros((phi.numel(),3,3), device=phi.device, dtype=phi.dtype)
-        Q[:,0,0]=c; Q[:,0,1]=-s
-        Q[:,1,0]=s; Q[:,1,1]= c
-        Q[:,2,2]=1
-        return Q
-
-    Qpre_phys  = Qz(-phi_pre)   # physical (m+ gets e^{-iφ})
-    Qpost_phys = Qz(-phi_post)
-
-    Rrec = Qpost_phys[None] @ Rmix_BNz33 @ Qpre_phys[None]
-    err = (Rrec - Rfull_BNz33).abs().max().item()
-    print(f"Demod check: max|Rrec - Rfull| = {err:.6e}")
-
-import torch, math
-
-@torch.no_grad()
-def fit_linear_k_from_mplus(Rmix_B33Nz, z_m):
-    
-    def unwrap(phi):
-        d = phi[1:] - phi[:-1]
-        d = (d + math.pi) % (2*math.pi) - math.pi
-        return torch.cat([phi[:1], phi[:1] + torch.cumsum(d, dim=0)], dim=0)
-    # use first bin if B==1, otherwise adapt as needed
-    R = Rmix_B33Nz[0].permute(2,0,1).contiguous()   # (Nz,3,3)
-    Mz = torch.tensor([0.,0.,1.], device=R.device, dtype=R.dtype)
-    M  = torch.einsum("nij,j->ni", R, Mz)           # (Nz,3)
-
-    mplus = (M[:,0].to(torch.complex64) + 1j*M[:,1].to(torch.complex64))/math.sqrt(2.0)
-    amp = torch.abs(mplus)
-    ph  = unwrap(torch.angle(mplus))
-
-    # fit only where slice is actually excited
-    mask = amp > 0.2 * amp.max()
-    z = z_m[mask]
-    y = ph[mask]
-
-    A = torch.stack([z, torch.ones_like(z)], dim=1)
-    sol = torch.linalg.lstsq(A, y[:,None]).solution[:,0]
-    slope = sol[0]                    # rad/m
-    k_fit = slope / (2*math.pi)       # cycles/m
-    return float(k_fit)
-
-@torch.no_grad()
-def remove_bulk_kz_shift(Rmix_SB33Nz, z_m):
-    dtype, device = Rmix_SB33Nz.dtype, Rmix_SB33Nz.device
-    z = z_m.to(device=device, dtype=dtype)
-
-    k_fit = fit_linear_k_from_mplus(Rmix_SB33Nz, z)
-    phi = 2*math.pi * k_fit * z
-
-    c = torch.cos(-phi); s = torch.sin(-phi)
-    Q = torch.zeros((z.numel(),3,3), device=device, dtype=dtype)
-    Q[:,0,0]=c; Q[:,0,1]=-s
-    Q[:,1,0]=s; Q[:,1,1]= c
-    Q[:,2,2]=1
-
-    R = Rmix_SB33Nz.permute(0,1,4,2,3).contiguous()   # (S,B,Nz,3,3)
-    R = Q[None, None] @ R
-    return R.permute(0,1,2,3,4).contiguous(), k_fit
-
-import torch
 
 @torch.no_grad()
 def spinor_step_from_omega(omega, dt, eps=1e-12):
@@ -708,7 +497,10 @@ def solve_slice(
     # [ Note: the internal shape (B,Nz,3,3) is more natural for the computation, but we permute back to (B,3,3,Nz) for compatibility with the rest of the codebase that expects that shape.]
     R_all = R_all.permute(0,1,3,4,2).contiguous()  # (chem_shift,B,3,3,Nz)
     
-    Rtot_mix = demod_Rxyz_to_Rmix_center(Rz_SB33Nz=R_all, z_m=z_m, t=t, gz=gz, gamma_rad=gamma_rad,)  # (B,3,3,Nz) in mix frame, still with bulk kz shift
+    Rtot_mix = demod_Rxyz_to_Rmix_center(
+        Rz_SB33Nz=R_all, z_m=z_m, t=t, gz=gz,
+        gamma_rad=gamma_rad, rf_center_time=rf_center_time,
+    )
     specieSolve = Species_Solve()
     for i, chem_shift in enumerate(chem_shift_Hz):
         specieSolve.append_solve(

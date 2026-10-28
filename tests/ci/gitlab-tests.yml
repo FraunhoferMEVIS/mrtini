@@ -1,0 +1,55 @@
+stages:
+  - test
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    # Use the MR pipeline instead of creating a second branch pipeline.
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - when: never
+
+mrtini-unit-tests:
+  stage: test
+  image: python:3.10-slim-bookworm
+  interruptible: true
+  timeout: 30 minutes
+  rules:
+    - when: on_success
+  variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+    PIP_DISABLE_PIP_VERSION_CHECK: "1"
+    PYTHONUNBUFFERED: "1"
+    PYTHONDONTWRITEBYTECODE: "1"
+    MPLBACKEND: Agg
+    OMP_NUM_THREADS: "1"
+    MKL_NUM_THREADS: "1"
+  cache:
+    key:
+      prefix: mrtini-python310-cpu
+      files:
+        - tests/ci/requirements.txt
+    paths:
+      - .cache/pip/
+  before_script:
+    - python --version
+    - python -m pip install --upgrade pip
+    - python -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.8.0
+    - python -m pip install -r tests/ci/requirements.txt
+    - python -m pip check
+  script:
+    - python tests/run_mrtini_tests.py --fail-under 90 --color=no
+  # Reads the actual combined statement/branch percentage from pytest-cov.
+  coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - tests/reports/mrtini/
+    reports:
+      junit: tests/reports/mrtini/junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: tests/reports/mrtini/coverage.xml

@@ -10,9 +10,9 @@
 from dataclasses import dataclass
 from typing import Optional, Tuple, Dict,List, Literal
 import matplotlib
-matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 import numpy as np
+from scipy.interpolate import interp1d
 
 try:
     import matplotlib.pyplot as plt
@@ -344,86 +344,161 @@ def quantize_from_labels(labels: np.ndarray, center_by_label: Dict[int,float]) -
         out[labels == int(lab)] = float(c)
     return out
 
+def _default_slr_ex(N: int, tbw: float) -> np.ndarray:
+    """Fallback RF designer: Hamming-windowed sinc 'excitation' profile, unitless."""
+    n = np.arange(N) - (N-1)/2
+    bw = tbw / N
+    x = np.pi * bw * n
+    sinc = np.sinc(x/np.pi)
+    win = 0.54 - 0.46*np.cos(2*np.pi*(n - n.min())/(N-1))
+    return (sinc * win).astype(np.complex64)
 
-def sanity_check_quantization(
-    B0_hz: np.ndarray, B1: np.ndarray, jb: JointBinning,
-    *, b1_mode: str="scale", b1_ref: Optional[float]=None,
-    make_plots: bool=True, title_prefix: str=""
-):
+
+def _trap_from_area(area_Tm_s: float, gmax_Tm: float, dgdt_Tm_s: float, dt_s: float) -> np.ndarray:
     """
-    Reconstruct quantized versions and optionally plot original vs quantized and errors.
+    Minimal trapezoid generator by area with slew and peak limits.
+    Returns gz(t) in Tesla/m sampled at dt_s. Symmetric ramp up/down; flat as needed.
     """
-    if jb.b0.labels is None or jb.b1.labels is None:
-        raise ValueError("No labels in binning result.")
-    b0_q = quantize_from_labels(jb.b0.labels, jb.b0.center_by_label or {})
-    b1_q_native = quantize_from_labels(jb.b1.labels, jb.b1.center_by_label or {})
+    area = float(abs(area_Tm_s))
+    if area == 0.0:
+        return np.zeros(1, dtype=np.float32)
 
-    b0 = np.asarray(B0_hz).reshape(-1).astype(np.float32)
-    b1 = np.asarray(B1).reshape(-1).astype(np.float32)
+    try:
+        import pulpy as pp
+        gz, meta = pp.grad.waveform.trap_grad(area, gmax_Tm, dgdt_Tm_s, dt_s) # type: ignore
+    except Exception as e:
+        print(f"Error importing Pulpy generating trapezoid using numpy: {e}")
 
-    # interpret B1 quantized back to same unit as input for comparison
-    if b1_mode == "scale":
-        if b1_ref is None:
-            # match the binning ref if you used it externally; fallback to median
-            finite = np.isfinite(b1)
-            b1_ref = float(np.median(b1[finite])) if np.any(finite) else 1.0
-            if b1_ref == 0.0: b1_ref = 1.0
-        b1_q = b1_q_native * float(b1_ref)
+        # ramp time (s) limited by gmax and slew
+        t_ramp = min(gmax_Tm / dgdt_Tm_s, area / (2.0 * gmax_Tm))  # ensure non-negative flat
+        g_at_ramp = min(gmax_Tm, dgdt_Tm_s * t_ramp)
+        # flat time (s)
+        t_flat = max(0.0, (area - g_at_ramp * t_ramp) / g_at_ramp) if g_at_ramp > 0 else 0.0
+
+        # sample counts
+        Nr = max(1, int(np.round(t_ramp / dt_s)))
+        Nf = max(0, int(np.round(t_flat / dt_s)))
+        # recompute exact durations to honor dt grid
+        t_ramp = Nr * dt_s
+        t_flat = Nf * dt_s
+        g_at_ramp = min(gmax_Tm, dgdt_Tm_s * t_ramp)
+
+        # build ramps
+        up = np.linspace(0.0, g_at_ramp, Nr, endpoint=False, dtype=np.float32)
+        flat = np.full(Nf, g_at_ramp, dtype=np.float32)
+        down = np.linspace(g_at_ramp, 0.0, Nr, endpoint=True, dtype=np.float32)
+        gz = np.concatenate([up, flat, down], dtype=np.float32)  # Tesla/m
+        # scale to exact area (tiny correction)
+        corr = area / np.trapz(gz, dx=dt_s)
+        gz *= corr
+    return gz.astype(np.float32)
+
+
+
+def build_slice_selective(
+    *,
+    N: int = 512,
+    tbw: float = 8.0,
+    dt_s: float = 1e-6,
+    slice_thickness_m: float = 5e-3,
+    flip_angle_deg: float = 90.0,
+    gamma_hz: float = GAMMA_HZ,
+    gamma_rad: float = GAMMA_RAD,
+    # gradient limits
+    gmax_Tm: Optional[float] = None,      # if None, use exact needed; else clamp
+    dgdt_Tm_s: float = 180.0,             # Tesla/m/s (≈ 45 mT/m per ms)
+    # optional external pulse designer: returns baseband complex (unitless) length N
+    rf_designer=None,                     # e.g. lambda N,tbw: prf.slr.dzrf(N,tbw,'ex','ls',d1=0.01,d2=0.01)
+    # rephaser
+    add_rephaser: bool = True,
+    rephaser_fraction: float = 1.0,       # 1.0 → full area refocus
+    # interpolation kind
+    interp_kind: str = "linear",
+) -> SliceSelectiveControls:
+    """
+    Designs slice-selective RF + slice gradient (+rephaser), scales RF to flip_angle,
+    bins a B0 map into off-res bins (Tesla), and returns everything on a common time grid.
+
+    Returns SliceSelectiveControls with rf_complex_T, gz_Tm, t, bins_T, labels, and metadata.
+    """
+    # 1) RF baseband (unitless)
+    if rf_designer is None:
+        try:
+            import pulpy as pp
+            import pulpy.rf as prf
+            pulse0 = prf.slr.dzrf(N, int(tbw), 'ex', 'ls', d1=0.01, d2=0.01)
+        except Exception:
+            pulse0 = _default_slr_ex(N, tbw)
     else:
-        b1_q = b1_q_native
+        pulse0 = rf_designer(N, tbw)
+    pulse0 = np.asarray(pulse0, dtype=np.complex64)
+    assert pulse0.shape == (N,), "RF designer must return length-N complex array"
 
-    # errors (ignore NaNs)
-    def stats(err):
-        e = err[np.isfinite(err)]
-        if e.size == 0: return {}
-        return dict(rmse=float(np.sqrt(np.mean(e**2))),
-                    mae=float(np.mean(np.abs(e))),
-                    p95=float(np.percentile(np.abs(e), 95)))
-    b0_err = b0_q - b0
-    b1_err = b1_q - b1
+    # 2) pulse timing & bandwidth
+    T_pulse = N * dt_s
+    bandwidth_hz = tbw / T_pulse
 
-    out_stats = {"B0_Hz": stats(b0_err), "B1": stats(b1_err)}
-    if not make_plots or plt is None:
-        return out_stats
+    # 3) slice gradient amplitude (Tesla/m)
+    Gz_needed = bandwidth_hz / (gamma_hz * slice_thickness_m)
+    Gz_peak = Gz_needed if gmax_Tm is None else min(Gz_needed, gmax_Tm)
 
-    fig1 = plt.figure()
-    ax = fig1.add_subplot(111)
-    m = np.isfinite(b0) & np.isfinite(b0_q)
-    ax.scatter(b0[m], b0_q[m], s=2)
-    ax.set_xlabel("B0 original (Hz)")
-    ax.set_ylabel("B0 quantized (Hz)")
-    ax.set_title(f"{title_prefix}B0 quantization")
-
-    fig2 = plt.figure()
-    ax = fig2.add_subplot(111)
-    m = np.isfinite(b1) & np.isfinite(b1_q)
-    ax.scatter(b1[m], b1_q[m], s=2)
-    ax.set_xlabel("B1 original")
-    ax.set_ylabel("B1 quantized")
-    ## set x and y limits to show the same range around the ref (e.g. 1.0 for scale mode)
-    if b1_mode == "scale":
-        ref = float(b1_ref) if b1_ref is not None else 1.0
-        r = max(np.abs(b1[m] - ref).max(), np.abs(b1_q[m] - ref).max())
-        ax.set_xlim(ref - r*1.1, ref + r*1.1)
-        ax.set_ylim(ref - r*1.1, ref + r*1.1)
-    ax.set_title(f"{title_prefix}B1 quantization ({b1_mode})")
-
-    fig3 = plt.figure()
-    ax = fig3.add_subplot(111)
-    e = b0_err[np.isfinite(b0_err)]
-    ax.hist(e, bins=100)
-    ax.set_title(f"{title_prefix}B0 error hist (RMSE={out_stats['B0_Hz'].get('rmse',np.nan):.3g} Hz)")
-    ax.set_xlabel("Hz")
-
-    fig4 = plt.figure()
-    ax = fig4.add_subplot(111)
-    e = b1_err[np.isfinite(b1_err)]
-    ax.hist(e, bins=100)
-    ax.set_title(f"{title_prefix}B1 error hist (RMSE={out_stats['B1'].get('rmse',np.nan):.3g})")
-    ax.set_xlabel("B1 units")
-
-    plt.show()
-    
-    return out_stats
+    # 4) trapezoid for slice select (area = Gz_needed * T_pulse)
+    area = Gz_needed * T_pulse
+    dt_grad_ = dt_s
+    gz_sel = _trap_from_area(area_Tm_s=area, gmax_Tm=Gz_peak, dgdt_Tm_s=dgdt_Tm_s, dt_s=dt_grad_)
 
     
+    
+    # 5) optional rephaser (negative, by fraction of selection area)
+    if add_rephaser and rephaser_fraction != 0.0:
+        gz_reph = _trap_from_area(area_Tm_s=abs(np.trapz(gz_sel.squeeze(), dx=dt_grad_))*rephaser_fraction,
+                                  gmax_Tm=Gz_peak, dgdt_Tm_s=dgdt_Tm_s, dt_s=dt_grad_)
+        gz_full = np.concatenate([gz_sel.squeeze(), -gz_reph.squeeze()]).astype(np.float32)
+        t_grad  = np.linspace(0.0, T_pulse, gz_sel.size, endpoint=False)
+        t_reph  = np.linspace(T_pulse, T_pulse*1.5, gz_reph.size, endpoint=True)
+        t_full  = np.concatenate([t_grad, t_reph])
+
+    else:
+        gz_full = gz_sel.astype(np.float32)
+        t_full  = np.linspace(0.0, gz_full.size*dt_s, gz_full.size, endpoint=False)
+
+    # 6) resample RF (which lives on [0, T_pulse]) to t_full (RF = 0 outside [0, T_pulse])
+    t_rf = np.linspace(0.0, T_pulse, N, endpoint=False)
+    rf_i = interp1d(t_rf, pulse0, kind=interp_kind, bounds_error=False, fill_value=0.0)
+    rf_resamp = rf_i(t_full).astype(np.complex64)  # complex, unitless
+
+    # 7) flip-angle scaling to Tesla
+    flip_angle = np.deg2rad(flip_angle_deg)
+    B1_area = np.trapz(pulse0, dx=dt_s)  # complex area of unscaled baseband
+    if np.abs(B1_area) == 0.0:
+        raise ValueError("RF area is zero; cannot scale to flip angle.")
+    B1_scale = flip_angle / (gamma_rad * B1_area)  # complex scalar
+    rf_T = (rf_resamp * B1_scale).astype(np.complex64)  # Tesla
+    gz_Tm = gz_full.astype(np.float32)
+            # bxyz = ctrl(t)
+    # plt.figure(figsize=(12,4))
+    # plt.subplot(1,3,1)
+    # plt.plot(t_full, rf_T.real, label="B1x (T)")
+    # plt.xlabel("Time (s)"); plt.ylabel("B1 (T)"); plt.legend(); plt.grid()
+    # plt.title("RF Pulse")
+    # plt.subplot(1,3,2)
+    # plt.plot(t_full, gz_Tm*1e3)
+    # plt.xlabel("Time (s)"); plt.ylabel("Gz (mT/m)"); plt.grid()
+    # plt.title("Slice Gradient")
+    # plt.show()
+
+
+    return SliceSelectiveControls(
+        t=t_full.astype(np.float32),
+        rf_complex_T=rf_T,
+        gz_Tm=gz_Tm,
+        flip_angle_rad=float(flip_angle),
+        B1_scale=B1_scale,
+        bandwidth_hz=float(bandwidth_hz),
+        slice_thickness_m=float(slice_thickness_m),
+        T_pulse_s=float(T_pulse),
+        gz_area_Tm_s=float(np.trapz(gz_sel, dx=dt_s)),
+        gz_peak_Tm=float(Gz_peak),
+        tbw=float(tbw),
+        dt_s=float(dt_s),
+    )

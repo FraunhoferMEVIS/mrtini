@@ -1,0 +1,3 @@
+# GitLab entry point. Keep test infrastructure under tests/.
+include:
+  - local: /tests/ci/gitlab-tests.yml
