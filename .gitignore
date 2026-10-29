@@ -12,3 +12,4 @@ external/*
 !sim_phantom.npz
 output_smoke/
 __pycache__/
+mrtini_fast_optimization/

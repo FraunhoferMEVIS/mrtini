@@ -20,6 +20,8 @@ use pyo3::{wrap_pyfunction, PyTraverseError};
 use pyo3::IntoPy;
 
 mod pre_pass;
+mod fast_binding;
+mod pre_pass_fast;
 use pre_pass::{comp_graph, Repetition, RotTaps1D, Support};
 
 use num_complex::Complex32;
@@ -353,6 +355,8 @@ fn pre_pass_to_python<'p>(py: Python<'p>, graph: Vec<Vec<pre_pass::RcDist>>) -> 
 
 #[pymodule]
 fn mrtini_prepass_rs(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(fast_binding::compute_graph_packed, m)?)?;
+    m.add_function(wrap_pyfunction!(fast_binding::apply_rf_cpu, m)?)?;
     // m.add_function(wrap_pyfunction!(compute_graph, m)?)?;
     m.add_function(wrap_pyfunction!(compute_graph_multi, m)?)?;
     m.add_class::<PyDistribution>()?;

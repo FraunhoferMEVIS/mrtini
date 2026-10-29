@@ -57,7 +57,7 @@ def compute_graph_rust(seq, data, pulse_id_per_rep, taps_bank, support_bank, z,
     nyq = tuple(float(v) for v in data.nyquist.detach().cpu().tolist())
     size = tuple(float(v) for v in data.size.detach().cpu().tolist())
 
-    return prepass.compute_graph(
+    return prepass.compute_graph_multi(
         reps,
         pulse_id_per_rep,
         t1, t2, t2dash, d,

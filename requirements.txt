@@ -6,3 +6,4 @@ pyvis==0.3.2
 pyvista==0.45.2
 scipy
 torchkbnufft==1.5.2
+triton-windows==3.4.0

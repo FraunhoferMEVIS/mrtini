@@ -18,7 +18,7 @@ sys.path.append('./')
 from src.mrtini.config import PAD, SLICE_THICKNESS
 from src.mrtini.pre_pass_rust_call import compute_graph_rust
 from src.voxelgridphantom.voxel_grid_phantom import VoxelGridPhantom
-
+from fast_pdg import compute_graph_fast, execute_graph_fast
 
 import json
 import numpy as np
@@ -65,7 +65,7 @@ def build_prepass_inputs_from_hybrid(seq, art):
     pulse_id_per_rep = torch.tensor([key_to_pid[k] for k in rep_keys], dtype=torch.int32)
 
     # 3) build taps/support banks aligned with pid
-    taps_bank = [art.pulses[k].combined_taps for k in uniq_keys]
+    taps_bank = [art.pulses[k].water.nominal_taps for k in uniq_keys]
     supp_bank = [art.pulses[k].water.support      for k in uniq_keys]
 
     return rep_keys, uniq_keys, key_to_pid, pulse_id_per_rep, taps_bank, supp_bank,
@@ -137,7 +137,7 @@ phantom = VoxelGridPhantom.load("data/subject04_3T-highres-fat_custom_dense.npz"
 # phantom = phantom.interpolate(Nx, Ny, Npart).slices(list(range(Npart)))
 phantom = phantom.interpolate(Nx, Ny, Npart).slices([14])
 
-phantom.size = torch.tensor([0.128, 0.128,SLICE_THICKNESS/4])  # set the size of the phantom to match the FOV in the z direction
+phantom.size = torch.tensor([0.128, 0.128,SLICE_THICKNESS])  # set the size of the phantom to match the FOV in the z direction
 # phantom.plot()
 phantom = phantom.build(voxel_shape="box")
 logging.basicConfig(level=logging.INFO)
@@ -283,8 +283,8 @@ def reconstruct_image(sequenceData: dict[str, Any], signal: list[float], imgBuff
 
     return JSONResponse(content=response)
 
-def simulate_mr0(sequenceData, state_count=200, min_state_mag=1e-4,
-                 tap_threshold=1e-5):
+def simulate_mr0(sequenceData, state_count=400, min_state_mag=1e-4,
+                 tap_threshold=1e-6):
     global phantom
     output = []
     raw_adc_representations = []
@@ -302,36 +302,33 @@ def simulate_mr0(sequenceData, state_count=200, min_state_mag=1e-4,
     art = MRtiniSim(device="cuda", seq=seq).bake_bloch_kernels(
         phantom_data=phantom,
         z_span_m=SLICE_THICKNESS,
-        global_RF=False, ##  Change to True to use global RF ~ order-local hard-pulse approximation for Faster sim
+        global_RF=True, ##  Change to True to use global RF ~ order-local hard-pulse approximation for Faster sim
         tap_threshold=tap_threshold
     )
     
-    (rep_keys, _,
-     _, pulse_id_per_rep, 
-     taps_bank, supp_bank) = build_prepass_inputs_from_hybrid(seq, art)
-    
-    graph = compute_graph_rust(
-        seq, phantom,
-        pulse_id_per_rep,
-        taps_bank,
-        supp_bank,
-        art.z_m,
-        slice_thickness=SLICE_THICKNESS, pad=PAD,
-        max_state_count=state_count, min_state_mag=min_state_mag
-    )
-
     
     seq = seq.cuda()
     phantom = phantom.cuda()
+    graph, rep_keys = compute_graph_fast(
+            seq, phantom, art,
+            max_state_count=state_count,
+            min_state_mag=min_state_mag,          # use your current value
+            slice_thickness=SLICE_THICKNESS,
+        )
 
-    signal = execute_graph(graph,
-                           seq,
-                           phantom,
-                           rep_keys,
-                            art,
-                           SLICE_THICKNESS=SLICE_THICKNESS,
+    
+  
 
-                          )
+    # 
+    
+    signal = execute_graph_fast(
+        graph, seq, phantom, rep_keys, art,
+        SLICE_THICKNESS=SLICE_THICKNESS,
+        min_emitted_signal=1e-4,     # use your current value
+        min_latent_signal=1e-4,
+        print_progress=True,
+        rf_backend="auto",
+    )
 
     plotting_dims = 'xy'
     figsize = (20, 20)
