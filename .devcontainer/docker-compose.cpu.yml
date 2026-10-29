@@ -1,0 +1,41 @@
+services:
+  mrtini-dev:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        TORCH_VERSION: 2.8.0+cpu
+        TORCH_INDEX_URL: https://download.pytorch.org/whl/cpu
+    working_dir: /workspaces/mrtini
+    command: sleep infinity
+    volumes:
+      - ..:/workspaces/mrtini:cached
+      - pip-cache:/root/.cache/pip
+      - cargo-registry:/root/.cargo/registry
+      - cargo-git:/root/.cargo/git
+      - cargo-target:/opt/mrtini-cargo-target
+    environment:
+      MRTINI_DEVICE: cpu
+      PYTHONPATH: /workspaces/mrtini/src:/workspaces/mrtini
+      MPLBACKEND: Agg
+      GAMMASTAR_RECON_HOST: gammastar-recon
+      GAMMASTAR_RECON_PORT: "9002"
+    shm_size: "8gb"
+    depends_on:
+      - gammastar-recon
+
+  gammastar-recon:
+    build:
+      context: ../external/gammaSTAR/sequenceServer/gammastar_recon
+      dockerfile: docker/Dockerfile
+      target: gs-recon
+    image: mrtini-gammastar-recon-dev:local
+    ports:
+      - "9002:9002"
+    restart: unless-stopped
+
+volumes:
+  pip-cache:
+  cargo-registry:
+  cargo-git:
+  cargo-target:

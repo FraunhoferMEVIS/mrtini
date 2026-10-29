@@ -1,408 +1,185 @@
+# MRtini: A cocktail of Bloch and EPG for fast and accurate MRI simulation
 
-# MRTini : A cocktail of Bloch and EPG for fast and accurate MRI simulation
-<img src="data/MRTini_logo.png" alt="Logo" width="800">
+<img src="data/MRTini_logo.png" alt="MRtini logo" width="800">
 
-This repository contains the simulation workflow for MRTini.  
+MRtini includes slice-profile RF propagation, species-separated graph construction and accelerated graph execution in one Python/Rust installation. The native engine is built in release mode by pip. There is no separate optimization package or patch step.
 
+## Quick start
 
-## Setup
+Use Python **3.10** for the supplied `mrstar` wheels. Core-engine development also supports Python 3.11–3.12 when a sequence interpreter is not needed. For source installation, install Rust/Cargo first. Run commands below from the repository root, in your selected Python environment.
 
-MRTini can be run in two ways:
-
-1. **Recommended:** VS Code Dev Container with Docker Compose.
-2. **Manual/local:** Python 3.10 environment with local dependencies installed manually.
-
-The devcontainer route is the most reproducible setup. It builds the MRTini development environment, installs the Python/Rust dependencies, installs the `mrstar` sequence-interpreter wheel, builds the Rust prepass module, and starts the gammaSTAR reconstruction server as a sibling Docker service.
-
----
-
-## 1. Recommended setup: VS Code Dev Container
-
-### Requirements
-
-Install the following on the host machine:
-
-* Docker Desktop
-* VS Code
-* VS Code extension: **Dev Containers**
-* NVIDIA driver + NVIDIA Container Toolkit, if GPU/CUDA execution is required
-
-The devcontainer uses:
-
-* Python `3.10`
-* PyTorch `2.8.0+cu129`
-* Rust + `maturin`
-* `mrstar` Linux wheel from `wheels/`
-* gammaSTAR reconstruction server from `gammastar_recon/`
-
-Expected repository layout:
-
-```text
-MRTini/
-├── .devcontainer/
-│   ├── devcontainer.json
-│   ├── docker-compose.yml
-│   ├── Dockerfile
-│   └── post_create.sh
-├── external/
-│   └── gammastar_recon
-|       └──docker/Dockerfile
-├── src/
-├── wheels/
-│   └── mrstar-...-cp310-cp310-manylinux_2_34_x86_64.whl
-├── requirements.txt
-└── README.md
-```
-
-The `gammastar_recon/` directory should contain the vendored gammaSTAR reconstruction server source corresponding to the tested upstream commit. If the directory was copied from gammaSTAR, keep the upstream license/notice files and record the source commit in a metadata file such as `gammastar_recon/UPSTREAM_COMMIT.txt`.
-
-### Start the devcontainer
-
-Open the repository in VS Code and run:
-
-```text
-Ctrl+Shift+P → Dev Containers: Reopen in Container
-```
-
-VS Code will build and start two Docker services:
-
-```text
-mrtini-dev        # MRTini development container
-gammastar-recon   # gammaSTAR reconstruction server
-```
-
-### Run the simulation inside the devcontainer
-inside the devcontainer terminal, run the `sim_run.py` file
-it will run the simulation and reconstruct using nufft and save 
-the output in the `recons/` directory
-
-everything should work out at this point, if you encounter any issues, please refer to the some extra infor and trouble shooting section below.
-
-### Devcontainer Information
-The MRTini container is configured with:
-
-```text
-PYTHONPATH=/workspaces/mrtini/src:/workspaces/mrtini
-GAMMASTAR_RECON_HOST=gammastar-recon
-GAMMASTAR_RECON_PORT=9002
-```
-
-So, inside the devcontainer, MRTini talks to the reconstruction server at:
-
-```text
-gammastar-recon:9002
-```
-
-Do **not** use `localhost:9002` from inside the devcontainer; inside Docker, `localhost` refers to the current container, not the reconstruction-server container.
-
-### Rebuild the devcontainer
-
-If dependencies or `.devcontainer/` files changed, rebuild with:
-
-```text
-Ctrl+Shift+P → Dev Containers: Rebuild Container
-```
-
-For a full clean rebuild:
-
-```text
-Ctrl+Shift+P → Dev Containers: Rebuild Container Without Cache
-```
-
-If the container opened but the post-create setup failed, the setup script can be rerun manually inside the devcontainer:
+NVIDIA CUDA setup (Linux or native Windows x86-64):
 
 ```bash
-cd /workspaces/mrtini
+python scripts/setup_mrtini.py --device cuda --dev --recon-tools
+```
+
+CPU setup:
+
+```bash
+python scripts/setup_mrtini.py --device cpu --dev
+```
+
+The setup script selects the official torch CPU/CUDA wheel, installs MRtini and its application requirements together, builds the existing Rust crate once, installs the compatible `mrstar` wheel from `wheels/`, and runs an installation check. `--recon-tools` additionally fetches/installs the gammaSTAR reconstruction helpers. On Windows the CUDA extra installs `triton-windows`; on Linux it installs Triton. The release baseline is torch 2.8.0, CUDA 12.9 and Triton 3.4.x. It does not install both Triton distributions on one platform.
+
+For core-engine tests without the platform-specific sequence interpreter:
+
+```bash
+python scripts/setup_mrtini.py --device cpu --dev --skip-mrstar
+```
+
+`--dry-run` prints the installation plan without changing the environment. A container whose image already has the correct torch build uses `--skip-torch`. Previously installed standalone `mrtini-fast-pdg` / `mrtini-prepass-rs` prototype distributions are replaced by the integrated MRtini installation; restart Python afterwards.
+
+The authoritative runtime dependencies are in `pyproject.toml`. Existing application requirements are retained in `requirements-application.txt` and included through `requirements.txt`. When adding a dependency later, update the package metadata and applicable requirements file together. Private wheels/local reconstruction tools remain explicit setup inputs rather than invented PyPI package versions.
+
+## Recommended setup: VS Code Dev Container
+
+Host requirements:
+
+- Docker Desktop / Docker Engine and VS Code with the Dev Containers extension.
+- Python 3.10+ available as `python`, and Git, for the cross-platform gammaSTAR preparation hook.
+- For the CUDA configuration: an NVIDIA GPU/driver and Docker GPU access (NVIDIA Container Toolkit on a Linux host).
+
+Open the repository and run **Dev Containers: Reopen in Container**. Select the CUDA configuration or the CPU configuration when prompted. The CPU alternative is `.devcontainer/cpu/devcontainer.json` and does not request GPU access.
+
+Both configurations use a Python 3.10 virtual environment, an appropriate torch 2.8 build, Rust/Cargo caches, and the same `scripts/setup_mrtini.py` used locally. Post-create setup builds the integrated native engine and runs CPU release tests. CUDA setup also compiles and checks a small fused GPU RF kernel before declaring setup complete.
+
+The initialization hook fetches gammaSTAR to one canonical path on every platform:
+
+```text
+external/gammaSTAR/sequenceServer/gammastar_recon
+```
+
+The reconstruction server is a sibling Compose service. Inside the MRtini container its endpoint is `gammastar-recon:9002`, configured through `GAMMASTAR_RECON_HOST` / `GAMMASTAR_RECON_PORT`. The host endpoint is `localhost:9002`. `localhost` inside the development container refers to that container itself.
+
+Plotting defaults to **Agg** for headless operation. Save figures or use notebook inline plotting. GUI plotting is optional (`python -m pip install -e ".[gui]"`) and additionally needs a working display; it is not required to install or test the simulator.
+
+To repeat setup in an already running container:
+
+```bash
 bash .devcontainer/post_create.sh
 ```
 
-Check the gammaSTAR recon server connection:
+After changing dependencies or container files, use **Dev Containers: Rebuild Container**. Cargo/pip caches reduce repeated build work. The first CUDA RF call may include Triton JIT compilation; subsequent calls reuse its kernel cache.
 
-```bash
-python - <<'PY'
-import os
-import socket
+## Simulation API
 
-host = os.getenv("GAMMASTAR_RECON_HOST", "gammastar-recon")
-port = int(os.getenv("GAMMASTAR_RECON_PORT", "9002"))
+Keep sequence import, phantom preparation and RF-bank baking as before. With `seq`, `data` and baked RF artifacts `art`:
 
-print(f"Testing gammaSTAR recon at {host}:{port}")
+```python
+from src.mrtini.simulation import compute_graph, execute_graph
 
-with socket.create_connection((host, port), timeout=5):
-    print("gammaSTAR recon server is reachable.")
-PY
+graph, rep_keys = compute_graph(
+    seq, data, art,
+    max_state_count=NMAX,
+    min_state_mag=1e-4,
+    slice_thickness=SLICE_THICKNESS,
+    per_species_tissue=True,
+)
+measured = execute_graph(
+    graph, seq, data, rep_keys, art,
+    SLICE_THICKNESS=SLICE_THICKNESS,
+    rf_backend="auto",
+    print_progress=True,
+)
 ```
 
----
+The existing `src` import prefix is retained to avoid a repository-wide package rename. The implementation lives inside MRtini. Existing callers of `compute_graph_fast` / `execute_graph_fast` remain supported through `src.mrtini.optimized`; the historical `mrtini_prepass_rs` import is included in the same wheel.
 
-## 2. Local setup without devcontainer ( skip this if using devcontainer )
+Water and fat use their own nominal RF taps, supports, coefficients, representative magnitudes and graph scores. No combined complex-tap envelope is used. `species="auto"` chooses species with nonzero PD. `per_species_tissue=True` uses separate tissue means for prepass scoring; the compatibility default remains `False` (the original whole-phantom means). Execution uses the actual voxel tissue maps either way. State caps remain per species and per state family, so the union can be larger than a water-only graph.
 
-The local setup is useful if you do not want to use the VS Code devcontainer but still want to run MRTini directly on your machine.
+CPU execution uses fused native RF accumulation or matrix multiplication as appropriate. CUDA uses the matrix paths or the fused Triton RF kernel. If a general CUDA RF layer needs Triton and it is missing, execution stops with a setup error instead of silently taking a very slow path. `rf_backend="grouped"` remains an explicit portable alternative for diagnosis. Native/Triton RF kernels are inference paths; torch RF paths are selected for inputs requiring gradients. This does not make graph selection differentiable end to end.
 
-### Requirements
+The static-object path batches RF application, free evolution and ADC evaluation. Motion, profile callbacks, k-z diagnostics and magnetization-history requests use the retained state-loop path with accelerated RF. `vectorized=False` explicitly selects that path. RF-bank and dense-matrix setup can be reused via `FastRFContext` when graph/data/banks are unchanged.
 
-Install locally:
-
-* Python `3.10`
-* Rust/Cargo
-* Docker Desktop, only if using gammaSTAR reconstruction
-* NVIDIA driver, if using CUDA/GPU execution
-* [gammaSTAR reconstruction server](https://github.com/FraunhoferMEVIS/gammaSTAR/tree/main/sequenceServer/gammastar_recon), if using gammaSTAR reconstruction
-
-Create and activate a Python 3.10 environment using your preferred method.
-
-
-### Install PyTorch
-
-For CUDA 12.9 wheels:
-
-```bash
-python -m pip install --index-url https://download.pytorch.org/whl/cu129 "torch==2.8.0+cu129"
-```
-
-If CUDA 12.9 wheels are not available on your platform, install a compatible PyTorch build from the official PyTorch selector and keep `torch` excluded from `requirements.txt` installation.
-
-### Install Python requirements
-
-Install the regular requirements while excluding `torch` and `mrpy_recon_tools`, since those are handled separately:
-
-Linux/macOS:
-
-```bash
-
-python -m pip install -r requirements.txt
-```
-
-### Install the `mrstar` sequence-interpreter wheel
-
-Linux:
-
-```bash
-python -m pip install --force-reinstall wheels/mrstar-*-cp310-*-manylinux*_x86_64.whl
-```
-
-Windows:
-
-```powershell
-python -m pip install --force-reinstall (Get-ChildItem wheels\mrstar-*-cp310-*-win_amd64.whl | Select-Object -First 1).FullName
-```
-
-### Build and install the Rust prepass
-
-```bash
-cd src/rust_prepass
-maturin develop -r
-cd ../..
-```
-
-This should build the Rust prepass module and install it into the current Python environment.
-
----
-
-## 3. Running a simulation
-
-Example:
+To run your existing driver:
 
 ```bash
 python sim_run.py
 ```
 
-When using paths inside the devcontainer, prefer Linux-style paths or `pathlib`:
+The driver must supply its sequence/phantom data as usual. Use `pathlib.Path` for portable filenames rather than Windows-only backslash paths inside Linux containers.
 
-```python
-from pathlib import Path
+## Installation and numerical tests
 
-REPO_SRC = Path(__file__).resolve().parents[1]
+The new release tests are additive; they do not replace your existing `tests/mrtini_pytest/` suite.
 
-sequenceData_path = (
-    REPO_SRC
-    / "sequence"
-    / "gstar_seqs"
-    / "RARE_default_sequence_sequenceData.json"
-)
-```
-
-Avoid Windows-style paths such as:
-
-```python
-r"src\sequence\gstar_seqs\RARE_default_sequence_sequenceData.json"
-```
-
-inside Linux containers.
-
----
-
-
-## 4. Running the gammaSTAR reconstruction server for 3D/2D sequence reconstruction
-
-MRTini can optionally send simulated acquisitions to a gammaSTAR reconstruction server. The server listens on port `9002`.
-
-### Devcontainer mode
-
-When using the devcontainer, the reconstruction server is started as a sibling service through `.devcontainer/docker-compose.yml`.
-
-Inside the devcontainer, use:
-
-```text
-GAMMASTAR_RECON_HOST=gammastar-recon
-GAMMASTAR_RECON_PORT=9002
-```
-
-This is already set by the devcontainer Compose file.
-
-### Local mode
-
-### pull in the gammaSTAR-recon source
-
-run the `scripts/fetch_gammastar_recon.sh` script if on Linux/macOS and `scripts\fetch_gammastar_recon.ps1` if on Windows to pull in the gammaSTAR reconstruction server source into the `external/gammastar_recon/` directory.
-
-### Install gammaSTAR `mrpy_recon_tools`
-
- `external/gammastar_recon/` is present in the repository, install the reconstruction tools from the vendored source:
+Installation/native smoke test:
 
 ```bash
-python -m pip install external/gammastar_recon/mrpy_tools/reconstruction/mrpy_recon_tools
+python -m src.mrtini.doctor --kernel
 ```
 
-On Windows PowerShell:
+CPU release checks:
 
-```powershell
-python -m pip install .\external\gammastar_recon\mrpy_tools\reconstruction\mrpy_recon_tools
+```bash
+python -m pytest -c tests/pytest.release.ini -m "not cuda"
 ```
 
-For local Python runs, start the reconstruction server with Docker Compose:
+On the actual CUDA machine, check the fused backend and complete complex ADC path:
+
+```bash
+python -m src.mrtini.doctor --require-cuda --kernel
+python -m pytest -c tests/pytest.release.ini -m cuda
+```
+
+CUDA tests need real CUDA hardware and are reported as skipped when it is absent. A passing CPU job does not certify the CUDA kernel. The checks cover independent water/fat supports, species masks, conjugation, spatially varying phase/coefficient maps, empty RF rows, native-versus-independent prepass retention, and measured complex ADC comparisons against the supplied original executor and independent species runs.
+
+The included CI job builds one wheel on Linux and Windows and tests it outside the checkout. It expects the corresponding Python 3.10 `mrstar` wheels in `wheels/`. The wheel-isolation check is enabled in CI through `MRTINI_TEST_INSTALLED_WHEEL=1`; it is normally skipped for an editable development install. GPU checks should additionally run on your cluster before release.
+
+For your real sequence/phantom rather than the small synthetic regressions:
+
+```python
+from src.mrtini.simulation import benchmark_case
+report, measured = benchmark_case(
+    seq, data, art,
+    max_state_count=NMAX,
+    slice_thickness=SLICE_THICKNESS,
+    compare_reference=True,
+)
+print(report)
+```
+
+This reports first/warm execution times and complex ADC differences. The explicit edge reference can be slow on a large graph. It supplements your isochromat validation.
+
+## Optional gammaSTAR reconstruction
+
+Fetch source and install reconstruction helpers with `--recon-tools`, or fetch/update the source separately:
+
+```bash
+python scripts/fetch_gammastar_recon.py
+```
+
+The `.sh` and `.ps1` wrappers call this same helper. It preserves local tracked modifications by refusing to overwrite a modified checkout, retains upstream licenses, and records the fetched commit in `external/GAMMASTAR_RECON_COMMIT.txt`. The default ref is `main`; set `GAMMASTAR_REF` to the tested full commit/tag for a pinned release. An existing checkout is reused during normal package setup.
+
+For a local Python process, start the server from the host:
 
 ```bash
 docker compose -f docker/compose.gammastar-recon.yaml up --build
 ```
 
-The local Python process should connect to:
-
-```text
-localhost:9002
-```
-
----
-
-## 4. Reconstruction host
-
-The reconstruction host depends on where the Python process is running:
-
-| Python process location                             |    Reconstruction host |   Port |
-| --------------------------------------------------- | ---------------------: | -----: |
-| Host machine, local Python                          |            `localhost` | `9002` |
-| Devcontainer, recon service in same Compose network |      `gammastar-recon` | `9002` |
-| Devcontainer, recon server manually started on host | `host.docker.internal` | `9002` |
-
-MRTini should read these values from environment variables:
-
-```text
-GAMMASTAR_RECON_HOST
-GAMMASTAR_RECON_PORT
-```
-
-Default local behavior should be:
-
-```text
-GAMMASTAR_RECON_HOST=localhost
-GAMMASTAR_RECON_PORT=9002
-```
-
----
-
-## 6. Plotting inside the devcontainer
-
-The devcontainer may run Matplotlib in a non-interactive backend depending on display forwarding. For reliable figure generation, save figures instead of relying on GUI popups:
-
-```python
-import matplotlib.pyplot as plt
-
-fig, ax = plt.subplots()
-ax.plot([1, 2, 3])
-
-fig.savefig("out/figure.png", dpi=300, bbox_inches="tight")
-plt.close(fig)
-```
-
-If using VS Code notebooks or Python `# %%` cells, inline plotting is usually more reliable than GUI `plt.show()` windows.
-
----
-
-## 7. Troubleshooting
-
-### `mrpy_recon_tools==1.7` cannot be installed from PyPI
-
-`mrpy_recon_tools` is not installed from PyPI in this setup. It is installed from the gammaSTAR source tree:
+For server logs in devcontainer mode, run from the host:
 
 ```bash
-python -m pip install gammastar_recon/mrpy_tools/reconstruction/mrpy_recon_tools
+docker compose -f .devcontainer/docker-compose.yml logs gammastar-recon
 ```
 
-Therefore, `requirements.txt` should not rely on:
+`mrtini-doctor --mrstar --reconstruction` actually imports the requested optional tools; it does not report missing modules as OK.
 
-```text
-mrpy_recon_tools==1.7
-```
+## Troubleshooting
 
-### `torch.cuda.is_available()` is `False`
+- **Stale native API:** restart Python after installation. Run the doctor and inspect its printed native-engine path. Install from the MRtini root, rather than building an old standalone extension elsewhere.
+- **No matching mrstar wheel:** use Python 3.10 and the correct OS/architecture wheel. `--skip-mrstar` is intended for core-engine work, not sequence import.
+- **CUDA unavailable:** check `torch.version.cuda`, `torch.cuda.is_available()` and host/Docker GPU access. CPU setup is available independently.
+- **Missing/mismatched Triton:** rerun the CUDA setup in the same Python environment. For the release torch 2.8 baseline, Linux needs Triton 3.4.x and Windows needs `triton-windows` 3.4.x. Then run the real GPU kernel check.
+- **Slow first repetition:** enable execution progress. Kernel compilation and initial RF-bank preparation occur before steady-state timings; the repetition counter is not an edge-level progress meter.
+- **Qt/display error:** retain `MPLBACKEND=Agg` in headless runs and remove application-level hardcoded `QtAgg` overrides unless a display has been configured.
+- **Reconstruction connection:** use `localhost:9002` from the host or `gammastar-recon:9002` inside the Compose network.
 
-Check that Docker has GPU access:
-
-```bash
-docker run --rm --gpus all nvidia/cuda:12.9.1-base-ubuntu22.04 nvidia-smi
-```
-
-If this fails, the issue is host-side NVIDIA/Docker configuration, not MRTini.
-
-### Devcontainer cannot connect to gammaSTAR recon
-
-Inside the devcontainer, test:
-
-```bash
-python - <<'PY'
-import os
-import socket
-
-host = os.getenv("GAMMASTAR_RECON_HOST", "gammastar-recon")
-port = int(os.getenv("GAMMASTAR_RECON_PORT", "9002"))
-
-print(f"Testing {host}:{port}")
-with socket.create_connection((host, port), timeout=5):
-    print("OK")
-PY
-```
-
-If this fails, check whether the reconstruction container is running:
-
-```bash
-docker ps
-docker logs gammastar-recon
-```
-
-Run these Docker commands from the host terminal.
-
-### `plt.show()` does not open a window
-
-In a headless/container environment, Matplotlib may use a non-interactive backend. Save figures to disk or use VS Code notebooks/interactive cells.
-
-### Re-run devcontainer setup
-
-Inside the devcontainer:
-
-```bash
-cd /workspaces/mrtini
-bash .devcontainer/post_create.sh
-```
-
-Or rebuild from VS Code:
-
-```text
-Ctrl+Shift+P → Dev Containers: Rebuild Container
-```
 ## License
 
-MRTini is licensed under the GNU Affero General Public License v3.0 only
-(`AGPL-3.0-or-later `). See [LICENSE](LICENSE).
+MRTini is licensed under the GNU Affero General Public License v3.0 or later
+(`AGPL-3.0-or-later`). See [LICENSE](LICENSE).
 
 Copyright (C) 2026 Fraunhofer Institute for Digital Medicine MEVIS
 

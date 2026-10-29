@@ -1,23 +1,17 @@
 {
-  "name": "MRTini Python 3.10",
+  "name": "MRtini (CUDA, integrated engine)",
   "dockerComposeFile": "docker-compose.yml",
   "service": "mrtini-dev",
   "workspaceFolder": "/workspaces/mrtini",
   "shutdownAction": "stopCompose",
-  "initializeCommand": "bash scripts/fetch_gammastar_recon.sh",
+  "initializeCommand": ["python", "scripts/fetch_gammastar_recon.py"],
   "postCreateCommand": "bash .devcontainer/post_create.sh",
   "customizations": {
     "vscode": {
-      "extensions": [
-        "ms-python.python",
-        "ms-python.vscode-pylance",
-        "charliermarsh.ruff",
-        "rust-lang.rust-analyzer",
-        "ms-azuretools.vscode-docker"
-      ],
+      "extensions": ["ms-python.python", "ms-python.vscode-pylance", "charliermarsh.ruff", "rust-lang.rust-analyzer", "ms-azuretools.vscode-docker"],
       "settings": {
-        "python.defaultInterpreterPath": "/usr/local/bin/python",
-        "python.analysis.extraPaths": ["/workspaces/mrtini/src"]
+        "python.defaultInterpreterPath": "/opt/mrtini-venv/bin/python",
+        "python.analysis.extraPaths": ["/workspaces/mrtini"]
       }
     }
   }

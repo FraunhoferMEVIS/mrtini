@@ -1,0 +1,9 @@
+# Preserved application requirements; managed engine/GPU dependencies live in pyproject.toml.
+fastapi==0.136.3
+ismrmrd==1.14.0
+matplotlib==3.10.8
+numpy==2.2.6
+pyvis==0.3.2
+pyvista==0.45.2
+scipy==1.15.3
+torchkbnufft==1.5.2

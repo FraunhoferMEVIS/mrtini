@@ -281,8 +281,8 @@ def reconstruct_image(sequenceData: dict[str, Any], signal: list[float], imgBuff
 
     return JSONResponse(content=response)
 
-def simulate_mr0(sequenceData, state_count=100, min_state_mag=1e-4,
-                 tap_threshold=1e-6):
+def simulate_mr0(sequenceData, state_count=200, min_state_mag=1e-4,
+                 tap_threshold=1e-5):
     global phantom3d
     output = []
     raw_adc_representations = []
@@ -300,7 +300,7 @@ def simulate_mr0(sequenceData, state_count=100, min_state_mag=1e-4,
     art = MRtiniSim(device="cuda", seq=seq).bake_bloch_kernels(
         phantom_data=phantom3d,
         z_span_m=FOVz,
-        global_RF=True, ##  Change to True to use global RF ~ hard pulse approximation for Faster sim
+        global_RF=False, ##  Change to True to use global RF ~ hard pulse approximation for Faster sim
         tap_threshold=tap_threshold
     )
     

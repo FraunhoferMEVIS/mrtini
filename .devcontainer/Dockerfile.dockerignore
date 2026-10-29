@@ -1,0 +1,5 @@
+# Source is mounted at runtime; image construction needs no phantom/data files.
+**
+!.devcontainer/
+!.devcontainer/Dockerfile
+!.devcontainer/Dockerfile.dockerignore

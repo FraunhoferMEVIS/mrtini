@@ -1,3 +1,67 @@
-[tool.black]
-line-length = 110      # or 110/120 if you like wider lines
-target-version = ["py311"]  # or whatever you're using
+[build-system]
+requires = ["maturin>=1.7,<2"]
+build-backend = "maturin"
+
+[project]
+name = "MRtini"
+version = "0.1.0"
+description = "Slice-profile-enabled phase-distribution-graph MRI simulation"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+license = { text = "AGPL-3.0-or-later" }
+authors = [{ name = "Snawar Hussain" }]
+dependencies = [
+  "numpy>=1.24,<3",
+  "torch>=2.8,<3",
+  "packaging>=23",
+  "fastapi==0.136.3",
+  "ismrmrd==1.14.0",
+  "matplotlib==3.10.8",
+  "numpy==2.2.6",
+  "pyvis==0.3.2",
+  "pyvista==0.45.2",
+  "scipy==1.15.3",
+  "torchkbnufft==1.5.2"
+]
+
+[project.optional-dependencies]
+# A reproducible CUDA baseline, matching the supplied release environment.
+cuda = [
+  "torch==2.8.0",
+  "triton>=3.4,<3.5; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "triton-windows>=3.4,<3.5; sys_platform == 'win32' and platform_machine == 'AMD64'",
+]
+dev = ["pytest>=8,<9", "pytest-cov>=5,<8", "ruff>=0.9", "ipykernel>=6", "PyYAML>=6,<7"]
+gui = ["PyQt6>=6.5"]
+
+[project.scripts]
+mrtini-doctor = "src.mrtini.doctor:main"
+
+[tool.maturin]
+manifest-path = "src/rust_prepass/Cargo.toml"
+module-name = "mrtini_prepass_rs.mrtini_prepass_rs"
+python-source = "."
+python-packages = ["src", "mrtini_prepass_rs", "utils"]
+features = ["pyo3/extension-module"]
+profile = "release"
+strip = true
+exclude = [
+  { path = "src/rust_prepass/**", format = "wheel" },
+  "**/__pycache__/**", "**/*.pyc", "**/target/**",
+]
+include = [
+  { path = "requirements*.txt", format = "sdist" },
+  { path = "scripts/setup_mrtini.py", format = "sdist" },
+  { path = "scripts/fetch_gammastar_recon.py", format = "sdist" },
+  { path = "tests/release/*.py", format = "sdist" },
+  { path = "tests/pytest.release.ini", format = "sdist" },
+  { path = ".devcontainer/*.json", format = "sdist" },
+  { path = ".devcontainer/*.yml", format = "sdist" },
+  { path = ".devcontainer/*.sh", format = "sdist" },
+  { path = ".devcontainer/Dockerfile", format = "sdist" },
+  { path = ".devcontainer/Dockerfile.dockerignore", format = "sdist" },
+  { path = ".devcontainer/cpu/devcontainer.json", format = "sdist" },
+  { path = "docker/*.yaml", format = "sdist" },
+  { path = "scripts/fetch_gammastar_recon.sh", format = "sdist" },
+  { path = "scripts/fetch_gammastar_recon.ps1", format = "sdist" },
+]

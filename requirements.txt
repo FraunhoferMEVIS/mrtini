@@ -1,9 +1,4 @@
-fastapi==0.136.3
-ismrmrd==1.14.0
-matplotlib
-numpy
-pyvis==0.3.2
-pyvista==0.45.2
-scipy
-torchkbnufft==1.5.2
-triton-windows==3.4.0
+# Application dependencies preserved by the one-time repository integration.
+# Core engine dependencies and optional development/CUDA extras are in pyproject.toml.
+# Use scripts/setup_mrtini.py to install the correct CPU/CUDA torch build first.
+-r requirements-application.txt

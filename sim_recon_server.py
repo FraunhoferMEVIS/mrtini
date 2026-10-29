@@ -18,7 +18,7 @@ sys.path.append('./')
 from src.mrtini.config import PAD, SLICE_THICKNESS
 from src.mrtini.pre_pass_rust_call import compute_graph_rust
 from src.voxelgridphantom.voxel_grid_phantom import VoxelGridPhantom
-from fast_pdg import compute_graph_fast, execute_graph_fast
+from src.mrtini.optimized import compute_graph_fast, execute_graph_fast
 
 import json
 import numpy as np

@@ -13,3 +13,7 @@ external/*
 output_smoke/
 __pycache__/
 mrtini_fast_optimization/
+/release_migration_backup/
+/mrtini_prepass_rs/*.so
+/mrtini_prepass_rs/*.pyd
+/mrtini_prepass_rs/*.dll

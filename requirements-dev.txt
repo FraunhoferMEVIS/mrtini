@@ -1,0 +1,4 @@
+# Optional helper for existing pytest tooling; setup_mrtini.py --dev installs these.
+pytest>=8,<9
+pytest-cov>=5,<8
+PyYAML>=6,<7

@@ -1,11 +1,10 @@
 services:
-  mrtini-recon:
+  gammastar-recon:
     build:
       context: ../external/gammaSTAR/sequenceServer/gammastar_recon
       dockerfile: docker/Dockerfile
       target: gs-recon
     image: mrtini-gammastar-recon:local
-    container_name: mrtini-gammastar-recon
     ports:
       - "9002:9002"
     restart: unless-stopped
