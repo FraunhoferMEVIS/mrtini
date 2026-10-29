@@ -207,26 +207,6 @@ def qbank_from_Rxyz_bank(Rxyz_bank: torch.Tensor) -> torch.Tensor:
 
 
 ## ========TESTED and Confirmed with sign convention in mr0========
-@torch.no_grad()
-def rch6_from_q_old(q):
-    # Convention: '+' state stores M_- = (Mx - i My)/sqrt(2)
-    q=_qnorm(q)
-    w,x,y,z=q[...,0],q[...,1],q[...,2],q[...,3]
-    rxx=1-2*(y*y+z*z); rxy=2*(x*y-w*z); rxz=2*(x*z+w*y)
-    ryx=2*(x*y+w*z);   ryy=1-2*(x*x+z*z); ryz=2*(y*z-w*x)
-    rzx=2*(x*z-w*y);   rzy=2*(y*z+w*x);   rzz=1-2*(x*x+y*y)
-
-    I=torch.tensor(1j,device=q.device,dtype=CMPLX_DTYPE)
-    s2=math.sqrt(2.0)
-
-    # '+' == M_- basis => entries are in [M_-, M_+, Z]
-    pp = 0.5*(rxx+ryy).to(CMPLX_DTYPE) + 0.5*I*(rxy-ryx).to(CMPLX_DTYPE)   # +<-+
-    mp = 0.5*(rxx-ryy).to(CMPLX_DTYPE) - 0.5*I*(rxy+ryx).to(CMPLX_DTYPE)   # +<-(-)  (i.e. +<-M_+)
-    zp = (rxz.to(CMPLX_DTYPE) - I*ryz.to(CMPLX_DTYPE))/s2                 # +<-Z   (Z->+)
-    pz = (rzx.to(CMPLX_DTYPE) + I*rzy.to(CMPLX_DTYPE))/s2                 # Z<-+   (+->Z)
-    mz = (rzx.to(CMPLX_DTYPE) - I*rzy.to(CMPLX_DTYPE))/s2                 # Z<-(-) (i.e. Z<-M_+)
-    zz = rzz.to(CMPLX_DTYPE)                                              # Z<-Z
-    return pp, pz, mp, mz, zp, zz
 
 @torch.no_grad()
 def rch6_from_q(q):
@@ -287,10 +267,10 @@ def build_kgrid_projection( kmax: float=None, z_m: torch.Tensor=None, device="cu
     Lz = K * dz
     dk = 1.0 / Lz  # cycles/m
     M = K//2  # full FFT range
-    deltas = torch.arange(-M, M+1, device=device, dtype=torch.int64)
+    # Exactly K distinct DFT modes. For even K, keep -Nyquist only.
+    deltas = torch.arange(-(K//2), K - K//2, device=device, dtype=torch.int64)
     kz = deltas.to(DTYPE) * dk
     return KGrid(kz=kz, deltas=deltas, dk_tap=float(dk), M=K//2)
-
 
 @torch.no_grad()
 def make_projector_z_to_k(z_m: torch.Tensor, kz: torch.Tensor, *, norm: str="K", bake_ifftshift: bool=True) -> torch.Tensor:
@@ -323,8 +303,8 @@ def make_projector_z_to_k(z_m: torch.Tensor, kz: torch.Tensor, *, norm: str="K",
     P_base = (scale * E_base)
 
     # 2) bake the sample ifftshift into P so you can keep x centered:
-    #    (ifftshift(x) @ P_base) == (x @ ifftshift(P_base, dim=0))
-    P_baked = torch.fft.ifftshift(P_base, dim=0)
+    #    (ifftshift(x) @ P_base) == (x @ fftshift(P_base, dim=0))
+    P_baked = torch.fft.fftshift(P_base, dim=0)
     return P_baked.contiguous()
 # ------------------------- energy support -------------------------
 

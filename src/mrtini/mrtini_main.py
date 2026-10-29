@@ -81,9 +81,9 @@ def _hash_array(a: np.ndarray, quant: float = 1e-6) -> str:
 
 def _freq_tag(f):
     f = np.asarray(f)
-    if f.ndim == 0 or f.size == 1:
-        return f"{float(f):.6e}"
-    if np.allclose(f, f.flat[0], atol=1e-9, rtol=0):  # broadcasted-constant vector
+    if f.size == 1:
+        return f"{float(f.reshape(-1)[0]):.6e}"
+    if f.size and np.allclose(f, f.flat[0], atol=1e-9, rtol=0):
         return f"{float(f.flat[0]):.6e}"
     return "sha1:" + _hash_array(f, quant=1e-6)
 

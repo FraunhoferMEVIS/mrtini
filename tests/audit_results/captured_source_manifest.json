@@ -1,0 +1,50 @@
+{
+  "origin": "Source text reconstructed from tests/reports/mrtini/html/ in the uploaded tests.zip, not a live checkout. Trailing HTML sentinel spaces removed; LF newlines reconstructed. No production code edited.",
+  "input_archive_sha256": "704f48077e930bc2b38b7a7adc928ef7348c7f71515ba5a436eab794f26bccfc",
+  "files": [
+    {
+      "path": "src/mrtini/RF_banks.py",
+      "reconstructed_text_sha256": "5246792acd3af0618498c01aa2b350b47c1a59eeb296c7bf595b8dc833fad511"
+    },
+    {
+      "path": "src/mrtini/__init__.py",
+      "reconstructed_text_sha256": "ad006cd6e887e74912231a0f469f0bd1e30150b9603bcba73bf42470581c1788"
+    },
+    {
+      "path": "src/mrtini/bloch.py",
+      "reconstructed_text_sha256": "48003ad41535525cd5686b8f39fb75c601afd6634dd594ea9c31dc5c6adcc86c"
+    },
+    {
+      "path": "src/mrtini/config.py",
+      "reconstructed_text_sha256": "7b63f898bf34f55da0d57e5a23963b3ae3cafe20d5f337dbb410f98caf9ef3c0"
+    },
+    {
+      "path": "src/mrtini/constants.py",
+      "reconstructed_text_sha256": "4a1b32453297bc798e524ff301b25cd7b1799b9133663d6335dacdfb3ddd0e6d"
+    },
+    {
+      "path": "src/mrtini/execute_graph.py",
+      "reconstructed_text_sha256": "c32ce537220524e3df396a236c4c5dd49724b159f2b40fcf7679db86dcd39323"
+    },
+    {
+      "path": "src/mrtini/mrtini_main.py",
+      "reconstructed_text_sha256": "ce2fa3bc5cd82fcac8bda95be544388447785f32be678e270e52143bcbed3820"
+    },
+    {
+      "path": "src/mrtini/pre_pass_rust_call.py",
+      "reconstructed_text_sha256": "a5e4590d06a13197203be50e36ca8222eac3767b1c957ae0c5f753a77fd9163c"
+    },
+    {
+      "path": "src/sequence/__iniy__.py",
+      "reconstructed_text_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "src/sequence/sequence.py",
+      "reconstructed_text_sha256": "61f71febd09755097ce1706cc989a44ee159d83be16ce8c46f6e38dfdf352a2c"
+    },
+    {
+      "path": "src/sequence/slice_select.py",
+      "reconstructed_text_sha256": "50fc0a982371dd8fed6a4392aa33006bcd20fbf4b9e12a7920404d5d9266458e"
+    }
+  ]
+}

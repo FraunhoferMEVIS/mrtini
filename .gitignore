@@ -9,4 +9,6 @@ scripts/figs
 license.py
 data_export
 external/*
+!sim_phantom.npz
 output_smoke/
+__pycache__/

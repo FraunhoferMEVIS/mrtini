@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="17" skipped="0" tests="215" time="58.243" timestamp="2026-10-27T11:53:41.628991-04:00" hostname="052aa4bd894b"><testcase classname="mrtini_pytest.test_binning" name="test_weighted_median[x0-w0-1]" time="1.739" /><testcase classname="mrtini_pytest.test_binning" name="test_weighted_median[x1-w1-2]" time="0.004" /><testcase classname="mrtini_pytest.test_binning" name="test_weighted_median[x2-w2-1]" time="0.002" /><testcase classname="mrtini_pytest.test_binning" name="test_pd_weighted_b1_ref[wmean-2.5]" time="0.004" /><testcase classname="mrtini_pytest.test_binning" name="test_pd_weighted_b1_ref[wmedian-3.0]" time="0.003" /><testcase classname="mrtini_pytest.test_binning" name="test_pd_ref_fallback[x0-1.0]" time="0.003" /><testcase classname="mrtini_pytest.test_binning" name="test_pd_ref_fallback[x1-2.0]" time="0.002" /><testcase classname="mrtini_pytest.test_binning" name="test_weighted_centers_with_empty_bin" time="0.004" /><testcase classname="mrtini_pytest.test_binning" name="test_uniform_binning_mask_quantization_error_bound[False]" time="0.003" /><testcase classname="mrtini_pytest.test_binning" name="test_uniform_binning_mask_quantization_error_bound[True]" time="0.004" /><testcase classname="mrtini_pytest.test_binning" name="test_disabled_binning[x0-2]" time="0.002" /><testcase classname="mrtini_pytest.test_binning" name="test_disabled_binning[x1-0]" time="0.006" /><testcase classname="mrtini_pytest.test_binning" name="test_disabled_binning[x2--1]" time="0.002" /><testcase classname="mrtini_pytest.test_binning" name="test_uniform_binning_constant_invalid_and_shape" time="0.006" /><testcase classname="mrtini_pytest.test_binning" name="test_b1_modes_reference_and_clamp[True-scale]" time="0.004" /><testcase classname="mrtini_pytest.test_binning" name="test_b1_modes_reference_and_clamp[True-tesla]" time="0.002" /><testcase classname="mrtini_pytest.test_binning" name="test_b1_modes_reference_and_clamp[False-scale]" time="0.003" /><testcase classname="mrtini_pytest.test_binning" name="test_b1_modes_reference_and_clamp[False-tesla]" time="0.002" /><testcase classname="mrtini_pytest.test_binning" name="test_b1_errors[kw0-mode]" time="0.002" /><testcase classname="mrtini_pytest.test_binning" name="test_b1_errors[kw1-positive nbins]" time="0.002" /><testcase classname="mrtini_pytest.test_binning" name="test_b1_automatic_reference_edge_cases" time="0.002" /><testcase classname="mrtini_pytest.test_binning" name="test_joint_pairs_partition_valid_voxels_and_match_centers" time="0.002" /><testcase classname="mrtini_pytest.test_binning" name="test_joint_empty_shape_error_and_missing_labels" time="0.002" /><testcase classname="mrtini_pytest.test_binning" name="test_legacy_b0_conversion_hz_to_tesla[0.0]" time="0.001" /><testcase classname="mrtini_pytest.test_binning" name="test_legacy_b0_conversion_hz_to_tesla[2.0]" time="0.002" /><testcase classname="mrtini_pytest.test_binning" name="test_slice_waveform_scaling_bandwidth_and_rephaser[False]" time="0.003" /><testcase classname="mrtini_pytest.test_binning" name="test_slice_waveform_scaling_bandwidth_and_rephaser[True]" time="0.003" /><testcase classname="mrtini_pytest.test_binning" name="test_slice_default_designer_and_reject_invalid_rf" time="0.004" /><testcase classname="mrtini_pytest.test_binning" name="test_joint_binning_handles_numpy_inverse_index_shape" time="0.002" /><testcase classname="mrtini_pytest.test_bloch" name="test_so3_exponential_matches_independent_scipy[dtype0-omega0]" time="2.005" /><testcase classname="mrtini_pytest.test_bloch" name="test_so3_exponential_matches_independent_scipy[dtype0-omega1]" time="0.007" /><testcase classname="mrtini_pytest.test_bloch" name="test_so3_exponential_matches_independent_scipy[dtype0-omega2]" time="0.003" /><testcase classname="mrtini_pytest.test_bloch" name="test_so3_exponential_matches_independent_scipy[dtype0-omega3]" time="0.008" /><testcase classname="mrtini_pytest.test_bloch" name="test_so3_exponential_matches_independent_scipy[dtype0-omega4]" time="0.006" /><testcase classname="mrtini_pytest.test_bloch" name="test_so3_exponential_matches_independent_scipy[dtype0-omega5]" time="0.008" /><testcase classname="mrtini_pytest.test_bloch" name="test_so3_exponential_matches_independent_scipy[dtype1-omega0]" time="0.011" /><testcase classname="mrtini_pytest.test_bloch" name="test_so3_exponential_matches_independent_scipy[dtype1-omega1]" time="0.005" /><testcase classname="mrtini_pytest.test_bloch" name="test_so3_exponential_matches_independent_scipy[dtype1-omega2]" time="0.005" /><testcase classname="mrtini_pytest.test_bloch" name="test_so3_exponential_matches_independent_scipy[dtype1-omega3]" time="0.004" /><testcase classname="mrtini_pytest.test_bloch" name="test_so3_exponential_matches_independent_scipy[dtype1-omega4]" time="0.005" /><testcase classname="mrtini_pytest.test_bloch" name="test_so3_exponential_matches_independent_scipy[dtype1-omega5]" time="0.003" /><testcase classname="mrtini_pytest.test_bloch" name="test_batched_spinor_and_composition_match_matrix_products[dtype0]" time="0.006" /><testcase classname="mrtini_pytest.test_bloch" name="test_batched_spinor_and_composition_match_matrix_products[dtype1]" time="0.005" /><testcase classname="mrtini_pytest.test_bloch" name="test_linear_control[0.0-expected0]" time="0.003" /><testcase classname="mrtini_pytest.test_bloch" name="test_linear_control[0.5-expected1]" time="0.003" /><testcase classname="mrtini_pytest.test_bloch" name="test_linear_control[1.0-expected2]" time="0.004" /><testcase classname="mrtini_pytest.test_bloch" name="test_linear_control_rejects_duplicate_times" time="0.004" /><testcase classname="mrtini_pytest.test_bloch" name="test_zoh_control_clamps_and_selects_samples[-1-0]" time="0.003" /><testcase classname="mrtini_pytest.test_bloch" name="test_zoh_control_clamps_and_selects_samples[0-0]" time="0.007" /><testcase classname="mrtini_pytest.test_bloch" name="test_zoh_control_clamps_and_selects_samples[0.49-0]" time="0.003" /><testcase classname="mrtini_pytest.test_bloch" name="test_zoh_control_clamps_and_selects_samples[0.5-1]" time="0.003" /><testcase classname="mrtini_pytest.test_bloch" name="test_zoh_control_clamps_and_selects_samples[1.0-2]" time="0.005" /><testcase classname="mrtini_pytest.test_bloch" name="test_zoh_control_clamps_and_selects_samples[10.0-2]" time="0.003" /><testcase classname="mrtini_pytest.test_bloch" name="test_bloch_rhs_cross_product_and_relaxation[False]" time="0.007"><failure message="AssertionError: Tensor-likes are not close!&#10;&#10;Mismatched elements: 36 / 36 (100.0%)&#10;Greatest absolute difference: 3.636000156402588 at index (1, 2, 0, 1) (up to 2e-06 allowed)&#10;Greatest relative difference: 2.0000014305114746 at index (0, 0, 1, 1) (up to 2e-06 allowed)">bloch = &lt;module 'src.mrtini.bloch' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/bloch.py'&gt;
+relax = False
+
+    @pytest.mark.parametrize('relax',[False,True])
+    def test_bloch_rhs_cross_product_and_relaxation(bloch,relax):
+        def control(t): return (torch.tensor(.2),torch.tensor(-.1),torch.tensor(0.),torch.tensor(.3))
+        rhs = bloch.BlochRHS(control,[-.5,.5],[.1,-.2],[.8,1.2], gamma_rad=2.,
+                             T1=2. if relax else None,T2=.5 if relax else None,device='cpu')
+        M = torch.arange(36,dtype=torch.float32).reshape(2,3,2,3)/20
+        B = torch.tensor([[[.16,-.08,-.05],[.16,-.08,.25]],[[.24,-.12,-.35],[.24,-.12,-.05]]])[:,None]
+        expected = 2*torch.cross(B.expand_as(M),M,dim=-1)  # same active-rotation convention as solve_slice tests
+        if relax:
+            expected[...,:2] -= M[...,:2]/.5
+            expected[...,2] -= (M[...,2]-1)/2
+&gt;       torch.testing.assert_close(rhs(torch.tensor(0.),M),expected,atol=2e-6,rtol=2e-6)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 36 / 36 (100.0%)
+E       Greatest absolute difference: 3.636000156402588 at index (1, 2, 0, 1) (up to 2e-06 allowed)
+E       Greatest relative difference: 2.0000014305114746 at index (0, 0, 1, 1) (up to 2e-06 allowed)
+
+tests/mrtini_pytest/test_bloch.py:56: AssertionError</failure></testcase><testcase classname="mrtini_pytest.test_bloch" name="test_bloch_rhs_cross_product_and_relaxation[True]" time="0.004"><failure message="AssertionError: Tensor-likes are not close!&#10;&#10;Mismatched elements: 36 / 36 (100.0%)&#10;Greatest absolute difference: 3.635999917984009 at index (1, 2, 0, 1) (up to 2e-06 allowed)&#10;Greatest relative difference: 2.896057367324829 at index (1, 2, 1, 2) (up to 2e-06 allowed)">bloch = &lt;module 'src.mrtini.bloch' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/bloch.py'&gt;
+relax = True
+
+    @pytest.mark.parametrize('relax',[False,True])
+    def test_bloch_rhs_cross_product_and_relaxation(bloch,relax):
+        def control(t): return (torch.tensor(.2),torch.tensor(-.1),torch.tensor(0.),torch.tensor(.3))
+        rhs = bloch.BlochRHS(control,[-.5,.5],[.1,-.2],[.8,1.2], gamma_rad=2.,
+                             T1=2. if relax else None,T2=.5 if relax else None,device='cpu')
+        M = torch.arange(36,dtype=torch.float32).reshape(2,3,2,3)/20
+        B = torch.tensor([[[.16,-.08,-.05],[.16,-.08,.25]],[[.24,-.12,-.35],[.24,-.12,-.05]]])[:,None]
+        expected = 2*torch.cross(B.expand_as(M),M,dim=-1)  # same active-rotation convention as solve_slice tests
+        if relax:
+            expected[...,:2] -= M[...,:2]/.5
+            expected[...,2] -= (M[...,2]-1)/2
+&gt;       torch.testing.assert_close(rhs(torch.tensor(0.),M),expected,atol=2e-6,rtol=2e-6)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 36 / 36 (100.0%)
+E       Greatest absolute difference: 3.635999917984009 at index (1, 2, 0, 1) (up to 2e-06 allowed)
+E       Greatest relative difference: 2.896057367324829 at index (1, 2, 1, 2) (up to 2e-06 allowed)
+
+tests/mrtini_pytest/test_bloch.py:56: AssertionError</failure></testcase><testcase classname="mrtini_pytest.test_bloch" name="test_solve_constant_field_against_analytic_rotation[0-so3]" time="0.009" /><testcase classname="mrtini_pytest.test_bloch" name="test_solve_constant_field_against_analytic_rotation[0-spinor]" time="0.008" /><testcase classname="mrtini_pytest.test_bloch" name="test_solve_constant_field_against_analytic_rotation[1-so3]" time="0.007" /><testcase classname="mrtini_pytest.test_bloch" name="test_solve_constant_field_against_analytic_rotation[1-spinor]" time="0.014" /><testcase classname="mrtini_pytest.test_bloch" name="test_solve_constant_field_against_analytic_rotation[2-so3]" time="0.010" /><testcase classname="mrtini_pytest.test_bloch" name="test_solve_constant_field_against_analytic_rotation[2-spinor]" time="0.007" /><testcase classname="mrtini_pytest.test_bloch" name="test_solve_species_bins_and_spinor_renormalization[so3]" time="0.021" /><testcase classname="mrtini_pytest.test_bloch" name="test_solve_species_bins_and_spinor_renormalization[spinor]" time="0.016" /><testcase classname="mrtini_pytest.test_bloch" name="test_solve_input_errors[change0-b1_scale]" time="0.010" /><testcase classname="mrtini_pytest.test_bloch" name="test_solve_input_errors[change1-at least 2]" time="0.005" /><testcase classname="mrtini_pytest.test_bloch" name="test_solve_input_errors[change2-Unknown backend]" time="0.004" /><testcase classname="mrtini_pytest.test_bloch" name="test_species_names[0-water]" time="0.007" /><testcase classname="mrtini_pytest.test_bloch" name="test_species_names[-412-fat]" time="0.001" /><testcase classname="mrtini_pytest.test_bloch" name="test_species_names[100-unknown]" time="0.001" /><testcase classname="mrtini_pytest.test_bloch" name="test_demodulation_against_independent_zoh_frame_change[0.0]" time="0.009" /><testcase classname="mrtini_pytest.test_bloch" name="test_demodulation_against_independent_zoh_frame_change[0.15]" time="0.005" /><testcase classname="mrtini_pytest.test_bloch" name="test_demodulation_against_independent_zoh_frame_change[0.4]" time="0.005" /><testcase classname="mrtini_pytest.test_bloch" name="test_demodulation_against_independent_zoh_frame_change[0.83]" time="0.008" /><testcase classname="mrtini_pytest.test_bloch" name="test_demodulation_against_independent_zoh_frame_change[1.0]" time="0.005" /><testcase classname="mrtini_pytest.test_bloch" name="test_shaped_slice_solver_against_independent_adaptive_bloch_ode[0.00037-so3]" time="0.130"><failure message="AssertionError: &#10;Not equal to tolerance rtol=2e-05, atol=2e-05&#10;&#10;Mismatched elements: 32 / 54 (59.3%)&#10;Max absolute difference among violations: 0.16893472&#10;Max relative difference among violations: 1.19035146&#10; ACTUAL: array([[[[ 0.992003,  0.039072,  0.120013],&#10;         [ 0.012974,  0.914273, -0.40489 ],&#10;         [-0.125545,  0.40321 ,  0.906455]],...&#10; DESIRED: array([[[[ 0.966922,  0.057744,  0.24845 ],&#10;         [ 0.031647,  0.939354, -0.341485],&#10;         [-0.253102,  0.338052,  0.906455]],...">bloch = &lt;module 'src.mrtini.bloch' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/bloch.py'&gt;
+backend = 'so3', center = 0.00037
+
+    @pytest.mark.parametrize('backend',['so3','spinor'])
+    @pytest.mark.parametrize('center',[.00037,.0006])
+    def test_shaped_slice_solver_against_independent_adaptive_bloch_ode(bloch,backend,center):
+        t=np.linspace(0,.0012,7)
+        rf=np.array([0.,1.,2.,1.4,.6,.2,0.])*2e-6*np.exp(1j*np.array([0.,.1,.5,.8,.4,-.2,0.]))
+        gz=np.array([.003,.006,.004,-.002,.001,0.,.009])
+        z=np.array([-.0013,0.,.0011]);b0=np.array([0.,1.1e-7]);b1=np.array([.85,1.15]);species=[0.,-412.]
+        args=dict(rf_complex=rf,rf_freq=np.zeros_like(t),gz=gz,t_grid=t,z_m=z,
+                  b0_T=b0,b1_scale=b1,chem_shift_Hz=species,device='cpu',dtype_policy=torch.float64,
+                  backend=backend,rf_center_time=center)
+        out=bloch.solve_slice(**args)
+        for si,chemical in enumerate(species):
+            expected=np.empty((len(b0),len(z),3,3))
+            for bi in range(len(b0)):
+                for zi,position in enumerate(z):
+                    expected[bi,zi]=solve_zoh_ivp(t=t,rf=rf,gz=gz,z=position,
+                        b0=b0[bi],b1=b1[bi],chemical_hz=chemical)
+            expected=demod_reference(expected,z,t,gz,2*np.pi*42.577478e6,center)
+            got=out.Rz_solve[si].Rz_B33Nz.permute(0,3,1,2).detach().cpu().numpy()
+&gt;           np.testing.assert_allclose(got,expected,atol=2e-5,rtol=2e-5)
+E           AssertionError: 
+E           Not equal to tolerance rtol=2e-05, atol=2e-05
+E           
+E           Mismatched elements: 32 / 54 (59.3%)
+E           Max absolute difference among violations: 0.16893472
+E           Max relative difference among violations: 1.19035146
+E            ACTUAL: array([[[[ 0.992003,  0.039072,  0.120013],
+E                    [ 0.012974,  0.914273, -0.40489 ],
+E                    [-0.125545,  0.40321 ,  0.906455]],...
+E            DESIRED: array([[[[ 0.966922,  0.057744,  0.24845 ],
+E                    [ 0.031647,  0.939354, -0.341485],
+E                    [-0.253102,  0.338052,  0.906455]],...
+
+tests/mrtini_pytest/test_bloch.py:142: AssertionError</failure></testcase><testcase classname="mrtini_pytest.test_bloch" name="test_shaped_slice_solver_against_independent_adaptive_bloch_ode[0.00037-spinor]" time="0.174"><failure message="AssertionError: &#10;Not equal to tolerance rtol=2e-05, atol=2e-05&#10;&#10;Mismatched elements: 32 / 54 (59.3%)&#10;Max absolute difference among violations: 0.16893472&#10;Max relative difference among violations: 1.19035146&#10; ACTUAL: array([[[[ 0.992003,  0.039072,  0.120013],&#10;         [ 0.012974,  0.914273, -0.40489 ],&#10;         [-0.125545,  0.40321 ,  0.906455]],...&#10; DESIRED: array([[[[ 0.966922,  0.057744,  0.24845 ],&#10;         [ 0.031647,  0.939354, -0.341485],&#10;         [-0.253102,  0.338052,  0.906455]],...">bloch = &lt;module 'src.mrtini.bloch' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/bloch.py'&gt;
+backend = 'spinor', center = 0.00037
+
+    @pytest.mark.parametrize('backend',['so3','spinor'])
+    @pytest.mark.parametrize('center',[.00037,.0006])
+    def test_shaped_slice_solver_against_independent_adaptive_bloch_ode(bloch,backend,center):
+        t=np.linspace(0,.0012,7)
+        rf=np.array([0.,1.,2.,1.4,.6,.2,0.])*2e-6*np.exp(1j*np.array([0.,.1,.5,.8,.4,-.2,0.]))
+        gz=np.array([.003,.006,.004,-.002,.001,0.,.009])
+        z=np.array([-.0013,0.,.0011]);b0=np.array([0.,1.1e-7]);b1=np.array([.85,1.15]);species=[0.,-412.]
+        args=dict(rf_complex=rf,rf_freq=np.zeros_like(t),gz=gz,t_grid=t,z_m=z,
+                  b0_T=b0,b1_scale=b1,chem_shift_Hz=species,device='cpu',dtype_policy=torch.float64,
+                  backend=backend,rf_center_time=center)
+        out=bloch.solve_slice(**args)
+        for si,chemical in enumerate(species):
+            expected=np.empty((len(b0),len(z),3,3))
+            for bi in range(len(b0)):
+                for zi,position in enumerate(z):
+                    expected[bi,zi]=solve_zoh_ivp(t=t,rf=rf,gz=gz,z=position,
+                        b0=b0[bi],b1=b1[bi],chemical_hz=chemical)
+            expected=demod_reference(expected,z,t,gz,2*np.pi*42.577478e6,center)
+            got=out.Rz_solve[si].Rz_B33Nz.permute(0,3,1,2).detach().cpu().numpy()
+&gt;           np.testing.assert_allclose(got,expected,atol=2e-5,rtol=2e-5)
+E           AssertionError: 
+E           Not equal to tolerance rtol=2e-05, atol=2e-05
+E           
+E           Mismatched elements: 32 / 54 (59.3%)
+E           Max absolute difference among violations: 0.16893472
+E           Max relative difference among violations: 1.19035146
+E            ACTUAL: array([[[[ 0.992003,  0.039072,  0.120013],
+E                    [ 0.012974,  0.914273, -0.40489 ],
+E                    [-0.125545,  0.40321 ,  0.906455]],...
+E            DESIRED: array([[[[ 0.966922,  0.057744,  0.24845 ],
+E                    [ 0.031647,  0.939354, -0.341485],
+E                    [-0.253102,  0.338052,  0.906455]],...
+
+tests/mrtini_pytest/test_bloch.py:142: AssertionError</failure></testcase><testcase classname="mrtini_pytest.test_bloch" name="test_shaped_slice_solver_against_independent_adaptive_bloch_ode[0.0006-so3]" time="0.547" /><testcase classname="mrtini_pytest.test_bloch" name="test_shaped_slice_solver_against_independent_adaptive_bloch_ode[0.0006-spinor]" time="2.248" /><testcase classname="mrtini_pytest.test_executor" name="test_signal_decay_slice_sinc_and_relaxation[False-0]" time="0.759" /><testcase classname="mrtini_pytest.test_executor" name="test_signal_decay_slice_sinc_and_relaxation[False-1]" time="0.535" /><testcase classname="mrtini_pytest.test_executor" name="test_signal_decay_slice_sinc_and_relaxation[False-3]" time="0.534" /><testcase classname="mrtini_pytest.test_executor" name="test_signal_decay_slice_sinc_and_relaxation[False-6]" time="0.684" /><testcase classname="mrtini_pytest.test_executor" name="test_signal_decay_slice_sinc_and_relaxation[False--1]" time="0.024" /><testcase classname="mrtini_pytest.test_executor" name="test_signal_decay_slice_sinc_and_relaxation[True-0]" time="0.187" /><testcase classname="mrtini_pytest.test_executor" name="test_signal_decay_slice_sinc_and_relaxation[True-1]" time="0.016" /><testcase classname="mrtini_pytest.test_executor" name="test_signal_decay_slice_sinc_and_relaxation[True-3]" time="0.008" /><testcase classname="mrtini_pytest.test_executor" name="test_signal_decay_slice_sinc_and_relaxation[True-6]" time="0.019" /><testcase classname="mrtini_pytest.test_executor" name="test_signal_decay_slice_sinc_and_relaxation[True--1]" time="0.017" /><testcase classname="mrtini_pytest.test_executor" name="test_return_modes_and_signal_threshold[None-None]" time="0.197" /><testcase classname="mrtini_pytest.test_executor" name="test_return_modes_and_signal_threshold[True-None]" time="0.205" /><testcase classname="mrtini_pytest.test_executor" name="test_return_modes_and_signal_threshold[None-True]" time="0.015" /><testcase classname="mrtini_pytest.test_executor" name="test_return_modes_and_signal_threshold[True-True]" time="0.004" /><testcase classname="mrtini_pytest.test_executor" name="test_state_transfer_conjugation_and_relaxation[zz]" time="0.155" /><testcase classname="mrtini_pytest.test_executor" name="test_state_transfer_conjugation_and_relaxation[+z]" time="0.010" /><testcase classname="mrtini_pytest.test_executor" name="test_state_transfer_conjugation_and_relaxation[-z]" time="0.006" /><testcase classname="mrtini_pytest.test_executor" name="test_state_transfer_conjugation_and_relaxation[++]" time="0.006" /><testcase classname="mrtini_pytest.test_executor" name="test_state_transfer_conjugation_and_relaxation[-+]" time="0.014" /><testcase classname="mrtini_pytest.test_executor" name="test_voxel_motion_zero_displacement_and_adc_phase" time="0.158" /><testcase classname="mrtini_pytest.test_executor" name="test_rigid_motion_translation" time="0.002" /><testcase classname="mrtini_pytest.test_importer_contract" name="test_importer_converts_native_parser_contract[False-False]" time="0.008" /><testcase classname="mrtini_pytest.test_importer_contract" name="test_importer_converts_native_parser_contract[False-True]" time="0.011" /><testcase classname="mrtini_pytest.test_importer_contract" name="test_importer_converts_native_parser_contract[True-False]" time="0.010" /><testcase classname="mrtini_pytest.test_importer_contract" name="test_importer_converts_native_parser_contract[True-True]" time="0.015" /><testcase classname="mrtini_pytest.test_known_defects" name="test_repetition_clone_preserves_effective_z" time="0.011"><failure message="AssertionError: Tensor-likes are not close!&#10;&#10;Mismatched elements: 3 / 3 (100.0%)&#10;Greatest absolute difference: 8.0 at index (1,) (up to 1e-05 allowed)&#10;Greatest relative difference: 1.0 at index (0,) (up to 1.3e-06 allowed)">repetition = &lt;src.sequence.sequence.Repetition object at 0x7f92f524dbb0&gt;
+
+    @pytest.mark.regression
+    def test_repetition_clone_preserves_effective_z(repetition):
+        repetition.gradm_z_eff=torch.tensor([7.,8.,9.])
+&gt;       torch.testing.assert_close(repetition.clone().gradm_z_eff,repetition.gradm_z_eff)
+E       AssertionError: Tensor-likes are not close!
+E       
+E       Mismatched elements: 3 / 3 (100.0%)
+E       Greatest absolute difference: 8.0 at index (1,) (up to 1e-05 allowed)
+E       Greatest relative difference: 1.0 at index (0,) (up to 1.3e-06 allowed)
+
+tests/mrtini_pytest/test_known_defects.py:15: AssertionError</failure></testcase><testcase classname="mrtini_pytest.test_known_defects" name="test_repetition_cpu_preserves_waveform" time="0.007"><failure message="assert False&#10; +  where False = isinstance(tensor([0., 0., 0.]), dict)&#10; +    where tensor([0., 0., 0.]) = &lt;src.sequence.sequence.Repetition object at 0x7f92f524d670&gt;.raw_waveform&#10; +      where &lt;src.sequence.sequence.Repetition object at 0x7f92f524d670&gt; = cpu()&#10; +        where cpu = &lt;src.sequence.sequence.Repetition object at 0x7f92f524c320&gt;.cpu">repetition = &lt;src.sequence.sequence.Repetition object at 0x7f92f524c320&gt;
+
+    @pytest.mark.regression
+    def test_repetition_cpu_preserves_waveform(repetition):
+        repetition.raw_waveform={'sentinel':'waveform'}
+&gt;       assert isinstance(repetition.cpu().raw_waveform,dict)
+E       assert False
+E        +  where False = isinstance(tensor([0., 0., 0.]), dict)
+E        +    where tensor([0., 0., 0.]) = &lt;src.sequence.sequence.Repetition object at 0x7f92f524d670&gt;.raw_waveform
+E        +      where &lt;src.sequence.sequence.Repetition object at 0x7f92f524d670&gt; = cpu()
+E        +        where cpu = &lt;src.sequence.sequence.Repetition object at 0x7f92f524c320&gt;.cpu
+
+tests/mrtini_pytest/test_known_defects.py:20: AssertionError</failure></testcase><testcase classname="mrtini_pytest.test_known_defects" name="test_sequence_clone_preserves_hybrid_metadata" time="0.003"><failure message="AssertionError: assert [] == [{'kind': 'epg'}]&#10;  &#10;  Right contains one more item: {'kind': 'epg'}&#10;  Use -v to get more diff">seqmod = &lt;module 'src.sequence.sequence' from '/workspace/scratch/227ca08f2174/audit_runtime/src/sequence/sequence.py'&gt;
+repetition = &lt;src.sequence.sequence.Repetition object at 0x7f92f524f3e0&gt;
+
+    @pytest.mark.regression
+    def test_sequence_clone_preserves_hybrid_metadata(seqmod,repetition):
+        s=seqmod.Sequence([repetition],mrtini_hybrid=[{'kind':'epg'}],mrtini_rep_bounds=[(0.,1.)],mrtini_spans_by_rep=[[0]])
+        c=s.clone()
+&gt;       assert c.mrtini_hybrid==s.mrtini_hybrid
+E       AssertionError: assert [] == [{'kind': 'epg'}]
+E         
+E         Right contains one more item: {'kind': 'epg'}
+E         Use -v to get more diff
+
+tests/mrtini_pytest/test_known_defects.py:27: AssertionError</failure></testcase><testcase classname="mrtini_pytest.test_known_defects" name="test_sequence_default_metadata_is_independent" time="0.002"><failure message="assert [] is not []&#10; +  where [] = [].mrtini_hybrid&#10; +  and   [] = [].mrtini_hybrid">seqmod = &lt;module 'src.sequence.sequence' from '/workspace/scratch/227ca08f2174/audit_runtime/src/sequence/sequence.py'&gt;
+
+    @pytest.mark.regression
+    def test_sequence_default_metadata_is_independent(seqmod):
+        a,b=seqmod.Sequence(),seqmod.Sequence()
+&gt;       assert a.mrtini_hybrid is not b.mrtini_hybrid
+E       assert [] is not []
+E        +  where [] = [].mrtini_hybrid
+E        +  and   [] = [].mrtini_hybrid
+
+tests/mrtini_pytest/test_known_defects.py:33: AssertionError</failure></testcase><testcase classname="mrtini_pytest.test_known_defects" name="test_collapse_keeps_schema" time="0.007"><failure message="AssertionError: assert {'adc_mask', ...dm', 'timing'} == {'adc_mask', ...radm', 'time'}&#10;  &#10;  Extra items in the left set:&#10;  'timing'&#10;  Extra items in the right set:&#10;  'time'&#10;  Use -v to get more diff">seqmod = &lt;module 'src.sequence.sequence' from '/workspace/scratch/227ca08f2174/audit_runtime/src/sequence/sequence.py'&gt;
+
+    @pytest.mark.regression
+    def test_collapse_keeps_schema(seqmod):
+        s=dict(time=torch.ones(3),gradm=torch.ones(3,3),adc_mask=torch.tensor([False,True,False]),adc_phase=torch.zeros(3))
+&gt;       assert set(seqmod.Sequence.soa_collapse_keep_adcs(s))==set(s)
+E       AssertionError: assert {'adc_mask', ...dm', 'timing'} == {'adc_mask', ...radm', 'time'}
+E         
+E         Extra items in the left set:
+E         'timing'
+E         Extra items in the right set:
+E         'time'
+E         Use -v to get more diff
+
+tests/mrtini_pytest/test_known_defects.py:40: AssertionError</failure></testcase><testcase classname="mrtini_pytest.test_known_defects" name="test_collapse_preserves_adc_count" time="0.008"><failure message="assert tensor(3) == 2&#10; +  where tensor(3) = &lt;built-in method sum of Tensor object at 0x7f92f50a1b30&gt;()&#10; +    where &lt;built-in method sum of Tensor object at 0x7f92f50a1b30&gt; = tensor([True, True, True]).sum">seqmod = &lt;module 'src.sequence.sequence' from '/workspace/scratch/227ca08f2174/audit_runtime/src/sequence/sequence.py'&gt;
+
+    @pytest.mark.regression
+    def test_collapse_preserves_adc_count(seqmod):
+        s=dict(time=torch.ones(3),gradm=torch.ones(3,3),adc_mask=torch.tensor([True,False,True]),adc_phase=torch.zeros(3))
+&gt;       assert seqmod.Sequence.soa_collapse_keep_adcs(s)['adc_mask'].sum()==2
+E       assert tensor(3) == 2
+E        +  where tensor(3) = &lt;built-in method sum of Tensor object at 0x7f92f50a1b30&gt;()
+E        +    where &lt;built-in method sum of Tensor object at 0x7f92f50a1b30&gt; = tensor([True, True, True]).sum
+
+tests/mrtini_pytest/test_known_defects.py:45: AssertionError</failure></testcase><testcase classname="mrtini_pytest.test_known_defects" name="test_fm_waveforms_have_distinct_cache_keys" time="0.077"><failure message="AssertionError: assert 'dt=2.500000000e-04|rfR=4dbe1cd166e7f53e8dccb2d05ab1ed81f9ed80c9|rfI=b80de5d138758541c5f05265ad144ab9fa86d1db|gz=b80de5d138758541c5f05265ad144ab9fa86d1db|f=0.000000e+00' != 'dt=2.500000000e-04|rfR=4dbe1cd166e7f53e8dccb2d05ab1ed81f9ed80c9|rfI=b80de5d138758541c5f05265ad144ab9fa86d1db|gz=b80de5d138758541c5f05265ad144ab9fa86d1db|f=0.000000e+00'">main = &lt;module 'src.mrtini.mrtini_main' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/mrtini_main.py'&gt;
+
+    @pytest.mark.regression
+    def test_fm_waveforms_have_distinct_cache_keys(main):
+        s=dict(kind='bloch',t=np.linspace(0,.001,5),rf_amp=np.ones(5)*100,rf_phase=np.zeros(5),gz=np.zeros(5),rf_freq=0.)
+&gt;       assert main._bloch_kernel_signature(dict(s,rf_fm=0.))[0]!=main._bloch_kernel_signature(dict(s,rf_fm=100.))[0]
+E       AssertionError: assert 'dt=2.500000000e-04|rfR=4dbe1cd166e7f53e8dccb2d05ab1ed81f9ed80c9|rfI=b80de5d138758541c5f05265ad144ab9fa86d1db|gz=b80de5d138758541c5f05265ad144ab9fa86d1db|f=0.000000e+00' != 'dt=2.500000000e-04|rfR=4dbe1cd166e7f53e8dccb2d05ab1ed81f9ed80c9|rfI=b80de5d138758541c5f05265ad144ab9fa86d1db|gz=b80de5d138758541c5f05265ad144ab9fa86d1db|f=0.000000e+00'
+
+tests/mrtini_pytest/test_known_defects.py:51: AssertionError</failure></testcase><testcase classname="mrtini_pytest.test_known_defects" name="test_frequency_array_is_supported" time="0.006"><failure message="ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()">main = &lt;module 'src.mrtini.mrtini_main' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/mrtini_main.py'&gt;
+
+    @pytest.mark.regression
+    def test_frequency_array_is_supported(main):
+        s=dict(kind='bloch',t=np.linspace(0,.001,5),rf_amp=np.ones(5),rf_phase=np.zeros(5),gz=np.zeros(5),rf_freq=np.arange(5.))
+&gt;       assert np.isfinite(main._bloch_kernel_signature(s)[1]).all()
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/mrtini_pytest/test_known_defects.py:56: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+span = {'kind': 'bloch', 't': array([0.     , 0.00025, 0.0005 , 0.00075, 0.001  ]), 'rf_amp': array([1., 1., 1., 1., 1.]), 'rf_phase': array([0., 0., 0., 0., 0.]), ...}
+
+    def _bloch_kernel_signature(
+        span: dict,
+    ) -&gt; tuple[str, np.ndarray,np.ndarray, np.ndarray, np.ndarray, dict]:
+        """
+        span MUST be a 'bloch' item from seq.mrtini_hybrid with:
+          - 't' (list/np.ndarray, seconds)
+          - 'rf_amp' (same len)
+          - 'rf_phase' (same len; often constant)
+          - 'gz' (same len, Tesla/m)
+          - optional 'rf_freq' (Hz) — include if your slicer uses it (default 0)
+        Returns: (key, rf_for_solve (complex), gz, t, meta{phi0, const_phase, rf_freq})
+        """
+        assert span["kind"] == "bloch"
+        t = np.asarray(span["t"], dtype=np.float64)
+        amp = np.asarray(span["rf_amp"], dtype=np.float64) / GAMMA_HZ
+        phi = np.asarray(span["rf_phase"], dtype=np.float64)
+        gz = np.asarray(span["gz"], dtype=np.float64) / GAMMA_HZ
+&gt;       rf_freq = np.asarray(span.get("rf_freq", 0.0) or 0.0)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+
+src/mrtini/mrtini_main.py:163: ValueError</failure></testcase><testcase classname="mrtini_pytest.test_main" name="test_constant_phase_wraps_and_ignores_zero_amplitude[phase0-amp0-True]" time="0.010" /><testcase classname="mrtini_pytest.test_main" name="test_constant_phase_wraps_and_ignores_zero_amplitude[phase1-amp1-False]" time="0.002" /><testcase classname="mrtini_pytest.test_main" name="test_constant_phase_wraps_and_ignores_zero_amplitude[phase2-amp2-True]" time="0.006" /><testcase classname="mrtini_pytest.test_main" name="test_constant_phase_wraps_and_ignores_zero_amplitude[phase3-amp3-True]" time="0.202" /><testcase classname="mrtini_pytest.test_main" name="test_constant_phase_wraps_and_ignores_zero_amplitude[phase4-amp4-True]" time="0.078" /><testcase classname="mrtini_pytest.test_main" name="test_hash_frequency_tag_and_phase_factoring" time="0.047" /><testcase classname="mrtini_pytest.test_main" name="test_complex_rf_frequency_phase_and_units[None]" time="0.017" /><testcase classname="mrtini_pytest.test_main" name="test_complex_rf_frequency_phase_and_units[fm1]" time="0.141" /><testcase classname="mrtini_pytest.test_main" name="test_complex_rf_frequency_phase_and_units[20.0]" time="0.102" /><testcase classname="mrtini_pytest.test_main" name="test_signature_modulation_and_single_sample" time="0.003" /><testcase classname="mrtini_pytest.test_main" name="test_zgrid_is_odd_uniform_centered_and_periodic" time="0.004" /><testcase classname="mrtini_pytest.test_main" name="test_cartesian_pair_order_and_kgrid" time="0.004" /><testcase classname="mrtini_pytest.test_main" name="test_logger_idempotence_and_stage_exception" time="0.009" /><testcase classname="mrtini_pytest.test_main" name="test_simulator_requires_sequence" time="0.003" /><testcase classname="mrtini_pytest.test_main" name="test_build_artifacts_real_bank_pipeline" time="0.032" /><testcase classname="mrtini_pytest.test_main" name="test_bake_real_bloch_to_bank_and_cache_reuse[False]" time="0.332" /><testcase classname="mrtini_pytest.test_main" name="test_bake_real_bloch_to_bank_and_cache_reuse[True]" time="0.197" /><testcase classname="mrtini_pytest.test_native_boundary" name="test_bank_bridge_argument_order_dtype_and_values[True]" time="0.010" /><testcase classname="mrtini_pytest.test_native_boundary" name="test_bank_bridge_argument_order_dtype_and_values[False]" time="0.009" /><testcase classname="mrtini_pytest.test_native_boundary" name="test_multi_bridge" time="0.007" /><testcase classname="mrtini_pytest.test_reference_math" name="test_reference_fourier_roundtrip_and_parseval[7]" time="0.003" /><testcase classname="mrtini_pytest.test_reference_math" name="test_reference_fourier_roundtrip_and_parseval[8]" time="0.007" /><testcase classname="mrtini_pytest.test_reference_math" name="test_reference_fourier_roundtrip_and_parseval[9]" time="0.004" /><testcase classname="mrtini_pytest.test_reference_math" name="test_reference_fourier_roundtrip_and_parseval[16]" time="0.007" /><testcase classname="mrtini_pytest.test_reference_math" name="test_reference_ivp_against_closed_form[0]" time="0.009" /><testcase classname="mrtini_pytest.test_reference_math" name="test_reference_ivp_against_closed_form[1]" time="0.011" /><testcase classname="mrtini_pytest.test_reference_math" name="test_reference_ivp_against_closed_form[2]" time="0.274" /><testcase classname="mrtini_pytest.test_reference_math" name="test_reference_detects_wrong_matrix_and_complex_normalization" time="0.012" /><testcase classname="mrtini_pytest.test_reference_math" name="test_reference_noncommuting_demodulation_and_wrong_side_detection" time="0.003" /><testcase classname="mrtini_pytest.test_reference_math" name="test_reference_detects_fourier_sign_and_odd_shift_errors" time="0.001" /><testcase classname="mrtini_pytest.test_reference_math" name="test_no_production_diagnostic_or_golden_checker_calls" time="0.434" /><testcase classname="mrtini_pytest.test_reference_math" name="test_reference_module_never_imports_production_code" time="0.069" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_weighted_median[x0-w0-1]" time="0.007" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_weighted_median[x1-w1-2]" time="0.003" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_weighted_median[x2-w2-1]" time="0.005" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_weighted_median[x3-w3-1]" time="0.047" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_b1_reference[wmean-2.5]" time="0.005" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_b1_reference[wmedian-3.0]" time="0.002" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_b1_reference_fallback[values0-1.0]" time="0.002" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_b1_reference_fallback[values1-2.0]" time="0.003" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_map_clamp_finiteness_and_pd_mass" time="0.013" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_quaternion_rch6_against_independent_basis_transform[angles0]" time="0.008" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_quaternion_rch6_against_independent_basis_transform[angles1]" time="0.010" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_quaternion_rch6_against_independent_basis_transform[angles2]" time="0.011" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_quaternion_rch6_against_independent_basis_transform[angles3]" time="0.006" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_quaternion_rch6_against_independent_basis_transform[angles4]" time="0.006" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_slerp_shortest_arc_and_midpoint[1.0]" time="0.090" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_slerp_shortest_arc_and_midpoint[-1.0]" time="0.010" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_coeff_selection_phase_group_and_energy" time="0.041" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_fourier_projector_against_independent_complex_dft[K-False-8]" time="0.005" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_fourier_projector_against_independent_complex_dft[K-False-9]" time="0.006" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_fourier_projector_against_independent_complex_dft[K-True-8]" time="0.005" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_fourier_projector_against_independent_complex_dft[K-True-9]" time="0.028"><failure message="AssertionError: &#10;Not equal to tolerance rtol=3e-06, atol=3e-06&#10;&#10;Mismatched elements: 72 / 81 (88.9%)&#10;Max absolute difference among violations: 0.21884618&#10;Max relative difference among violations: 1.96961562&#10; ACTUAL: array([[ 0.056894-0.09544j , -0.079386+0.07774j ,  0.096611-0.054882j,&#10;        -0.107425+0.028383j,  0.111111+0.j      , -0.107425-0.028383j,&#10;         0.096611+0.054882j, -0.079386-0.07774j ,  0.056894+0.09544j ],...&#10; DESIRED: array([[-0.02082 +0.109143j, -0.027632-0.10762j ,  0.070825+0.085613j,&#10;        -0.100536-0.047309j,  0.111111+0.j      , -0.100536+0.047309j,&#10;         0.070825-0.085613j, -0.027632+0.10762j , -0.02082 -0.109143j],...">rf = &lt;module 'src.mrtini.RF_banks' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/RF_banks.py'&gt;
+n = 9, bake = True, norm = 'K'
+
+    @pytest.mark.parametrize('n',[8,9])
+    @pytest.mark.parametrize('bake',[False,True])
+    @pytest.mark.parametrize('norm',['K','Lz','dz'])
+    def test_fourier_projector_against_independent_complex_dft(rf,n,bake,norm):
+        # Nonzero coordinate origin and asymmetric complex data expose phase errors.
+        z=(np.arange(n)-n//2)*.001+.00013
+        k=fourier_k(z)
+        x=(np.arange(n)+1j*np.arange(n)[::-1])/n
+        P=rf.make_projector_z_to_k(torch.tensor(z,dtype=rf.DTYPE),
+            torch.tensor(k,dtype=rf.DTYPE),norm=norm,bake_ifftshift=bake)
+        expected_matrix=dft_matrix(z,k,norm)
+&gt;       np.testing.assert_allclose(P.detach().cpu(),expected_matrix,atol=3e-6,rtol=3e-6)
+E       AssertionError: 
+E       Not equal to tolerance rtol=3e-06, atol=3e-06
+E       
+E       Mismatched elements: 72 / 81 (88.9%)
+E       Max absolute difference among violations: 0.21884618
+E       Max relative difference among violations: 1.96961562
+E        ACTUAL: array([[ 0.056894-0.09544j , -0.079386+0.07774j ,  0.096611-0.054882j,
+E               -0.107425+0.028383j,  0.111111+0.j      , -0.107425-0.028383j,
+E                0.096611+0.054882j, -0.079386-0.07774j ,  0.056894+0.09544j ],...
+E        DESIRED: array([[-0.02082 +0.109143j, -0.027632-0.10762j ,  0.070825+0.085613j,
+E               -0.100536-0.047309j,  0.111111+0.j      , -0.100536+0.047309j,
+E                0.070825-0.085613j, -0.027632+0.10762j , -0.02082 -0.109143j],...
+
+tests/mrtini_pytest/test_rf_banks.py:86: AssertionError</failure></testcase><testcase classname="mrtini_pytest.test_rf_banks" name="test_fourier_projector_against_independent_complex_dft[Lz-False-8]" time="0.005" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_fourier_projector_against_independent_complex_dft[Lz-False-9]" time="0.007" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_fourier_projector_against_independent_complex_dft[Lz-True-8]" time="0.003" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_fourier_projector_against_independent_complex_dft[Lz-True-9]" time="0.016"><failure message="AssertionError: &#10;Not equal to tolerance rtol=3e-06, atol=3e-06&#10;&#10;Mismatched elements: 72 / 81 (88.9%)&#10;Max absolute difference among violations: 0.21884618&#10;Max relative difference among violations: 1.96961562&#10; ACTUAL: array([[ 0.056894-0.09544j , -0.079386+0.07774j ,  0.096611-0.054882j,&#10;        -0.107425+0.028383j,  0.111111+0.j      , -0.107425-0.028383j,&#10;         0.096611+0.054882j, -0.079386-0.07774j ,  0.056894+0.09544j ],...&#10; DESIRED: array([[-0.02082 +0.109143j, -0.027632-0.10762j ,  0.070825+0.085613j,&#10;        -0.100536-0.047309j,  0.111111+0.j      , -0.100536+0.047309j,&#10;         0.070825-0.085613j, -0.027632+0.10762j , -0.02082 -0.109143j],...">rf = &lt;module 'src.mrtini.RF_banks' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/RF_banks.py'&gt;
+n = 9, bake = True, norm = 'Lz'
+
+    @pytest.mark.parametrize('n',[8,9])
+    @pytest.mark.parametrize('bake',[False,True])
+    @pytest.mark.parametrize('norm',['K','Lz','dz'])
+    def test_fourier_projector_against_independent_complex_dft(rf,n,bake,norm):
+        # Nonzero coordinate origin and asymmetric complex data expose phase errors.
+        z=(np.arange(n)-n//2)*.001+.00013
+        k=fourier_k(z)
+        x=(np.arange(n)+1j*np.arange(n)[::-1])/n
+        P=rf.make_projector_z_to_k(torch.tensor(z,dtype=rf.DTYPE),
+            torch.tensor(k,dtype=rf.DTYPE),norm=norm,bake_ifftshift=bake)
+        expected_matrix=dft_matrix(z,k,norm)
+&gt;       np.testing.assert_allclose(P.detach().cpu(),expected_matrix,atol=3e-6,rtol=3e-6)
+E       AssertionError: 
+E       Not equal to tolerance rtol=3e-06, atol=3e-06
+E       
+E       Mismatched elements: 72 / 81 (88.9%)
+E       Max absolute difference among violations: 0.21884618
+E       Max relative difference among violations: 1.96961562
+E        ACTUAL: array([[ 0.056894-0.09544j , -0.079386+0.07774j ,  0.096611-0.054882j,
+E               -0.107425+0.028383j,  0.111111+0.j      , -0.107425-0.028383j,
+E                0.096611+0.054882j, -0.079386-0.07774j ,  0.056894+0.09544j ],...
+E        DESIRED: array([[-0.02082 +0.109143j, -0.027632-0.10762j ,  0.070825+0.085613j,
+E               -0.100536-0.047309j,  0.111111+0.j      , -0.100536+0.047309j,
+E                0.070825-0.085613j, -0.027632+0.10762j , -0.02082 -0.109143j],...
+
+tests/mrtini_pytest/test_rf_banks.py:86: AssertionError</failure></testcase><testcase classname="mrtini_pytest.test_rf_banks" name="test_fourier_projector_against_independent_complex_dft[dz-False-8]" time="0.007" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_fourier_projector_against_independent_complex_dft[dz-False-9]" time="0.011" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_fourier_projector_against_independent_complex_dft[dz-True-8]" time="0.005" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_fourier_projector_against_independent_complex_dft[dz-True-9]" time="0.006"><failure message="AssertionError: &#10;Not equal to tolerance rtol=3e-06, atol=3e-06&#10;&#10;Mismatched elements: 72 / 81 (88.9%)&#10;Max absolute difference among violations: 0.00196962&#10;Max relative difference among violations: 1.96961551&#10; ACTUAL: array([[ 5.120434e-04-8.589595e-04j, -7.144727e-04+6.996633e-04j,&#10;         8.694950e-04-4.939415e-04j, -9.668234e-04+2.554456e-04j,&#10;         9.999999e-04+0.000000e+00j, -9.668234e-04-2.554456e-04j,...&#10; DESIRED: array([[-1.873813e-04+9.822873e-04j, -2.486899e-04-9.685832e-04j,&#10;         6.374240e-04+7.705132e-04j, -9.048271e-04-4.257793e-04j,&#10;         1.000000e-03+0.000000e+00j, -9.048271e-04+4.257793e-04j,...">rf = &lt;module 'src.mrtini.RF_banks' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/RF_banks.py'&gt;
+n = 9, bake = True, norm = 'dz'
+
+    @pytest.mark.parametrize('n',[8,9])
+    @pytest.mark.parametrize('bake',[False,True])
+    @pytest.mark.parametrize('norm',['K','Lz','dz'])
+    def test_fourier_projector_against_independent_complex_dft(rf,n,bake,norm):
+        # Nonzero coordinate origin and asymmetric complex data expose phase errors.
+        z=(np.arange(n)-n//2)*.001+.00013
+        k=fourier_k(z)
+        x=(np.arange(n)+1j*np.arange(n)[::-1])/n
+        P=rf.make_projector_z_to_k(torch.tensor(z,dtype=rf.DTYPE),
+            torch.tensor(k,dtype=rf.DTYPE),norm=norm,bake_ifftshift=bake)
+        expected_matrix=dft_matrix(z,k,norm)
+&gt;       np.testing.assert_allclose(P.detach().cpu(),expected_matrix,atol=3e-6,rtol=3e-6)
+E       AssertionError: 
+E       Not equal to tolerance rtol=3e-06, atol=3e-06
+E       
+E       Mismatched elements: 72 / 81 (88.9%)
+E       Max absolute difference among violations: 0.00196962
+E       Max relative difference among violations: 1.96961551
+E        ACTUAL: array([[ 5.120434e-04-8.589595e-04j, -7.144727e-04+6.996633e-04j,
+E                8.694950e-04-4.939415e-04j, -9.668234e-04+2.554456e-04j,
+E                9.999999e-04+0.000000e+00j, -9.668234e-04-2.554456e-04j,...
+E        DESIRED: array([[-1.873813e-04+9.822873e-04j, -2.486899e-04-9.685832e-04j,
+E                6.374240e-04+7.705132e-04j, -9.048271e-04-4.257793e-04j,
+E                1.000000e-03+0.000000e+00j, -9.048271e-04+4.257793e-04j,...
+
+tests/mrtini_pytest/test_rf_banks.py:86: AssertionError</failure></testcase><testcase classname="mrtini_pytest.test_rf_banks" name="test_projector_rejects_unknown_normalization" time="0.002" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_energy_support_bounds_discarded_energy[0.0]" time="0.004" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_energy_support_bounds_discarded_energy[0.05]" time="0.003" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_energy_support_bounds_discarded_energy[0.3]" time="0.002" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_bank_layouts_and_validation[b0_major_b1_minor-BNz33]" time="0.013" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_bank_layouts_and_validation[b0_major_b1_minor-B33Nz]" time="0.077" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_bank_layouts_and_validation[b1_major_b0_minor-BNz33]" time="0.007" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_bank_layouts_and_validation[b1_major_b0_minor-B33Nz]" time="0.005" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_voxel_bank_exact_corners_against_independent_channel_dft[1]" time="0.012" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_voxel_bank_exact_corners_against_independent_channel_dft[2]" time="0.024" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_voxel_bank_exact_corners_against_independent_channel_dft[4096]" time="0.009" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_interpolated_midpoint_against_independent_rotation_and_dft" time="0.132" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_kgrid_has_complete_nonduplicated_fourier_orders[8]" time="0.087"><failure message="AssertionError: Full DFT grid must contain exactly N unique Fourier modes&#10;assert 9 == 8&#10; +  where 9 = len(array([-499.9999 , -374.99994, -249.99995, -124.99998,    0.     ,\n        124.99998,  249.99995,  374.99994,  499.9999 ], dtype=float32))">rf = &lt;module 'src.mrtini.RF_banks' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/RF_banks.py'&gt;
+n = 8
+
+    @pytest.mark.parametrize('n',[8,9])
+    def test_kgrid_has_complete_nonduplicated_fourier_orders(rf,n):
+        z=(np.arange(n)-n//2)*.001
+        grid=rf.build_kgrid_projection(z_m=torch.tensor(z,dtype=rf.DTYPE),device='cpu')
+        # This is a full-grid API contract. An intentionally oversampled tap grid
+        # needs a separately specified contract rather than this FFT-grid test.
+        k=grid.kz.detach().cpu().numpy();orders=grid.deltas.detach().cpu().numpy()
+&gt;       assert len(k)==n, 'Full DFT grid must contain exactly N unique Fourier modes'
+E       AssertionError: Full DFT grid must contain exactly N unique Fourier modes
+E       assert 9 == 8
+E        +  where 9 = len(array([-499.9999 , -374.99994, -249.99995, -124.99998,    0.     ,\n        124.99998,  249.99995,  374.99994,  499.9999 ], dtype=float32))
+
+tests/mrtini_pytest/test_rf_banks.py:174: AssertionError</failure></testcase><testcase classname="mrtini_pytest.test_rf_banks" name="test_kgrid_has_complete_nonduplicated_fourier_orders[9]" time="0.083" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_spatially_varying_rf_taps_and_cross_order_convolution[8]" time="2.362" /><testcase classname="mrtini_pytest.test_rf_banks" name="test_spatially_varying_rf_taps_and_cross_order_convolution[9]" time="0.118"><failure message="AssertionError: &#10;Not equal to tolerance rtol=4e-06, atol=4e-06&#10;&#10;Mismatched elements: 8 / 9 (88.9%)&#10;Max absolute difference among violations: 0.07868626&#10;Max relative difference among violations: 1.96962523&#10; ACTUAL: array([ 3.754099e-02+1.366366e-02j, -5.236268e-05-9.044808e-05j,&#10;        7.338822e-07-3.740191e-06j, -2.276871e-03+1.910441e-03j,&#10;        8.764691e-01+0.000000e+00j, -2.276871e-03-1.910441e-03j,...&#10; DESIRED: array([-3.994986e-02+1.387779e-17j,  1.044422e-04+0.000000e+00j,&#10;        3.796344e-06-2.081668e-17j, -2.972134e-03+2.775558e-17j,&#10;        8.764691e-01+0.000000e+00j, -2.972134e-03-2.775558e-17j,...">rf = &lt;module 'src.mrtini.RF_banks' from '/workspace/scratch/227ca08f2174/audit_runtime/src/mrtini/RF_banks.py'&gt;
+n = 9
+
+    @pytest.mark.parametrize('n',[8,9])
+    def test_spatially_varying_rf_taps_and_cross_order_convolution(rf,n):
+        z=(np.arange(n)-n//2)*.001;k=fourier_k(z);orders=fourier_orders(n)
+        # Rotate around x with a spatially varying angle: nonzero cross-order taps.
+        angle=.7+.25*np.cos(2*np.pi*k[-1]*z)
+        R=Rotation.from_rotvec(np.column_stack([angle,np.zeros((n,2))])).as_matrix()
+        ax=rf.make_axes([-10.,10.],[.8,1.2],device='cpu')
+        flat=np.broadcast_to(R,(4,n,3,3)).copy()
+        bank=rf.RFKernel6BankSO3.from_Rxyz_flat(torch.tensor(flat,dtype=rf.DTYPE),ax,
+            torch.tensor(z,dtype=rf.DTYPE),device='cpu')
+        grid=rf.KGrid(kz=torch.tensor(k,dtype=rf.DTYPE),deltas=torch.tensor(orders),
+            dk_tap=1/(n*.001),M=n//2)
+        bank.attach_kgrid(grid);bank.ensure_H6_bins()
+        channels=channel_six(R);P=dft_matrix(z,k)
+        reconstructed={}
+        for name in NAMES:
+            got=getattr(bank.H6_bank,name)[0,0].detach().cpu().numpy()
+            expected=channels[name]@P
+&gt;           np.testing.assert_allclose(got,expected,atol=4e-6,rtol=4e-6)
+E           AssertionError: 
+E           Not equal to tolerance rtol=4e-06, atol=4e-06
+E           
+E           Mismatched elements: 8 / 9 (88.9%)
+E           Max absolute difference among violations: 0.07868626
+E           Max relative difference among violations: 1.96962523
+E            ACTUAL: array([ 3.754099e-02+1.366366e-02j, -5.236268e-05-9.044808e-05j,
+E                   7.338822e-07-3.740191e-06j, -2.276871e-03+1.910441e-03j,
+E                   8.764691e-01+0.000000e+00j, -2.276871e-03-1.910441e-03j,...
+E            DESIRED: array([-3.994986e-02+1.387779e-17j,  1.044422e-04+0.000000e+00j,
+E                   3.796344e-06-2.081668e-17j, -2.972134e-03+2.775558e-17j,
+E                   8.764691e-01+0.000000e+00j, -2.972134e-03-2.775558e-17j,...
+
+tests/mrtini_pytest/test_rf_banks.py:197: AssertionError</failure></testcase><testcase classname="mrtini_pytest.test_sequence" name="test_pulse_zero_clone_and_cpu" time="0.830" /><testcase classname="mrtini_pytest.test_sequence" name="test_repetition_validation[event_time-value0-zero elements]" time="0.631" /><testcase classname="mrtini_pytest.test_sequence" name="test_repetition_validation[event_time-value1-event_time]" time="0.130" /><testcase classname="mrtini_pytest.test_sequence" name="test_repetition_validation[gradm-value2-gradm]" time="0.284" /><testcase classname="mrtini_pytest.test_sequence" name="test_repetition_validation[adc_phase-value3-adc_phase]" time="0.199" /><testcase classname="mrtini_pytest.test_sequence" name="test_repetition_validation[adc_usage-value4-adc_usage]" time="0.075" /><testcase classname="mrtini_pytest.test_sequence" name="test_clone_independence_and_contrasts" time="0.007" /><testcase classname="mrtini_pytest.test_sequence" name="test_gradient_kspace_cumulative_and_adc_filter" time="0.004" /><testcase classname="mrtini_pytest.test_sequence" name="test_kspace_pulse_usage[REFOC--1.0]" time="0.004" /><testcase classname="mrtini_pytest.test_sequence" name="test_kspace_pulse_usage[EXCIT-0.0]" time="0.006" /><testcase classname="mrtini_pytest.test_sequence" name="test_kspace_pulse_usage[UNDEF-1.0]" time="0.005" /><testcase classname="mrtini_pytest.test_sequence" name="test_kspace_pulse_usage[FATSAT-1.0]" time="0.002" /><testcase classname="mrtini_pytest.test_sequence" name="test_store_then_excitation_restores_stored_kspace" time="0.003" /><testcase classname="mrtini_pytest.test_sequence" name="test_chain_contrasts_and_source_independence[False]" time="0.004" /><testcase classname="mrtini_pytest.test_sequence" name="test_chain_contrasts_and_source_independence[True]" time="0.003" /><testcase classname="mrtini_pytest.test_sequence" name="test_epg_span_clips_time_and_gradient_proportionally" time="0.003" /><testcase classname="mrtini_pytest.test_sequence" name="test_epg_holes_keep_time_remove_gradients_and_adc" time="0.002" /><testcase classname="mrtini_pytest.test_sequence" name="test_preceding_bloch_pad[2-windows0-0]" time="0.002" /><testcase classname="mrtini_pytest.test_sequence" name="test_preceding_bloch_pad[2-windows1-2]" time="0.008" /><testcase classname="mrtini_pytest.test_sequence" name="test_preceding_bloch_pad[3-windows2-0]" time="0.003" /><testcase classname="mrtini_pytest.test_sequence" name="test_preceding_bloch_pad[2-windows3-2]" time="0.006" /><testcase classname="mrtini_pytest.test_sequence" name="test_prepend_relax_only[0.0]" time="0.007" /><testcase classname="mrtini_pytest.test_sequence" name="test_prepend_relax_only[0.2]" time="0.004" /><testcase classname="mrtini_pytest.test_sequence" name="test_collapse_no_adc_conserves_moments" time="0.498" /><testcase classname="mrtini_pytest.test_sequence" name="test_kspace_plot_contains_measured_points[False]" time="0.230" /><testcase classname="mrtini_pytest.test_sequence" name="test_kspace_plot_contains_measured_points[True]" time="1.206" /><testcase classname="mrtini_pytest.test_sequence" name="test_import_file_builds_adc_and_gradient_events" time="0.566" /></testsuite></testsuites>
