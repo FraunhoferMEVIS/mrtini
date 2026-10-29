@@ -9,3 +9,4 @@ scripts/figs
 license.py
 data_export
 external/*
+output_smoke/

@@ -402,7 +402,7 @@ Ctrl+Shift+P → Dev Containers: Rebuild Container
 ## License
 
 MRTini is licensed under the GNU Affero General Public License v3.0 only
-(`AGPL-3.0-only`). See [LICENSE](LICENSE).
+(`AGPL-3.0-or-later `). See [LICENSE](LICENSE).
 
 Copyright (C) 2026 Fraunhofer Institute for Digital Medicine MEVIS
 

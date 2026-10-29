@@ -280,8 +280,8 @@ def execute_graph(graph,
         for dist in dists:
 
             # Skip early before scanning ancestors
-            if dist.dist_type != 'z0' and dist.latent_signal < min_latent_signal:
-                continue
+            # if dist.dist_type != 'z0' and dist.latent_signal < min_latent_signal:
+            #     continue
 
             acc = None
             first_ancestor = None

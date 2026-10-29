@@ -52,7 +52,7 @@ for seq_name in seq_names:
         art.z_m,
         slice_thickness=SLICE_THICKNESS,
         pad=PAD,
-        max_state_count=200,
+        max_state_count=400,
         min_state_mag=1e-4,
     )
 
@@ -87,4 +87,4 @@ for seq_name in seq_names:
 
     plt.tight_layout()
     plt.savefig(f"recon_output/{seq_name}_reco.png")
-    plt.show()
+    plt.close()

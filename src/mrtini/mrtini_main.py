@@ -143,67 +143,77 @@ def build_complex_rf(span):
     rf_complex = amp * np.exp(1j * phi_total)
     return rf_complex.astype(np.complex64)
 
-def _bloch_kernel_signature(
-    span: dict,
-) -> tuple[str, np.ndarray,np.ndarray, np.ndarray, np.ndarray, dict]:
-    """
-    span MUST be a 'bloch' item from seq.mrtini_hybrid with:
-      - 't' (list/np.ndarray, seconds)
-      - 'rf_amp' (same len)
-      - 'rf_phase' (same len; often constant)
-      - 'gz' (same len, Tesla/m)
-      - optional 'rf_freq' (Hz) — include if your slicer uses it (default 0)
-    Returns: (key, rf_for_solve (complex), gz, t, meta{phi0, const_phase, rf_freq})
-    """
-    assert span["kind"] == "bloch"
-    t = np.asarray(span["t"], dtype=np.float64)
-    amp = np.asarray(span["rf_amp"], dtype=np.float64) / GAMMA_HZ
-    phi = np.asarray(span["rf_phase"], dtype=np.float64)
-    gz = np.asarray(span["gz"], dtype=np.float64) / GAMMA_HZ
-    rf_freq = np.asarray(span.get("rf_freq", 0.0) or 0.0)
-    rf_freq = np.broadcast_to(rf_freq, amp.shape)
+def _bloch_kernel_signature(span: dict):
+    """Fingerprint phase-factored RF with canonical relative timing.
 
-    rf_fm = span.get("rf_fm", None)
-    if rf_fm is None or (hasattr(rf_fm, "__len__") and len(rf_fm) == 0):
-        rf_fm = np.zeros_like(amp, dtype=np.float64)
-    else:
-        rf_fm = np.asarray(rf_fm, dtype=np.float64)
-        rf_fm = np.broadcast_to(rf_fm, amp.shape)
-    
+    Parser rf_amp and gz are in Hz and Hz/m; divide by GAMMA_HZ for tesla
+    and tesla/m, matching the existing import/baking pipeline. RF phase is
+    radians. The separate returned frequency array is not a second detuning
+    when the solver already receives its phase in the complex RF envelope.
+    """
+    if span["kind"] != "bloch":
+        raise ValueError("Expected a Bloch span")
+    t = np.asarray(span["t"], dtype=np.float64).reshape(-1)
+    amp = np.asarray(span["rf_amp"], dtype=np.float64).reshape(-1) / GAMMA_HZ
+    if t.size == 0 or amp.shape != t.shape:
+        raise ValueError("t and rf_amp must have the same nonempty shape")
+    if t.size > 1 and not np.all(np.diff(t) > 0):
+        raise ValueError("t must be strictly increasing")
+
+    def broadcast(value, *, missing=0.0):
+        if value is None:
+            value = missing
+        arr = np.asarray(value, dtype=np.float64)
+        if arr.size == 0:
+            arr = np.asarray(missing, dtype=np.float64)
+        return np.broadcast_to(arr, amp.shape).copy()
+
+    phi = broadcast(span.get("rf_phase", 0.0))
+    gz = broadcast(span["gz"]) / GAMMA_HZ
+    rf_freq = broadcast(span.get("rf_freq", 0.0))
+    rf_fm = broadcast(span.get("rf_fm", 0.0))
+    f_inst = rf_freq + rf_fm
     const_phase, phi0 = is_constant_phase(phi, amp)
+    envelope = amp.astype(np.complex128) if const_phase else amp * np.exp(1j * phi)
+    phi_f = np.zeros_like(amp)
+    if t.size > 1:
+        phi_f[1:] = 2*np.pi*np.cumsum(f_inst[:-1] * np.diff(t))
+    rf_complex = (envelope * np.exp(1j*phi_f)).astype(np.complex64)
+    gz_out = gz.astype(np.float32)
 
-    if const_phase:
-        # strip the global phase; solve with a real envelope
-        rf = amp.astype(np.float64)
-        rf_im = np.zeros_like(rf)
-    else:
-        rf_c = amp * np.exp(1j * phi)  # truly complex envelope
-        rf = rf_c.real.astype(np.float64)
-        rf_im = rf_c.imag.astype(np.float64)
+    # Cache identity must be invariant to the absolute sequence start time.
+    # Subtracting a large start from float timestamps leaves tiny residuals.
+    # Canonicalize TIME ONLY to 1 ps; never quantize RF amplitude in tesla.
+    # This defines the timing equivalence used by this cache (not the solver).
+    time_quantum_s = 1e-12
+    relative_t = t - t[0]
+    time_ticks = np.rint(relative_t / time_quantum_s).astype("<i8")
+    if t.size > 1 and np.any(np.diff(time_ticks) <= 0):
+        raise ValueError("RF sampling intervals must exceed cache time resolution (1 ps)")
+    center = span.get("rf_center", None)
+    relative_center = (0.5*relative_t[-1] if center is None
+                       else float(center)-float(t[0]))
+    center_tick = np.asarray([np.rint(relative_center / time_quantum_s)], dtype="<i8")
 
-    f_inst = rf_freq + rf_fm   # Hz
-    phi_f = np.zeros_like(amp, dtype=np.float64)
-    if len(t) > 1:
-        dt = np.diff(t)
-        phi_f[1:] = 2*np.pi * np.cumsum(f_inst[:-1] * dt)   # ZOH-consistent
-
-
-    
-    f_tag = _freq_tag(rf_freq)  # handles scalar/broadcast/hash
-    key = (
-        float(np.mean(np.diff(t))) if len(t) > 1 else 0.0,  # dt (assume uniform)
-        _qhash(rf.view(np.float64)),
-        _qhash(rf_im.view(np.float64)),
-        _qhash(gz.view(np.float64)),
-        f_tag,
-    )
-    key_str = "dt={:.9e}|rfR={}|rfI={}|gz={}|f={}".format(*key)
-
+    digest = hashlib.sha1()
+    # Include both the entire time grid and the actual demodulation center.
+    for ticks in (time_ticks, center_tick):
+        ticks = np.ascontiguousarray(ticks, dtype="<i8")
+        digest.update(np.asarray(ticks.shape, dtype="<i8").tobytes())
+        digest.update(ticks.tobytes())
+    # Hash the pre-FM envelope and FM separately. Hashing rf_complex would
+    # reintroduce timestamp subtraction noise through integrated phase.
+    # complex64/float32 match the waveform precision passed to the solver.
+    key_envelope = envelope.astype(np.complex64)
+    for values in (key_envelope.real, key_envelope.imag, gz_out, f_inst):
+        arr = np.array(values, dtype="<f8", order="C", copy=True)
+        arr[arr == 0] = 0.0  # signed zero has no physical distinction
+        digest.update(np.asarray(arr.shape, dtype="<i8").tobytes())
+        digest.update(arr.tobytes())
+    key = "bloch-v3:" + digest.hexdigest()
     meta = dict(phi0=phi0, const_phase=const_phase, rf_freq=rf_freq)
-    # rf_for_solve: pack back as complex (imag=0 if const_phase)
-    rf_for_solve = rf + 1j * rf_im
-    rf_complex = rf_for_solve * np.exp(1j * phi_f)
-    return key_str, rf_complex.astype(np.complex64),f_inst, gz.astype(np.float32), t, meta
+    return key, rf_complex, f_inst, gz_out, t, meta
+
 
 def k_grid_from_seq(seq):
     # Collect all gradient moments and event times from the sequence
@@ -384,9 +394,6 @@ class MRtiniSim:
         if self.seq is None:
             raise ValueError("sequence is None — provide a sequence first")
 
-        ## for debugging, you can override phantom B0/B1 here
-        # phantom_data.B0 = torch.zeros_like(phantom_data.B0)
-        # phantom_data.B1 = torch.ones_like(phantom_data.B1)   #default B1=1 (no scaling)
 
         # Inputs
         # B0_hz: [Nvox] float
@@ -394,8 +401,6 @@ class MRtiniSim:
         # pos: [Nvox,3] float (not used for binning here)
         B0_hz = phantom_data.B0.cpu().numpy()
         B1_map = phantom_data.B1.cpu().numpy() if hasattr(phantom_data, "B1") else np.ones_like(B0_hz)
-        # B0_hz = np.zeros_like(B0_hz)  # for testing, ignore B0 inhomogeneity only for rf pulse application 
-        # B1_map =np.ones_like(B1_map)  # for testing, ignore B1 inhomogeneity only for rf pulse application 
         PD = phantom_data.PD.cpu().numpy() if hasattr(phantom_data, "PD") else np.zeros((B0_hz.shape[0], 3))
         jb = build_joint_binning(
             B0_hz, B1_map, PD,
