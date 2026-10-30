@@ -11,7 +11,6 @@ requires-python = ">=3.10,<3.13"
 license = { text = "AGPL-3.0-or-later" }
 authors = [{ name = "Snawar Hussain" }]
 dependencies = [
-  "numpy>=1.24,<3",
   "torch>=2.8,<3",
   "packaging>=23",
   "fastapi==0.136.3",

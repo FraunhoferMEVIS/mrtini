@@ -372,8 +372,8 @@ def run_sim(sequenceData_path:str):
     return reconstruct_image(sequenceData, signal, imgBufferTrajectory)
 def main():
     sequenceData_path = (
-        # f"src/sequence/gstar_seqs/FLASH_sequence_sequenceData.json"
-        f"src/sequence/gstar_seqs/RARE2mes_sequence_sequenceData.json"
+        f"src/sequence/gstar_seqs/FLASH_sequence_sequenceData.json"
+        # f"src/sequence/gstar_seqs/RARE2mes_sequence_sequenceData.json"
     )
 
     response = run_sim(sequenceData_path=sequenceData_path)

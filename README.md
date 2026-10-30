@@ -1,8 +1,9 @@
-# MRtini: A cocktail of Bloch and EPG for fast and accurate MRI simulation
+# MRtini: A cocktail of Bloch and Phase Distribution Graphs (PDG) for fast and accurate MRI Pulse Sequence simulation
 
 <img src="data/MRTini_logo.png" alt="MRtini logo" width="800">
 
 MRtini includes slice-profile RF propagation, species-separated graph construction and accelerated graph execution in one Python/Rust installation. The native engine is built in release mode by pip. There is no separate optimization package or patch step.
+
 
 ## Quick start
 

@@ -37,6 +37,7 @@ from src.mrtini.mrtini_main import MRtiniSim
 from src.isochromat_sim import isochromat_sim
 from src.mrtini.pre_pass_rust_call import compute_graph_rust
 from src.mrtini.execute_graph import execute_graph
+from src.mrtini.optimized import compute_graph_fast, execute_graph_fast
 from src.mrtini.RF_banks import build_imap
 torch.manual_seed(ISO_SEED)
 def path(value):
@@ -116,7 +117,7 @@ def run_mrtini(seq, data, tbw, epsilon, max_states=MAX_STATES,
                min_state_mag=MIN_STATE_MAG) -> dict[str, Any]:
     start = time.perf_counter()
     sim = MRtiniSim(seq=seq, device=DEVICE)
-    art = sim.bake_bloch_kernels_from_sequence(
+    art = sim.bake_bloch_kernels(
         phantom_data=data, device=DEVICE, tap_threshold=epsilon,
         global_RF=hard_rf)
     baked = time.perf_counter()
@@ -153,17 +154,21 @@ def run_mrtini(seq, data, tbw, epsilon, max_states=MAX_STATES,
     slice_m = float(PHANTOM["slice_thickness_m"])
     rf_period_m = 1.0 / float(taps[0].dk)
     pad=rf_period_m / slice_m
-    graph = compute_graph_rust_multi(
-        list(seq), data, ids, taps, supports, art.z_m,
-        max_state_count=max_states, min_state_mag=min_state_mag,)
+    graph, rep_keys = compute_graph_fast(seq, data, art,max_state_count=max_states, min_state_mag=min_state_mag,
+                       slice_thickness=slice_m, species='auto', per_species_tissue=False)
+    # graph = compute_graph_rust(
+    #     list(seq), data, ids, taps, supports, art.z_m,
+    #     max_state_count=max_states, min_state_mag=min_state_mag,)
     compiled = time.perf_counter()
     data.multi_slice = False
     
-    signal, diag = execute_graph_anz(graph, seq, data, rep_keys, art,
-                                    print_progress=True, collect_kz_diag=True,
+    signal, diag = execute_graph_fast(graph, seq, data, rep_keys, art,
+                                    print_progress=True,
                                     min_emitted_signal=0., min_latent_signal=0.,
-                                    SLICE_THICKNESS=slice_m
+                                    SLICE_THICKNESS=slice_m,
+                                     collect_kz_diag=True,
                                     )
+
     finished = time.perf_counter()
     counts = [len(repetition) for repetition in graph[1:]]
     graph_info = {

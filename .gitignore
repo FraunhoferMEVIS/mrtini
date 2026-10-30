@@ -17,3 +17,4 @@ mrtini_fast_optimization/
 /mrtini_prepass_rs/*.so
 /mrtini_prepass_rs/*.pyd
 /mrtini_prepass_rs/*.dll
+*.log

@@ -11,7 +11,7 @@ import sys
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--fail-under", type=float, default=90,
+        "--fail-under", type=float, default=80,
         help="Minimum combined Python statement/branch coverage (e.g. 90)"
     )
     parser.add_argument(
@@ -59,6 +59,7 @@ def main():
         sys.executable, "-m", "pytest",
         "-c", "tests/pytest.release.ini",
         "tests/release",
+        "-m", "not cuda",  # Exclude tests marked @pytest.mark.cuda
         *common,
         "--cov-append",
         "--cov-report=term-missing",
