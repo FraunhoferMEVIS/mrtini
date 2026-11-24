@@ -20,4 +20,5 @@ mrtini_fast_optimization/
 *.log
 validation_runs
 review_revision_v3
+src/sequence/gstar_seqs/*sequenceData*.json
 figures

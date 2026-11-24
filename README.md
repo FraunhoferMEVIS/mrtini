@@ -167,6 +167,25 @@ docker compose -f .devcontainer/docker-compose.yml logs gammastar-recon
 
 `mrtini-doctor --mrstar --reconstruction` actually imports the requested optional tools; it does not report missing modules as OK.
 
+## External Simulation Resources
+
+### gammaSTAR Sequence Data
+
+MRtini supports pulse sequences exported from the [gammaSTAR online framework](https://gammastar.mevis.fraunhofer.de/), developed at Fraunhofer MEVIS.
+
+The raw sequence descriptions (`*_raw.json`) are included in this repository. However, the corresponding gammaSTAR `sequenceData` JSON files are excluded due to their large file sizes.
+
+These files are required when using the gammaSTAR reconstruction server and can be obtained by configuring and exporting the corresponding sequences directly from the public gammaSTAR online framework.
+
+The exported files should be placed in:
+
+`src/sequence/gstar_seqs/`
+
+### External Resources
+
+- [gammaSTAR Online Framework](https://gammastar.mevis.fraunhofer.de/)
+- [gammaSTAR – Fraunhofer MEVIS](https://www.mevis.fraunhofer.de/en/portfolio/solutions/gammastar.html)
+
 ## Troubleshooting
 
 - **Stale native API:** restart Python after installation. Run the doctor and inspect its printed native-engine path. Install from the MRtini root, rather than building an old standalone extension elsewhere.

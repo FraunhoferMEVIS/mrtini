@@ -77,8 +77,8 @@ def compute_graph_fast(seq, data, art, *, max_state_count=200, min_state_mag=1e-
             a = getattr(data, name).detach().cpu()
             if per_species_tissue and a.numel() == ids.numel() and bool((ids == label).any()):
                 a = a.reshape(-1)[ids == label]
-            # means.append(float(a.mean()))
-            means.append(float(a.min() if name == "D" else a.max()))
+            means.append(float(a.mean()))
+            # means.append(float(a.min() if name == "D" else a.max()))
         tissues.append(tuple(means))
     payload = native.compute_graph_packed(
         list(seq), pulse_id, tissues, taps, supports, int(max_state_count), float(min_state_mag),
