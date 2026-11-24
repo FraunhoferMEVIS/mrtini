@@ -48,9 +48,14 @@ def execute_graph_fast(graph: Graph,
                   rf_context=None,
                   performance=None,
                   vectorized=True,
-                  state_batch=16,
-                  adc_batch=64,
-                  voxel_batch=1024,
+                  state_batch=64,
+                  adc_batch=None,
+                  voxel_batch=None,
+                  signal_workspace_mb=256,
+                  max_decay_groups=16,
+                  gpu_engine=False,
+                  cuda_graph=False,
+                  kernel_mode="dynamic",
                   ) -> torch.Tensor | list:
     """
     Execute the phase graph.
@@ -71,6 +76,24 @@ def execute_graph_fast(graph: Graph,
         dist.kt_vec is still the physical total k-vector used for signal physics.
         slice_order is tracked separately in Python sidecar dictionaries and is only diagnostic.
     """
+    if cuda_graph and not gpu_engine:
+        raise ValueError('cuda_graph requires gpu_engine=True or prepare_gpu_execution()')
+    if gpu_engine:
+        if (not vectorized or collect_kz_diag or plot_sp or profile_callback is not None
+                or return_mag_p is not None or return_mag_z is not None
+                or data.voxel_motion is not None or data.phantom_motion is not None):
+            raise ValueError('Prepared GPU engine does not support diagnostics, snapshots or motion; use gpu_engine=False')
+        if rf_backend not in ('auto','triton'):
+            raise ValueError('Prepared GPU engine uses Triton RF; choose rf_backend=auto or triton')
+        if torch.is_grad_enabled():
+            raise ValueError('Prepared GPU engine is inference only; use torch.no_grad() or gpu_engine=False')
+        from .gpu_engine import prepare_gpu_execution
+        if print_progress: print("[MRtini] Preparing GPU engine (RF tables, sequence metadata, buffers)...", flush=True)
+        engine=prepare_gpu_execution(graph,seq,data,rep_keys,art,
+            slice_thickness=SLICE_THICKNESS,min_emitted_signal=min_emitted_signal,
+            signal_workspace_mb=signal_workspace_mb,adc_batch=adc_batch,voxel_batch=voxel_batch,context=rf_context,kernel_mode=kernel_mode)
+        if print_progress: print(f"[MRtini] Preparation submitted in {engine.prepare_seconds:.3f}s", flush=True)
+        return engine.run(cuda_graph=cuda_graph,performance=performance,print_progress=print_progress)
     if (vectorized and not collect_kz_diag and not plot_sp and profile_callback is None
             and return_mag_p is None and return_mag_z is None
             and data.voxel_motion is None and data.phantom_motion is None):
@@ -79,7 +102,16 @@ def execute_graph_fast(graph: Graph,
             slice_thickness=SLICE_THICKNESS,min_emitted_signal=min_emitted_signal,
             backend=rf_backend,context=rf_context,performance=performance,
             state_batch=state_batch,adc_batch=adc_batch,voxel_batch=voxel_batch,
+            signal_workspace_mb=signal_workspace_mb,max_decay_groups=max_decay_groups,
             print_progress=print_progress)
+    if performance is not None:
+        performance["vectorized_free_evolution"]=False
+        performance["signal_mode"]="diagnostic_or_motion_fallback"
+        performance["fallback_reasons"]=[name for name,active in (
+            ("vectorized=False",not vectorized),("collect_kz_diag",collect_kz_diag),
+            ("plot_sp",plot_sp),("profile_callback",profile_callback is not None),
+            ("return_mag_p",return_mag_p is not None),("return_mag_z",return_mag_z is not None),
+            ("voxel_motion",data.voxel_motion is not None),("phantom_motion",data.phantom_motion is not None)) if active]
     # ------------------------------------------------------------
     
     def emit_profile(*, repetition, event, stage, z_m, M):

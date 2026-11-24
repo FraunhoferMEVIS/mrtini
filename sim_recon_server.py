@@ -308,27 +308,28 @@ def simulate_mr0(sequenceData, state_count=400, min_state_mag=1e-4,
     
     
     seq = seq.cuda()
-    phantom = phantom.cuda()
+    data = phantom.cuda()
     graph, rep_keys = compute_graph_fast(
-            seq, phantom, art,
-            max_state_count=state_count,
-            min_state_mag=min_state_mag,          # use your current value
+            seq, data, art,
+            max_state_count=800,
+            min_state_mag=1e-4,          # use your current value
             slice_thickness=SLICE_THICKNESS,
         )
 
-    
-  
 
-    # 
-    
-    signal = execute_graph_fast(
-        graph, seq, phantom, rep_keys, art,
-        SLICE_THICKNESS=SLICE_THICKNESS,
-        min_emitted_signal=1e-4,     # use your current value
-        min_latent_signal=1e-4,
-        print_progress=True,
-        rf_backend="auto",
-    )
+
+        
+
+
+    with torch.no_grad():
+        signal = execute_graph_fast(
+            graph, seq, data, rep_keys, art,
+            gpu_engine=True,
+            kernel_mode="dynamic",
+            rf_backend="auto",
+            signal_workspace_mb=128,
+            print_progress=True,
+        )
 
     plotting_dims = 'xy'
     figsize = (20, 20)

@@ -12,19 +12,18 @@ import torch
 import sys
 
 sys.path.append("./")
-from src.mrtini.execute_graph import execute_graph
 from src.mrtini.mrtini_main import MRtiniSim
 from src.voxelgridphantom import voxel_grid_phantom
-from src.mrtini.pre_pass_rust_call import compute_graph_rust
 from src.mrtini.config import SLICE_THICKNESS, PAD
 from src.sequence.sequence import Sequence
 from src.recon.nufft_recon import _reconstruct
 from src.mrtini.RF_banks import build_prepass_inputs_from_hybrid
 import numpy as np
+from src.mrtini.optimized import compute_graph_fast, execute_graph_fast
 
 Nx = Ny = 128
 # seq_names = ["2D_spiral", "2D_radial", "SE_EPI","EPI", "FLASH", "RARE"]
-seq_names = ["FLASH"]
+seq_names = [f"SE_EPI"]
 
 for seq_name in seq_names:
     seq = Sequence.import_file_for_mrtini_sim(f"src/sequence/gstar_seqs/{seq_name}_sequence_raw.json")
@@ -42,31 +41,29 @@ for seq_name in seq_names:
     )
 
     rep_keys, pulse_id_per_rep, taps_bank, supp_bank = build_prepass_inputs_from_hybrid(seq, art)
-
-    graph = compute_graph_rust(
-        seq,
-        data,
-        pulse_id_per_rep,
-        taps_bank,
-        supp_bank,
-        art.z_m,
-        slice_thickness=SLICE_THICKNESS,
-        pad=PAD,
-        max_state_count=400,
-        min_state_mag=1e-4,
-    )
-
     seq = seq.cuda()
     data = data.cuda()
+    graph, rep_keys = compute_graph_fast(
+            seq, data, art,
+            max_state_count=800,
+            min_state_mag=1e-4,          # use your current value
+            slice_thickness=SLICE_THICKNESS,
+        )
 
-    signal = execute_graph(
-        graph,
-        seq,
-        data,
-        rep_keys,
-        art,
-        SLICE_THICKNESS=SLICE_THICKNESS,
-    )
+
+
+        
+
+
+    with torch.no_grad():
+        signal = execute_graph_fast(
+            graph, seq, data, rep_keys, art,
+            gpu_engine=True,
+            kernel_mode="dynamic",
+            rf_backend="auto",
+            signal_workspace_mb=128,
+            print_progress=True,
+        )
 
     reco = _reconstruct(
         signal,

@@ -219,6 +219,7 @@ def apply_rf(plan,bank,parent,phase,backend='auto'):
         elif bank.uniform and not needs_grad:
             backend='dense' if dense_enough and matrix_bytes<=256*1024**2 else 'sparse'
         else:backend='triton' if parent.is_cuda and not needs_grad else 'grouped'
+    plan.last_backend=backend
     if backend=='dense':return rf_dense(plan,bank,parent,phase)
     if backend=='grouped':return rf_grouped(plan,bank,parent,phase)
     if backend=='sparse':return rf_sparse(plan,bank,parent,phase)
@@ -226,7 +227,9 @@ def apply_rf(plan,bank,parent,phase,backend='auto'):
         try:
             from mrtini_prepass_rs import apply_rf_cpu
         except ImportError:
-            if automatic:return rf_grouped(plan,bank,parent,phase)
+            if automatic:
+                plan.last_backend="grouped"
+                return rf_grouped(plan,bank,parent,phase)
             raise RuntimeError('Rebuild the Rust extension with apply_rf_cpu first')
         if parent.requires_grad or bank.table.requires_grad or phase.requires_grad:
             raise ValueError('Native RF is an inference kernel; use grouped/dense for autograd')
@@ -260,7 +263,12 @@ class FastRFContext:
             raise ValueError('Graph omits a species with nonzero proton density')
         self.ids=ids
     def layer(self,i,key,phase,parent=None,live=None):
-        if i not in self.plans:self.plans[i]=self.graph.rf_plan(i) if isinstance(self.graph,PackedGraph) else RFPlan.from_graph(self.graph[i],self.graph[i+1])
+        if i not in self.plans:
+            if isinstance(self.graph,PackedGraph):
+                # Device caches belong to this context, not the host graph.
+                p=self.graph.rf_plan(i)
+                self.plans[i]=RFPlan(p.rows,p.src,p.rel,p.tap,p.mask,p.parents)
+            else:self.plans[i]=RFPlan.from_graph(self.graph[i],self.graph[i+1])
         if key not in self.banks:self.banks[key]=RFBank(self.art.pulses[key],self.physical,self.ids)
         plan=self.plans[i];bank=self.banks[key];previous=self.graph[i]
         if parent is None:

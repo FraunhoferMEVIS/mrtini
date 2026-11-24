@@ -34,14 +34,15 @@ def _rf_csr(PARENT,COEFF,PHASE,CASE,ROW,SRC,SLOT,REL,MASK,OUT,
         ar+=pr*cr-pi*ci;ai+=pr*ci+pi*cr
     tl.store(OUT+2*(child*V+v),ar,valid);tl.store(OUT+2*(child*V+v)+1,ai,valid)
 
-def rf_triton(plan,bank,parent,phase,block=128):
+def rf_triton(plan,bank,parent,phase,block=128,*,out=None,phase_complex=None):
     if not parent.is_cuda or parent.dtype!=torch.complex64:
         raise ValueError('Triton backend requires CUDA complex64')
     if not parent.is_contiguous():parent=parent.contiguous()
     t=plan.tensors(bank)
     p=phase.expand(bank.V) if phase.ndim==0 else phase
-    ep=torch.polar(torch.ones_like(p),p).contiguous()
-    out=torch.empty((plan.children,bank.V),device=parent.device,dtype=parent.dtype)
+    ep=torch.polar(torch.ones_like(p),p).contiguous() if phase_complex is None else phase_complex
+    if out is None:out=torch.empty((plan.children,bank.V),device=parent.device,dtype=parent.dtype)
+    if not plan.children or not bank.V:return out
     grid=(plan.children,triton.cdiv(bank.V,block))
     _rf_csr[grid](torch.view_as_real(parent),torch.view_as_real(bank.table),torch.view_as_real(ep),bank.ids,
                   t['rows'],t['src'],t['slot'],t['rel'],t['mask'],torch.view_as_real(out),
