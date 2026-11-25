@@ -22,3 +22,5 @@ validation_runs
 review_revision_v3
 src/sequence/gstar_seqs/*sequenceData*.json
 figures
+data/*
+!/data/MRTini_logo.png

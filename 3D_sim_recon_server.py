@@ -133,7 +133,7 @@ Nx = Ny = 96
 Npart = 32 ## number of partitions/slices in the z direction, which determines the z resolution and FOVz. For simplicity we just set it to the same as the number of slices we are using, but ideally it should be set to cover the whole phantom with sufficient resolution to capture through-plane effects.
 FOVz = Npart * SLICE_THICKNESS  # 320 mm
 
-phantom3d = VoxelGridPhantom.load("data/subject04_3T-highres-fat_custom_dense.npz")
+phantom3d = VoxelGridPhantom.load("data/subject04_3T-highres-fat.npz")
 phantom3d = phantom3d.interpolate(Nx, Ny, Npart).slices(list(range(Npart)))
 phantom3d.size[-1] = torch.tensor([FOVz])
 
@@ -300,7 +300,7 @@ def simulate_mr0(sequenceData, state_count=200, min_state_mag=1e-4,
     art = MRtiniSim(device="cuda", seq=seq).bake_bloch_kernels(
         phantom_data=phantom3d,
         z_span_m=FOVz,
-        global_RF=False, ##  Change to True to use global RF ~ hard pulse approximation for Faster sim
+        global_RF=True, ##  Change to True to use global RF ~ hard pulse approximation for Faster sim
         tap_threshold=tap_threshold
     )
     

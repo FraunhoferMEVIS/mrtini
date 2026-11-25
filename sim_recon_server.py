@@ -132,7 +132,7 @@ time.sleep(0.1)
 Nx = Ny = 128
 # phantom generation
 Npart = 30 ## number of partitions/slices in the z direction, which determines the z resolution and FOVz. For simplicity we just set it to the same as the number of slices we are using, but ideally it should be set to cover the whole phantom with sufficient resolution to capture through-plane effects.
-phantom = VoxelGridPhantom.load("data/subject04_3T-highres-fat_custom_dense.npz")
+phantom = VoxelGridPhantom.load("data/subject04_3T-highres-fat.npz")
 # phantom = VoxelGridPhantom.load("data/pro_mri_180mm_water_fat_species_512.npz")
 # phantom = phantom.interpolate(Nx, Ny, Npart).slices(list(range(Npart)))
 phantom = phantom.interpolate(Nx, Ny, Npart).slices([14])

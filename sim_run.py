@@ -20,14 +20,14 @@ from src.recon.nufft_recon import _reconstruct
 from src.mrtini.RF_banks import build_prepass_inputs_from_hybrid
 import numpy as np
 from src.mrtini.optimized import compute_graph_fast, execute_graph_fast
-
+import src.mrtini as mrtini
 Nx = Ny = 128
 # seq_names = ["2D_spiral", "2D_radial", "SE_EPI","EPI", "FLASH", "RARE"]
-seq_names = [f"SE_EPI"]
-
+seq_names = [f"FLASH"]
+phantom_path = mrtini.download_brainwebphantom(subject=4)
 for seq_name in seq_names:
     seq = Sequence.import_file_for_mrtini_sim(f"src/sequence/gstar_seqs/{seq_name}_sequence_raw.json")
-    phantom = voxel_grid_phantom.VoxelGridPhantom.brainweb("data/subject04_3T-highres-fat_custom_dense.npz")
+    phantom = voxel_grid_phantom.VoxelGridPhantom.brainweb(str(phantom_path))
     phantom = phantom.interpolate(Nx, Ny, 31).slices([15])  # select slices
     # phantom = phantom.interpolate(Nx, Ny, 320).slices(list(np.linspace(160-16, 160+16, 32, dtype=int)))  # to use 3D slice
     # data.multi_slice = True  # enable multi-slice mode, which relies on the z grid samples to capture through-plane effects for each slice independently.

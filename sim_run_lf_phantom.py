@@ -24,8 +24,8 @@ seq_names = [ "FLASH"]
 
 for seq_name in seq_names:
     seq = Sequence.import_file_for_mrtini_sim(f"src/sequence/gstar_seqs/{seq_name}_sequence_raw.json")
-    # lf_phantom_path = "data/sim_phantom.npz"
-    lf_phantom_path = "data/pro_mri_180mm_water_fat_species_512.npz"
+    lf_phantom_path = "data/sim_phantom.npz"
+    # lf_phantom_path = "data/pro_mri_180mm_water_fat_species_512.npz"
     lf_phantom = np.load(lf_phantom_path)
     print("Loaded phantom keys:", lf_phantom.keys())
 
