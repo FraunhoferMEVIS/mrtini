@@ -22,7 +22,11 @@ class Design:
 
 
 def design(p:Protocol):
-    p.check(); n=p.resolution; dk=1000/p.fov_mm; th=p.slice_mm*1e-3
+    p.check()
+    if p.sequence=='custom':
+        from composer import compose
+        return compose(p)
+    n=p.resolution; dk=1000/p.fov_mm; th=p.slice_mm*1e-3
     tr=p.tr_ms*1e-3; te=p.te_ms*1e-3; esp=p.esp_ms*1e-3; dwell=p.dwell_us*1e-6
     cells=round(p.rf_ms*1e-3/RASTER); dur=cells*RASTER; half=dur/2
     gz=p.tbw/(dur*th); sel=gz*half; crusher=1.5/th
@@ -89,7 +93,7 @@ def design(p:Protocol):
 
 
 def build_native_sequence(p, *, native=None, return_design=False):
-    """Return the installed MRtini Sequence, not an alternative simulator."""
+    """Return the installed MRTini Sequence, not an alternative simulator."""
     if isinstance(p,dict):p=Protocol(**p)
     if native is None:
         import torch

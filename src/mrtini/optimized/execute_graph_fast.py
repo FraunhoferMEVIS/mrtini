@@ -88,11 +88,11 @@ def execute_graph_fast(graph: Graph,
         if torch.is_grad_enabled():
             raise ValueError('Prepared GPU engine is inference only; use torch.no_grad() or gpu_engine=False')
         from .gpu_engine import prepare_gpu_execution
-        if print_progress: print("[MRtini] Preparing GPU engine (RF tables, sequence metadata, buffers)...", flush=True)
+        if print_progress: print("[MRTini] Preparing GPU engine (RF tables, sequence metadata, buffers)...", flush=True)
         engine=prepare_gpu_execution(graph,seq,data,rep_keys,art,
             slice_thickness=SLICE_THICKNESS,min_emitted_signal=min_emitted_signal,
             signal_workspace_mb=signal_workspace_mb,adc_batch=adc_batch,voxel_batch=voxel_batch,context=rf_context,kernel_mode=kernel_mode)
-        if print_progress: print(f"[MRtini] Preparation submitted in {engine.prepare_seconds:.3f}s", flush=True)
+        if print_progress: print(f"[MRTini] Preparation submitted in {engine.prepare_seconds:.3f}s", flush=True)
         return engine.run(cuda_graph=cuda_graph,performance=performance,print_progress=print_progress)
     if (vectorized and not collect_kz_diag and not plot_sp and profile_callback is None
             and return_mag_p is None and return_mag_z is None

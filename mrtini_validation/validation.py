@@ -25,7 +25,7 @@ from val_figures import (signal_figures, tap_figures, operator_figures, graph_fi
 HERE = Path(__file__).resolve().parent
 ROOT = Path(MRTINI_ROOT).resolve()
 if not (ROOT / "src/mrtini/mrtini_main.py").is_file():
-    raise FileNotFoundError(f"Wrong MRtini root: {ROOT}")
+    raise FileNotFoundError(f"Wrong MRTini root: {ROOT}")
 sys.path.insert(0, str(ROOT))
 
 from result_cache import RunCache

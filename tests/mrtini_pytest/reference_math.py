@@ -1,4 +1,4 @@
-"""Independent references. This module must never import MRtini or its fixtures.
+"""Independent references. This module must never import MRTini or its fixtures.
 
 Contract: Cartesian column vectors, active R=exp(+[omega]x dt), and
 m+=(Mx+iMy)/sqrt(2), m-=(Mx-iMy)/sqrt(2). RF coefficient names are source->target:

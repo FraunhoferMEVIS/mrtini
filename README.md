@@ -1,8 +1,8 @@
-# MRtini: A cocktail of Bloch and Phase Distribution Graphs (PDG) for fast and accurate MRI Pulse Sequence simulation
+# MRTini: A cocktail of Bloch and Phase Distribution Graphs (PDG) for fast and accurate MRI Pulse Sequence simulation
 
-<img src="data/MRTini_logo.png" alt="MRtini logo" width="800">
+<img src="data/MRTini_logo.png" alt="MRTini logo" width="800">
 
-MRtini includes slice-profile RF propagation, species-separated graph construction and accelerated graph execution in one Python/Rust installation. The native engine is built in release mode by pip. There is no separate optimization package or patch step.
+MRTini includes slice-profile RF propagation, species-separated graph construction and accelerated graph execution in one Python/Rust installation. The native engine is built in release mode by pip. There is no separate optimization package or patch step.
 
 
 ## Quick start
@@ -21,7 +21,7 @@ CPU setup:
 python scripts/setup_mrtini.py --device cpu --dev
 ```
 
-The setup script selects the official torch CPU/CUDA wheel, installs MRtini and its application requirements together, builds the existing Rust crate once, installs the compatible `mrstar` wheel from `wheels/`, and runs an installation check. `--recon-tools` additionally fetches/installs the gammaSTAR reconstruction helpers. On Windows the CUDA extra installs `triton-windows`; on Linux it installs Triton. The release baseline is torch 2.8.0, CUDA 12.9 and Triton 3.4.x. It does not install both Triton distributions on one platform.
+The setup script selects the official torch CPU/CUDA wheel, installs MRTini and its application requirements together, builds the existing Rust crate once, installs the compatible `mrstar` wheel from `wheels/`, and runs an installation check. `--recon-tools` additionally fetches/installs the gammaSTAR reconstruction helpers. On Windows the CUDA extra installs `triton-windows`; on Linux it installs Triton. The release baseline is torch 2.8.0, CUDA 12.9 and Triton 3.4.x. It does not install both Triton distributions on one platform.
 
 For core-engine tests without the platform-specific sequence interpreter:
 
@@ -29,7 +29,7 @@ For core-engine tests without the platform-specific sequence interpreter:
 python scripts/setup_mrtini.py --device cpu --dev --skip-mrstar
 ```
 
-`--dry-run` prints the installation plan without changing the environment. A container whose image already has the correct torch build uses `--skip-torch`. Previously installed standalone `mrtini-fast-pdg` / `mrtini-prepass-rs` prototype distributions are replaced by the integrated MRtini installation; restart Python afterwards.
+`--dry-run` prints the installation plan without changing the environment. A container whose image already has the correct torch build uses `--skip-torch`. Previously installed standalone `mrtini-fast-pdg` / `mrtini-prepass-rs` prototype distributions are replaced by the integrated MRTini installation; restart Python afterwards.
 
 The authoritative runtime dependencies are in `pyproject.toml`. Existing application requirements are retained in `requirements-application.txt` and included through `requirements.txt`. When adding a dependency later, update the package metadata and applicable requirements file together. Private wheels/local reconstruction tools remain explicit setup inputs rather than invented PyPI package versions.
 
@@ -51,7 +51,7 @@ The initialization hook fetches gammaSTAR to one canonical path on every platfor
 external/gammaSTAR/sequenceServer/gammastar_recon
 ```
 
-The reconstruction server is a sibling Compose service. Inside the MRtini container its endpoint is `gammastar-recon:9002`, configured through `GAMMASTAR_RECON_HOST` / `GAMMASTAR_RECON_PORT`. The host endpoint is `localhost:9002`. `localhost` inside the development container refers to that container itself.
+The reconstruction server is a sibling Compose service. Inside the MRTini container its endpoint is `gammastar-recon:9002`, configured through `GAMMASTAR_RECON_HOST` / `GAMMASTAR_RECON_PORT`. The host endpoint is `localhost:9002`. `localhost` inside the development container refers to that container itself.
 
 Plotting defaults to **Agg** for headless operation. Save figures or use notebook inline plotting. GUI plotting is optional (`python -m pip install -e ".[gui]"`) and additionally needs a working display; it is not required to install or test the simulator.
 
@@ -85,7 +85,7 @@ measured = execute_graph(
 )
 ```
 
-The existing `src` import prefix is retained to avoid a repository-wide package rename. The implementation lives inside MRtini. Existing callers of `compute_graph_fast` / `execute_graph_fast` remain supported through `src.mrtini.optimized`; the historical `mrtini_prepass_rs` import is included in the same wheel.
+The existing `src` import prefix is retained to avoid a repository-wide package rename. The implementation lives inside MRTini. Existing callers of `compute_graph_fast` / `execute_graph_fast` remain supported through `src.mrtini.optimized`; the historical `mrtini_prepass_rs` import is included in the same wheel.
 
 Water and fat use their own nominal RF taps, supports, coefficients, representative magnitudes and graph scores. No combined complex-tap envelope is used. `species="auto"` chooses species with nonzero PD. `per_species_tissue=True` uses separate tissue means for prepass scoring; the compatibility default remains `False` (the original whole-phantom means). Execution uses the actual voxel tissue maps either way. State caps remain per species and per state family, so the union can be larger than a water-only graph.
 
@@ -171,7 +171,7 @@ docker compose -f .devcontainer/docker-compose.yml logs gammastar-recon
 
 ### gammaSTAR Sequence Data
 
-MRtini supports pulse sequences exported from the [gammaSTAR online framework](https://gammastar.mevis.fraunhofer.de/), developed at Fraunhofer MEVIS.
+MRTini supports pulse sequences exported from the [gammaSTAR online framework](https://gammastar.mevis.fraunhofer.de/), developed at Fraunhofer MEVIS.
 
 The raw sequence descriptions (`*_raw.json`) are included in this repository. However, the corresponding gammaSTAR `sequenceData` JSON files are excluded due to their large file sizes.
 
@@ -188,7 +188,7 @@ The exported files should be placed in:
 
 ## Troubleshooting
 
-- **Stale native API:** restart Python after installation. Run the doctor and inspect its printed native-engine path. Install from the MRtini root, rather than building an old standalone extension elsewhere.
+- **Stale native API:** restart Python after installation. Run the doctor and inspect its printed native-engine path. Install from the MRTini root, rather than building an old standalone extension elsewhere.
 - **No matching mrstar wheel:** use Python 3.10 and the correct OS/architecture wheel. `--skip-mrstar` is intended for core-engine work, not sequence import.
 - **CUDA unavailable:** check `torch.version.cuda`, `torch.cuda.is_available()` and host/Docker GPU access. CPU setup is available independently.
 - **Missing/mismatched Triton:** rerun the CUDA setup in the same Python environment. For the release torch 2.8 baseline, Linux needs Triton 3.4.x and Windows needs `triton-windows` 3.4.x. Then run the real GPU kernel check.

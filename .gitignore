@@ -24,4 +24,4 @@ src/sequence/gstar_seqs/*sequenceData*.json
 figures
 data/*
 !/data/MRTini_logo.png
-/data/subject04_3T-highres-fat_custom_dense.npz
+

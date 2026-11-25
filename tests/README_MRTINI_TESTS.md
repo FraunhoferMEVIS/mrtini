@@ -1,4 +1,4 @@
-# MRtini tests with independent numerical references
+# MRTini tests with independent numerical references
 
 Replace the previous `tests/` directory with this directory. No production source
 changes are included. Your uploaded API changes are retained: `execute_graph.py`,
@@ -17,7 +17,7 @@ Reports are written under `tests/reports/mrtini/`.
 
 ## Independent checks
 
-`mrtini_pytest/reference_math.py` imports NumPy and SciPy, never MRtini. It defines:
+`mrtini_pytest/reference_math.py` imports NumPy and SciPy, never MRTini. It defines:
 
 - Explicit Cartesian-to-normalized-complex basis transforms.
 - Direct Fourier analysis/synthesis with physical sample coordinates.
@@ -26,7 +26,7 @@ Reports are written under `tests/reports/mrtini/`.
 - An adaptive DOP853 Bloch ODE reference for finite shaped RF and gradients.
 
 Actual production outputs are compared with these references. Tests never call
-MRtini's diagnostic, `gold`, legacy-basis, phase-fit, or quantization-check helpers.
+MRTini's diagnostic, `gold`, legacy-basis, phase-fit, or quantization-check helpers.
 The functions under test remain real production implementations.
 
 The references have 12 self-tests, including deliberately wrong Fourier signs,
@@ -61,7 +61,7 @@ periodic sample grid. They do not prove convergence to a continuous slice model.
 See `AUDIT.md` for the detailed audit. In particular:
 
 - Removed diagnostic-print tests and legacy "gold" helper tests.
-- Replaced MRtini-generated expected bank/tap values with independent transforms.
+- Replaced MRTini-generated expected bank/tap values with independent transforms.
 - Added complex Fourier phase, reconstruction, Parseval, odd/even, and nonzero
   coordinate-origin checks; odd-grid projection is no longer avoided.
 - Replaced the malformed old demodulation test with a noncommuting frame-change

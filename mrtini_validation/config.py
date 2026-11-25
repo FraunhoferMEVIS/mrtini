@@ -16,7 +16,7 @@ PHANTOM = {
     "slice_thickness_m": 0.005,
 }
 
-# Supply GammaSTAR JSON files. Each refocusing RF is a separate MRtini rep.
+# Supply GammaSTAR JSON files. Each refocusing RF is a separate MRTini rep.
 # Keep phantom, echo timing, ADC and flip schedule matched across paired designs.
 SEQUENCES = [
     {"name": "rare_tbw52", "path": str(SEQ_PATH / "RARE_sequence_raw.json"), "tbw": 5.2},
@@ -43,11 +43,11 @@ STATE_CAPS = (50, 100, 150, 200, 300, 400, 600, 800)
 MIN_STATE_MAG_SWEEP = (1e-4, 5e-4, 1e-5, 5e-6, 1e-6)  # enough for now
 RF_GRID_SWEEP = ()
 # MIN_STATE_MAG_SWEEP = (1e-4,)
-DEVICE = "cuda"  # "cpu" if your MRtini checkout supports its Rust/PyTorch path
+DEVICE = "cuda"  # "cpu" if your MRTini checkout supports its Rust/PyTorch path
 
 # Set True only after removing the fat_mask zeroing line in execute_graph_analyze.py.
 FAT_REPLAY_FIXED = True
-HARD_RF_CONTROL = True  # Same MRtini graph, but Gz=0 during each RF solve.
+HARD_RF_CONTROL = True  # Same MRTini graph, but Gz=0 during each RF solve.
 MIN_STATE_MAG = 1e-4
 RF_GRID_OVERSAMPLING = 1
 MAX_STATES = 400

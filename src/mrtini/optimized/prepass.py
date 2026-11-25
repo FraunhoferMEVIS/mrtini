@@ -51,7 +51,7 @@ def compute_graph_fast(seq, data, art, *, max_state_count=200, min_state_mag=1e-
     """
     import mrtini_prepass_rs as native
     if not hasattr(native, 'compute_graph_packed'):
-        raise RuntimeError('Loaded a stale native engine. Reinstall MRtini from the repository root; no separate patch or fast package is required.')
+        raise RuntimeError('Loaded a stale native engine. Reinstall MRTini from the repository root; no separate patch or fast package is required.')
     rep_keys, keys, pulse_id = build_inputs(seq, art)
     ids = getattr(data, 'species_id', torch.zeros_like(data.PD, dtype=torch.long)).detach().cpu().reshape(-1)
     pd = data.PD.detach().cpu().reshape(-1)

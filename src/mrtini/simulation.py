@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-"""Public graph API for the integrated MRtini engine."""
+"""Public graph API for the integrated MRTini engine."""
 from .optimized import (
     compute_graph_fast,execute_graph_fast,PackedGraph,FastRFContext,benchmark_case,
 )

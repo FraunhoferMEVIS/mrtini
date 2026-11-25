@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Generate separate water/fat NPZ maps from the BrainWeb fuzzy tissue data.
 
-Numerical conventions follow the MRtini generator supplied by the user.
+Numerical conventions follow the MRTini generator supplied by the user.
 Historical tissue constants: MRzero-Core, commit d7362c876bb39d7221354a2388d0e6df3c3ff959.
 BrainWeb source: https://brainweb.bic.mni.mcgill.ca/brainweb/
 """

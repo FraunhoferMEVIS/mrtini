@@ -1,5 +1,5 @@
 
-"""Run both MRtini and release tests with combined coverage."""
+"""Run both MRTini and release tests with combined coverage."""
 
 import argparse
 import os
@@ -34,7 +34,7 @@ def main():
     missing = [p for p in required if not (root / p).is_file()]
     if missing:
         parser.error(
-            "Extract at MRtini repository root; missing: " + ", ".join(missing)
+            "Extract at MRTini repository root; missing: " + ", ".join(missing)
         )
 
     common = [
@@ -43,7 +43,7 @@ def main():
         "--cov-branch",
     ]
 
-    # 1. MRtini tests: start a fresh coverage measurement
+    # 1. MRTini tests: start a fresh coverage measurement
     mrtini_cmd = [
         sys.executable, "-m", "pytest",
         "-c", "tests/pytest.mrtini.ini",
@@ -54,7 +54,7 @@ def main():
         "--junitxml=tests/reports/mrtini/junit-mrtini.xml",
     ]
 
-    # 2. Release tests: append to coverage from MRtini tests
+    # 2. Release tests: append to coverage from MRTini tests
     release_cmd = [
         sys.executable, "-m", "pytest",
         "-c", "tests/pytest.release.ini",
@@ -87,7 +87,7 @@ def main():
     print("\n" + "=" * 70)
     print("TEST SUMMARY")
     print("=" * 70)
-    print(f"MRtini tests : {'PASS' if result_mrtini == 0 else 'FAIL'}")
+    print(f"MRTini tests : {'PASS' if result_mrtini == 0 else 'FAIL'}")
     print(f"Release tests: {'PASS' if result_release == 0 else 'FAIL'}")
     print("Coverage     : Combined report from both suites")
     print("=" * 70)

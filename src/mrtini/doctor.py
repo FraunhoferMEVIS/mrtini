@@ -26,7 +26,7 @@ def kernel_smoke(device="cuda"):
     parent=torch.complex(a,a*.2+.1);phase=torch.linspace(-.4,.5,V,device=device)
     reference=apply_rf(plan,bank,parent,phase,'reference')
     backend='triton' if device=='cuda' else 'native'
-    print(f"[MRtini doctor] Checking {backend} RF kernel"+(' (first call includes JIT compilation)...' if device=='cuda' else '...'),flush=True)
+    print(f"[MRTini doctor] Checking {backend} RF kernel"+(' (first call includes JIT compilation)...' if device=='cuda' else '...'),flush=True)
     out=apply_rf(plan,bank,parent,phase,backend)
     if device=='cuda':torch.cuda.synchronize()
     torch.testing.assert_close(out,reference,atol=3e-5,rtol=3e-5)
@@ -37,16 +37,16 @@ def check(*,require_cuda=False,kernel=False,mrstar=False,reconstruction=False):
     import torch
     import mrtini_prepass_rs as native
     missing=[n for n in ('compute_graph_multi','compute_graph_packed','apply_rf_cpu') if not hasattr(native,n)]
-    if missing:raise RuntimeError(f"Loaded a stale native engine at {native.__file__}; missing {missing}. Reinstall MRtini from the repository root.")
+    if missing:raise RuntimeError(f"Loaded a stale native engine at {native.__file__}; missing {missing}. Reinstall MRTini from the repository root.")
     from .optimized import compute_graph_fast,execute_graph_fast
     info={"python":sys.version.split()[0],"platform":platform.platform(),"torch":torch.__version__,
           "torch_cuda":torch.version.cuda,"native_engine":getattr(native,'__native_file__',native.__file__),"cuda_available":torch.cuda.is_available()}
-    try:info['mrtini_distribution']=importlib.metadata.version('MRtini')
-    except importlib.metadata.PackageNotFoundError:raise RuntimeError("MRtini is not installed as a distribution. Run scripts/setup_mrtini.py.")
+    try:info['mrtini_distribution']=importlib.metadata.version('MRTini')
+    except importlib.metadata.PackageNotFoundError:raise RuntimeError("MRTini is not installed as a distribution. Run scripts/setup_mrtini.py.")
     if require_cuda:
         if not torch.cuda.is_available():raise RuntimeError("CUDA is unavailable to torch. Check the selected torch build, NVIDIA driver and Docker GPU access, or use --device cpu.")
         try:triton=importlib.import_module('triton')
-        except ImportError as e:raise RuntimeError("The fused CUDA backend is unavailable. Install the MRtini [cuda] extra in the release torch 2.8 environment (Windows installs triton-windows).") from e
+        except ImportError as e:raise RuntimeError("The fused CUDA backend is unavailable. Install the MRTini [cuda] extra in the release torch 2.8 environment (Windows installs triton-windows).") from e
         expected=expected_triton(torch.__version__)
         if not str(triton.__version__).startswith(expected+'.'):raise RuntimeError(f"torch {torch.__version__} expects Triton {expected}.x; found {triton.__version__}")
         from .optimized.triton_rf import rf_triton
@@ -64,7 +64,7 @@ def main(argv=None):
     for flag in ('require-cuda','kernel','mrstar','reconstruction'):p.add_argument('--'+flag,action='store_true')
     args=p.parse_args(argv)
     try:info=check(require_cuda=args.require_cuda,kernel=args.kernel,mrstar=args.mrstar,reconstruction=args.reconstruction)
-    except (RuntimeError,ImportError,AssertionError) as e:print(f"[MRtini doctor] FAILED: {e}",file=sys.stderr,flush=True);return 1
-    print(json.dumps(info,indent=2),flush=True);print('[MRtini doctor] OK',flush=True);return 0
+    except (RuntimeError,ImportError,AssertionError) as e:print(f"[MRTini doctor] FAILED: {e}",file=sys.stderr,flush=True);return 1
+    print(json.dumps(info,indent=2),flush=True);print('[MRTini doctor] OK',flush=True);return 0
 
 if __name__=='__main__':raise SystemExit(main())

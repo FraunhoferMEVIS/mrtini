@@ -1,4 +1,4 @@
-"""Launch from the MRtini repository root: python workbench.py"""
+"""Launch from the MRTini repository root: python workbench.py"""
 import runpy, sys
 from pathlib import Path
 root=Path(__file__).resolve().parent

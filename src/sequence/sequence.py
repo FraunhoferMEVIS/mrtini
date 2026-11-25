@@ -325,7 +325,7 @@ class Sequence(list):
         
     def _copy_with_repetitions(self, repetitions):
         result = Sequence(repetitions, normalized_grads=self.normalized_grads)
-        # Preserve imported and dynamically attached MRtini metadata, not just
+        # Preserve imported and dynamically attached MRTini metadata, not just
         # the constructor's three hybrid fields.
         for name, value in self.__dict__.items():
             setattr(result, name, _copy_sequence_metadata(value))

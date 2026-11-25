@@ -242,7 +242,7 @@ def apply_rf(plan,bank,parent,phase,backend='auto'):
             from .triton_rf import rf_triton
         except (ImportError,ModuleNotFoundError) as e:
             raise RuntimeError(
-                'Fused CUDA RF backend unavailable. Install MRtini[cuda] in the '
+                'Fused CUDA RF backend unavailable. Install MRTini[cuda] in the '
                 'release torch 2.8 environment (triton-windows on Windows), or '
                 'explicitly choose rf_backend="grouped" for the slower torch path. '
                 'Automatic execution will not silently fall back on this graph.'

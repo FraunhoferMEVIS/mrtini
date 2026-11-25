@@ -56,7 +56,7 @@ def modules():
     def load(short, rel, name):
         path = ROOT / rel
         if not path.is_file():
-            pytest.fail(f"Required MRtini source missing: {path}. Extract this package at the repository root.")
+            pytest.fail(f"Required MRTini source missing: {path}. Extract this package at the repository root.")
         spec = importlib.util.spec_from_file_location(name, path)
         m = importlib.util.module_from_spec(spec)
         mp.setitem(sys.modules, name, m)

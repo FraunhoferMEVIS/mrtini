@@ -3,7 +3,7 @@ requires = ["maturin>=1.7,<2"]
 build-backend = "maturin"
 
 [project]
-name = "MRtini"
+name = "MRTini"
 version = "0.1.0"
 description = "Slice-profile-enabled phase-distribution-graph MRI simulation"
 readme = "README.md"

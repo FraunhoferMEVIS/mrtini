@@ -15,7 +15,7 @@ def tiny_case(modules,delta=0,emitted=1.,multi_slice=False):
     rep=s.new_rep(2);rep.event_time[:]=torch.tensor([.01,.02]);rep.adc_usage[:]=1
     parent=NS(mag=None,kt_vec=None,dist_type='z0')
     state=NS(mag=None,kt_vec=None,dist_type='+',latent_signal=1.,emitted_signal=emitted,ancestors=[('z+',parent,0,0)])
-    # Physical ideal +90-degree y rotation, generated outside MRtini.
+    # Physical ideal +90-degree y rotation, generated outside MRTini.
     c=channel_six(Rotation.from_rotvec([0.,math.pi/2,0.]).as_matrix())
     vox=modules.rf.Coeff6(**{k:torch.as_tensor(v,dtype=torch.complex64).reshape(1,1) for k,v in c.items()})
     water=NS(vox6=vox,supp_map={0:0},nominal_taps=NS(dk=100.,deltas=torch.tensor([delta])))

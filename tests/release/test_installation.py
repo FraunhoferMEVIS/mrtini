@@ -11,7 +11,7 @@ def test_installed_engine_and_historical_import():
     from src.mrtini.simulation import compute_graph,execute_graph
     assert compute_graph is compute_graph_fast and execute_graph is execute_graph_fast
     assert all(callable(getattr(native,n)) for n in ('compute_graph_multi','compute_graph_packed','apply_rf_cpu'))
-    assert importlib.metadata.version('MRtini')
+    assert importlib.metadata.version('MRTini')
 
 def test_cpu_installation_check_really_executes_kernel():
     result=check(kernel=True)
@@ -31,4 +31,4 @@ def test_installed_wheel_works_outside_the_checkout(tmp_path):
     env=os.environ.copy();env.pop('PYTHONPATH',None)
     p=subprocess.run([sys.executable,'-m','src.mrtini.doctor','--kernel'],cwd=tmp_path,env=env,text=True,capture_output=True)
     assert p.returncode==0,p.stdout+p.stderr
-    assert '[MRtini doctor] OK' in p.stdout
+    assert '[MRTini doctor] OK' in p.stdout

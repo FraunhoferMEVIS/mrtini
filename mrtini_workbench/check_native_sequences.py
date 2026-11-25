@@ -1,4 +1,4 @@
-"""Run from the MRtini root to check the installed Sequence API before GPU work.
+"""Run from the MRTini root to check the installed Sequence API before GPU work.
 No CUDA needed for these construction and trajectory checks.
 """
 from pathlib import Path

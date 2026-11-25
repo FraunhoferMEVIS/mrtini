@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-or-later
-"""One user-facing setup command; the main MRtini install builds Rust once."""
+"""One user-facing setup command; the main MRTini install builds Rust once."""
 from __future__ import annotations
 import argparse, importlib.metadata, os, platform, subprocess, sys
 from pathlib import Path
@@ -11,7 +11,7 @@ TORCH_INDEX = {"cpu":"https://download.pytorch.org/whl/cpu",
                "cuda":"https://download.pytorch.org/whl/cu129"}
 
 def run(args, *, cwd=ROOT, dry_run=False):
-    print("[MRtini] " + subprocess.list2cmdline(list(map(str,args))),flush=True)
+    print("[MRTini] " + subprocess.list2cmdline(list(map(str,args))),flush=True)
     if not dry_run:subprocess.run(list(map(str,args)),cwd=cwd,check=True)
 
 def supported_platform(device, system=None, machine=None):
@@ -51,9 +51,9 @@ def parser():
 def main(argv=None):
     args=parser().parse_args(argv);supported_platform(args.device)
     if not (3,10)<=sys.version_info[:2]<(3,13):raise RuntimeError("Use Python 3.10–3.12; packaged mrstar wheels in the release target 3.10.")
-    if not (ROOT/"src/rust_prepass/Cargo.toml").is_file():raise RuntimeError("Run this script from a complete MRtini checkout, after the maintainer has integrated the native sources.")
+    if not (ROOT/"src/rust_prepass/Cargo.toml").is_file():raise RuntimeError("Run this script from a complete MRTini checkout, after the maintainer has integrated the native sources.")
     if not (ROOT/"requirements-application.txt").is_file():raise RuntimeError("Missing requirements-application.txt. The maintainer must first integrate and commit the release files.")
-    print(f"[MRtini] Interpreter: {sys.executable}\n[MRtini] Device: {args.device}",flush=True)
+    print(f"[MRTini] Interpreter: {sys.executable}\n[MRTini] Device: {args.device}",flush=True)
     pip=[sys.executable,"-m","pip"]
     if args.skip_torch and not args.dry_run:
         import torch
@@ -69,7 +69,7 @@ def main(argv=None):
         run(pip+["uninstall","-y",distribution],dry_run=args.dry_run)
     run(pip+["install","-r",str(ROOT/"requirements.txt"),"-e",project_requirement(ROOT,args.dev,args.device=="cuda")],dry_run=args.dry_run)
     if not args.skip_mrstar:
-        if args.dry_run:print("[MRtini] Select/install the compatible mrstar wheel from wheels/",flush=True)
+        if args.dry_run:print("[MRTini] Select/install the compatible mrstar wheel from wheels/",flush=True)
         else:run(pip+["install",str(compatible_mrstar(ROOT/"wheels"))])
     if args.recon_tools:
         source=ROOT/"external/gammaSTAR/sequenceServer/gammastar_recon"
@@ -82,8 +82,8 @@ def main(argv=None):
     if not args.skip_mrstar:doctor.append("--mrstar")
     if args.recon_tools:doctor.append("--reconstruction")
     run(doctor,dry_run=args.dry_run)
-    print("[MRtini] Setup complete." if not args.dry_run else "[MRtini] Dry run complete; no installation performed.",flush=True)
+    print("[MRTini] Setup complete." if not args.dry_run else "[MRTini] Dry run complete; no installation performed.",flush=True)
 
 if __name__=="__main__":
     try:main()
-    except (RuntimeError,subprocess.CalledProcessError) as e:raise SystemExit(f"[MRtini] Setup failed: {e}") from e
+    except (RuntimeError,subprocess.CalledProcessError) as e:raise SystemExit(f"[MRTini] Setup failed: {e}") from e

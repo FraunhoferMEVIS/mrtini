@@ -1,5 +1,5 @@
 # This file matches the torch 2.8 CUDA baseline. Install torch from the selected
-# official index first. The MRtini [cuda] extra declares the same constraints.
+# official index first. The MRTini [cuda] extra declares the same constraints.
 torch==2.8.0
 triton>=3.4,<3.5; sys_platform == "linux" and platform_machine == "x86_64"
 triton-windows>=3.4,<3.5; sys_platform == "win32" and platform_machine == "AMD64"

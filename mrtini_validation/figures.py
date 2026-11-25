@@ -1,4 +1,4 @@
-"""Figures from actual MRtini and isochromat outputs; no simulated plot data."""
+"""Figures from actual MRTini and isochromat outputs; no simulated plot data."""
 from __future__ import annotations
 import matplotlib.pyplot as plt
 import numpy as np

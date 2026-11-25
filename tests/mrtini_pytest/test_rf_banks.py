@@ -37,7 +37,7 @@ def test_map_clamp_finiteness_and_pd_mass(rf):
 def test_quaternion_rch6_against_independent_basis_transform(rf,angles):
     rotation=Rotation.from_rotvec(angles)
     R=rotation.as_matrix()[None]
-    # SciPy quaternion order is x,y,z,w; MRtini input contract is w,x,y,z.
+    # SciPy quaternion order is x,y,z,w; MRTini input contract is w,x,y,z.
     xyzw=rotation.as_quat();qref=np.concatenate([xyzw[3:],xyzw[:3]])[None]
     q=rf.R_to_q(torch.tensor(R,dtype=rf.DTYPE)).detach().cpu().numpy()
     # q and -q describe the same rotation. Compare projectors, not arbitrary signs.

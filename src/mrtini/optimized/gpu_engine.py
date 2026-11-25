@@ -141,7 +141,7 @@ class PreparedGPUExecution:
         if print_progress:
             progress_start=last_update=time.perf_counter()
             total=len(self.steps)
-            print(f"[MRtini] Calculating repetition 0 / {total} (first run may compile kernels)...", flush=True)
+            print(f"[MRTini] Calculating repetition 0 / {total} (first run may compile kernels)...", flush=True)
         self.parent[:1].fill_(1);self.output.zero_();n=1
         for i,s in enumerate(self.steps,1):
             m=s.plan.children;X=self.rf_out[:m];P=self.parent[:m];Q=self.q[:s.rows.numel()];A=s.adc.shape[0]
@@ -178,7 +178,7 @@ class PreparedGPUExecution:
                 # completed GPU work, not merely queued launches.
                 if self.device.type=='cuda':torch.cuda.current_stream(self.device).synchronize()
                 last_update=time.perf_counter();elapsed=last_update-progress_start
-                print(f"[MRtini] Calculating repetition {i} / {total} ({100*i/total:.1f}%) | {elapsed:.3f}s elapsed", flush=True)
+                print(f"[MRTini] Calculating repetition {i} / {total} ({100*i/total:.1f}%) | {elapsed:.3f}s elapsed", flush=True)
         self.last_n=n
 
     @torch.no_grad()
@@ -202,9 +202,9 @@ class PreparedGPUExecution:
         """Return independent signal snapshot; publish final magnetization by default."""
         if cuda_graph:
             if print_progress and self.capture_graph is None:
-                print("[MRtini] Warming up and capturing CUDA Graph (first run may compile kernels)...", flush=True)
+                print("[MRTini] Warming up and capturing CUDA Graph (first run may compile kernels)...", flush=True)
             self.capture()
-            if print_progress:print(f"[MRtini] Replaying CUDA Graph ({len(self.steps)} repetitions)...", flush=True)
+            if print_progress:print(f"[MRTini] Replaying CUDA Graph ({len(self.steps)} repetitions)...", flush=True)
         start=time.perf_counter()
         if self.device.type=='cuda' and performance is not None:
             a,b=torch.cuda.Event(enable_timing=True),torch.cuda.Event(enable_timing=True);a.record(torch.cuda.current_stream(self.device))
@@ -227,7 +227,7 @@ class PreparedGPUExecution:
             performance['execution_wall_seconds']=time.perf_counter()-start
         if print_progress:
             if self.device.type=='cuda':torch.cuda.current_stream(self.device).synchronize()
-            print(f"[MRtini] Done: {len(self.steps)} / {len(self.steps)} repetitions | execution {time.perf_counter()-start:.3f}s", flush=True)
+            print(f"[MRTini] Done: {len(self.steps)} / {len(self.steps)} repetitions | execution {time.perf_counter()-start:.3f}s", flush=True)
         return out
 
 def prepare_gpu_execution(graph,seq,data,rep_keys,art,**kwargs):

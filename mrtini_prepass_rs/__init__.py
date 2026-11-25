@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
-"""Native MRtini engine, distributed in the main MRtini wheel.
+"""Native MRTini engine, distributed in the main MRTini wheel.
 
 Retains the historical import for existing prepass callers.
 """

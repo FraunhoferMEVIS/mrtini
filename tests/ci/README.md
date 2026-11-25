@@ -1,4 +1,4 @@
-# MRtini GitLab unit-test pipeline
+# MRTini GitLab unit-test pipeline
 
 Extract this package into the repository root, alongside src/ and your existing
 tests/. It adds only .gitlab-ci.yml at the root; all CI support lives in tests/ci/.

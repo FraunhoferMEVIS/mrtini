@@ -1,5 +1,5 @@
 {
-  "name": "MRtini (CPU, integrated engine)",
+  "name": "MRTini (CPU, integrated engine)",
   "dockerComposeFile": "../docker-compose.cpu.yml",
   "service": "mrtini-dev",
   "workspaceFolder": "/workspaces/mrtini",

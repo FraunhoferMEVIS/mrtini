@@ -16,22 +16,22 @@ v.RF_GRID_SWEEP = ()
 v.MIN_STATE_MAG_SWEEP = (v.MIN_STATE_MAG,)
 v.CACHE_TAG = "smoke_v1"
 # Keep HARD_RF_CONTROL enabled if you also want to exercise that branch.
+if __name__ == "__main__":
+    v.run_all()
 
-v.run_all()
+    folders = list((Path(v.HERE) / v.OUTPUT / "raw").rglob("plot_inputs.json"))
+    assert folders, "Missing plot inputs"
+    for index in folders:
+        folder = index.parent
+        ref = load_result(folder / "reference.npz")["signal"]
+        assert np.isfinite(ref).all(), "Nonfinite ISO signal"
+        runs = list(folder.glob("mrtini_*.npz"))
+        assert runs, "Missing saved MRTini runs"
+        for file in runs:
+            result = load_result(file)
+            assert result["signal"].shape == ref.shape, file
+            assert np.iscomplexobj(result["signal"]), file
+            assert np.isfinite(result["signal"]).all(), file
+        load_result(folder / "acquisition.npz")
 
-folders = list((Path(v.HERE) / v.OUTPUT / "raw").rglob("plot_inputs.json"))
-assert folders, "Missing plot inputs"
-for index in folders:
-    folder = index.parent
-    ref = load_result(folder / "reference.npz")["signal"]
-    assert np.isfinite(ref).all(), "Nonfinite ISO signal"
-    runs = list(folder.glob("mrtini_*.npz"))
-    assert runs, "Missing saved MRTini runs"
-    for file in runs:
-        result = load_result(file)
-        assert result["signal"].shape == ref.shape, file
-        assert np.iscomplexobj(result["signal"]), file
-        assert np.isfinite(result["signal"]).all(), file
-    load_result(folder / "acquisition.npz")
-
-print("SMOKE PASSED: simulation, figures and saved arrays completed.")
+    print("SMOKE PASSED: simulation, figures and saved arrays completed.")

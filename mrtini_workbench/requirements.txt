@@ -3,3 +3,5 @@ uvicorn>=0.23
 numpy
 scipy
 Pillow
+pydicom>=3.0
+# For non-Cartesian reconstruction, install torchkbnufft into your existing PyTorch environment.

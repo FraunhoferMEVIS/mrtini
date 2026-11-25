@@ -1,4 +1,5 @@
-name: MRtini installation and numerical checks
+name: MRTini installation and numerical checks
+
 on:
   push:
   pull_request:
@@ -10,35 +11,54 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
+
     runs-on: ${{ matrix.os }}
+
     env:
       MPLBACKEND: Agg
       RAYON_NUM_THREADS: "4"
       MRTINI_TEST_INSTALLED_WHEEL: "1"
+      PYTHONUNBUFFERED: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
+
       - name: Rust toolchain
         run: rustup toolchain install stable --profile minimal
+
       - name: CPU torch and test tools
         run: |
           python -m pip install --upgrade pip
           python -m pip install "torch==2.8.0+cpu" --index-url https://download.pytorch.org/whl/cpu
-          python -m pip install pytest PyYAML packaging
+          python -m pip install pytest pytest-cov PyYAML packaging
+
       - name: Build one integrated wheel
         run: python -m pip wheel . --no-deps --wheel-dir dist
+
       - name: Install wheel and compatible sequence interpreter
         run: |
           python -c "import glob,subprocess,sys; w=glob.glob('dist/mrtini-*.whl'); assert len(w)==1,w; subprocess.check_call([sys.executable,'-m','pip','install',w[0]+'[dev]'])"
           python -c "import runpy,subprocess,sys; s=runpy.run_path('scripts/setup_mrtini.py'); w=s['compatible_mrstar']('wheels'); subprocess.check_call([sys.executable,'-m','pip','install',str(w)])"
-      - name: Installed native engine and numerical regression
-        run: python -m pytest -c tests/pytest.release.ini -m "not cuda" --junitxml=release-tests.xml
+
+      - name: Verify native Rust engine
+        run: python -c "import mrtini_prepass_rs; print(mrtini_prepass_rs.__file__)"
+
       - name: Dependency consistency
         run: python -m pip check
+
+      - name: MRTini unit and numerical regression tests
+        run: python tests/run_mrtini_tests.py --fail-under 0 --color=no
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: release-checks-${{ matrix.os }}
-          path: release-tests.xml
+          path: tests/reports/mrtini/
+          retention-days: 30

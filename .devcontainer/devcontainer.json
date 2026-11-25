@@ -1,5 +1,5 @@
 {
-  "name": "MRtini (CUDA, integrated engine)",
+  "name": "MRTini (CUDA, integrated engine)",
   "dockerComposeFile": "docker-compose.yml",
   "service": "mrtini-dev",
   "workspaceFolder": "/workspaces/mrtini",
